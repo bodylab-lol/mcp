@@ -73,8 +73,7 @@
               "unavailable",
               "flags",
               "rationale"
-            ],
-            "additionalProperties": false
+            ]
           },
           "tomorrow": {
             "type": "object",
@@ -117,8 +116,7 @@
               "unavailable",
               "flags",
               "rationale"
-            ],
-            "additionalProperties": false
+            ]
           },
           "completed": {
             "type": "object",
@@ -171,8 +169,7 @@
                     "load",
                     "activityType",
                     "startTime"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               },
               "strengthSessions": {
@@ -245,16 +242,14 @@
                     "sessionRpe",
                     "load",
                     "setCount"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             },
             "required": [
               "activities",
               "strengthSessions"
-            ],
-            "additionalProperties": false
+            ]
           },
           "excludedActivities": {
             "description": "Activities in the window with no evidence to score them; non-zero means the metrics understate training.",
@@ -325,8 +320,7 @@
               "contributors",
               "hrvZ",
               "restingHrDelta"
-            ],
-            "additionalProperties": false
+            ]
           },
           "planned": {
             "description": "Sessions the athlete has committed to for today.",
@@ -355,8 +349,7 @@
                 "id",
                 "modality",
                 "workoutType"
-              ],
-              "additionalProperties": false
+              ]
             }
           }
         },
@@ -372,7 +365,6 @@
           "readiness",
           "planned"
         ],
-        "additionalProperties": false,
         "$defs": {
           "__schema0": {
             "description": "Today's main session is done; this is an optional extra.",
@@ -486,8 +478,7 @@
                         "repeat",
                         "work",
                         "recovery"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "workoutType": {
@@ -509,8 +500,7 @@
                           "id",
                           "name",
                           "stimulus"
-                        ],
-                        "additionalProperties": false
+                        ]
                       },
                       {
                         "type": "null"
@@ -534,8 +524,7 @@
                   "blocks",
                   "workoutType",
                   "note"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "object",
@@ -634,8 +623,7 @@
                                 "previous",
                                 "daysAgo",
                                 "reason"
-                              ],
-                              "additionalProperties": false
+                              ]
                             },
                             {
                               "type": "null"
@@ -686,8 +674,7 @@
                         "progression",
                         "perSide",
                         "implementCount"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "note": {
@@ -700,8 +687,7 @@
                   "durationMin",
                   "exercises",
                   "note"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "object",
@@ -717,8 +703,7 @@
                 "required": [
                   "kind",
                   "note"
-                ],
-                "additionalProperties": false
+                ]
               }
             ]
           },
@@ -784,8 +769,7 @@
               "hrHigh",
               "powerLow",
               "powerHigh"
-            ],
-            "additionalProperties": false
+            ]
           },
           "__schema6": {
             "description": "Opaque identifier.",
@@ -820,8 +804,7 @@
               "required": [
                 "modality",
                 "reason"
-              ],
-              "additionalProperties": false
+              ]
             }
           },
           "__schema10": {
@@ -909,8 +892,7 @@
               "form",
               "acwr",
               "rampRate"
-            ],
-            "additionalProperties": false
+            ]
           },
           "strain": {
             "type": "object",
@@ -951,8 +933,7 @@
               "weeklyLoad",
               "monotonyHigh",
               "strainHigh"
-            ],
-            "additionalProperties": false
+            ]
           },
           "polarization": {
             "type": "object",
@@ -980,8 +961,7 @@
               "hardFraction",
               "totalSeconds",
               "sufficient"
-            ],
-            "additionalProperties": false
+            ]
           },
           "debt": {
             "type": "object",
@@ -1041,8 +1021,7 @@
               "daysSinceHardSession",
               "supportedLoadFraction",
               "windowDays"
-            ],
-            "additionalProperties": false
+            ]
           },
           "readiness": {
             "type": "object",
@@ -1099,8 +1078,7 @@
               "contributors",
               "hrvZ",
               "restingHrDelta"
-            ],
-            "additionalProperties": false
+            ]
           },
           "block": {
             "type": "object",
@@ -1147,16 +1125,14 @@
                   "daysTrained",
                   "daysRemaining",
                   "typicalSessionsPerWeek"
-                ],
-                "additionalProperties": false
+                ]
               }
             },
             "required": [
               "consecutiveTrainingDays",
               "consecutiveLoadingWeeks",
               "week"
-            ],
-            "additionalProperties": false
+            ]
           },
           "seriesDays": {
             "type": "integer"
@@ -1218,8 +1194,7 @@
                 "ctl",
                 "atl",
                 "acwr"
-              ],
-              "additionalProperties": false
+              ]
             }
           }
         },
@@ -1235,7 +1210,6 @@
           "units",
           "weeks"
         ],
-        "additionalProperties": false,
         "$defs": {
           "__schema0": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
@@ -1378,8 +1352,7 @@
                 "loadSource",
                 "hasTrack",
                 "hasStrengthLog"
-              ],
-              "additionalProperties": false
+              ]
             }
           },
           "page": {
@@ -1394,8 +1367,7 @@
           "items",
           "page",
           "hasMore"
-        ],
-        "additionalProperties": false
+        ]
       }
     },
     {
@@ -1574,8 +1546,7 @@
                   "filename",
                   "format",
                   "sizeBytes"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "null"
@@ -1615,8 +1586,7 @@
                   "load",
                   "source",
                   "zoneSeconds"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "null"
@@ -1638,8 +1608,7 @@
               "required": [
                 "durationS",
                 "watts"
-              ],
-              "additionalProperties": false
+              ]
             }
           },
           "hasRoute": {
@@ -1772,8 +1741,7 @@
                         "direction",
                         "repsCompleted",
                         "repDurations"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "plan": {
@@ -1808,8 +1776,7 @@
                             "powerHigh": {
                               "$ref": "#/$defs/__schema7"
                             }
-                          },
-                          "additionalProperties": false
+                          }
                         },
                         "recovery": {
                           "anyOf": [
@@ -1834,8 +1801,7 @@
                                 "powerHigh": {
                                   "$ref": "#/$defs/__schema7"
                                 }
-                              },
-                              "additionalProperties": false
+                              }
                             },
                             {
                               "type": "null"
@@ -1848,8 +1814,7 @@
                         "repeat",
                         "work",
                         "recovery"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   }
                 },
@@ -1866,8 +1831,7 @@
                   "totalSeconds",
                   "blocks",
                   "plan"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "null"
@@ -2008,8 +1972,7 @@
                         "weightKg",
                         "rir",
                         "isWarmup"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   }
                 },
@@ -2022,8 +1985,7 @@
                   "notes",
                   "load",
                   "sets"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "null"
@@ -2064,7 +2026,6 @@
           "strengthSession",
           "units"
         ],
-        "additionalProperties": false,
         "$defs": {
           "__schema0": {
             "description": "Opaque identifier.",
@@ -2224,8 +2185,7 @@
                 "sleepScore",
                 "energy",
                 "source"
-              ],
-              "additionalProperties": false
+              ]
             }
           }
         },
@@ -2233,7 +2193,6 @@
           "today",
           "entries"
         ],
-        "additionalProperties": false,
         "$defs": {
           "__schema0": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
@@ -2363,8 +2322,7 @@
                                 "previous",
                                 "daysAgo",
                                 "reason"
-                              ],
-                              "additionalProperties": false
+                              ]
                             },
                             {
                               "type": "null"
@@ -2415,8 +2373,7 @@
                         "progression",
                         "perSide",
                         "implementCount"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "note": {
@@ -2429,8 +2386,7 @@
                   "durationMin",
                   "exercises",
                   "note"
-                ],
-                "additionalProperties": false
+                ]
               },
               "oneRepMaxes": {
                 "description": "Estimated one-rep max in kg, by exercise id.",
@@ -2459,8 +2415,7 @@
               "oneRepMaxes",
               "deload",
               "units"
-            ],
-            "additionalProperties": false
+            ]
           },
           "recent": {
             "type": "array",
@@ -2565,8 +2520,7 @@
                       "weightKg",
                       "rir",
                       "isWarmup"
-                    ],
-                    "additionalProperties": false
+                    ]
                   }
                 }
               },
@@ -2578,8 +2532,7 @@
                 "load",
                 "notes",
                 "sets"
-              ],
-              "additionalProperties": false
+              ]
             }
           }
         },
@@ -2587,7 +2540,6 @@
           "template",
           "recent"
         ],
-        "additionalProperties": false,
         "$defs": {
           "__schema0": {
             "description": "Opaque identifier.",
@@ -2774,8 +2726,7 @@
               "ftpUpdatedAt",
               "sports",
               "onboardedAt"
-            ],
-            "additionalProperties": false
+            ]
           },
           "testResults": {
             "type": "array",
@@ -2843,8 +2794,7 @@
                 "ftpW",
                 "lthr",
                 "thresholdSpeedMs"
-              ],
-              "additionalProperties": false
+              ]
             }
           },
           "powerCurve": {
@@ -2900,8 +2850,7 @@
               "weightKg",
               "ftpW",
               "impliedFtpW"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "required": [
@@ -2909,7 +2858,6 @@
           "testResults",
           "powerCurve"
         ],
-        "additionalProperties": false,
         "$defs": {
           "__schema0": {
             "anyOf": [
@@ -2959,8 +2907,7 @@
               "heldForS",
               "achievedOn",
               "daysAgo"
-            ],
-            "additionalProperties": false
+            ]
           }
         }
       }
@@ -3058,15 +3005,13 @@
                 "allowsAssistance",
                 "defaultUnit",
                 "howToUrl"
-              ],
-              "additionalProperties": false
+              ]
             }
           }
         },
         "required": [
           "exercises"
-        ],
-        "additionalProperties": false
+        ]
       }
     },
     {
@@ -3229,8 +3174,7 @@
                         "score",
                         "reasons",
                         "place"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   }
                 },
@@ -3240,8 +3184,7 @@
                   "lon",
                   "rideCount",
                   "routes"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -3250,7 +3193,6 @@
           "date",
           "byModality"
         ],
-        "additionalProperties": false,
         "$defs": {
           "__schema0": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
