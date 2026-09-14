@@ -82,6 +82,8 @@ with input and output schemas: [tools.json](tools.json).
 - See and disconnect assistants any time in Body Lab under **Settings → AI
   assistants**. Disconnecting works immediately.
 - Body Lab's recommendations are training guidance, not medical advice.
+- Full details: [Privacy Policy](https://bodylab.lol/privacy) and
+  [Terms of Service](https://bodylab.lol/terms).
 
 ## For client developers
 
