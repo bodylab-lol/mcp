@@ -35,7 +35,7 @@ Scope: `training:read`
 
 ## `get_activity` — One activity
 
-One activity in detail: duration, distance, elevation, heart rate, power, session RPE, notes, the training load and where it came from, time in each heart-rate zone, power bests, how it compared with the planned session (if there was one), and the strength sets logged against it.
+One activity in detail: duration, distance, elevation, heart rate, power, session RPE, notes, the training load and where it came from, time in each heart-rate zone, power bests (the best average watts over each duration within this activity; after intervals a longer duration's best can be higher than a shorter one's, because the longer window spans two efforts and the shorter can hold only one plus recovery), how it compared with the planned session (if there was one), and the strength sets logged against it.
 
 Scope: `training:read`
 
