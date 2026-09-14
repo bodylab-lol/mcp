@@ -2939,7 +2939,12 @@
                 "type": "integer"
               },
               "watts": {
+                "description": "The most held for at least durationS: never higher than a shorter duration's.",
                 "type": "number"
+              },
+              "heldForS": {
+                "description": "How long the effort behind this figure lasted. Longer than durationS when a longer effort beat every one of exactly this length.",
+                "type": "integer"
               },
               "achievedOn": {
                 "$ref": "#/$defs/__schema2"
@@ -2951,6 +2956,7 @@
             "required": [
               "durationS",
               "watts",
+              "heldForS",
               "achievedOn",
               "daysAgo"
             ],
