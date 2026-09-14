@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "lol.bodylab/body-lab",
   "title": "Body Lab",
-  "description": "Your Body Lab training: today's prescribed session and why, training load and recovery, activities, strength, profile.",
+  "description": "Body Lab training: today's prescribed session and why, load, recovery, activities and strength.",
   "version": "1.0.0",
   "websiteUrl": "https://bodylab.lol",
   "repository": {
