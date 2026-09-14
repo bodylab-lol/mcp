@@ -20,10 +20,32 @@ run.
 You need a Body Lab account. The first time an assistant connects, it sends
 you to Body Lab to sign in and approve it.
 
-**Claude (web, desktop, mobile):** add a custom connector with the URL
-`https://bodylab.lol/mcp`.
+Body Lab isn't listed in assistants' app directories yet, so you add it by
+its address.
 
-**ChatGPT:** add a connector (app) with the URL `https://bodylab.lol/mcp`.
+**Claude (web, desktop, mobile):**
+
+1. On claude.ai or in Claude Desktop, open **Customize → Connectors**.
+2. Press **+**, choose **Add custom connector**, paste `https://bodylab.lol/mcp`
+   and press **Add**.
+3. Press **Connect**, then sign in to Body Lab and allow Claude.
+4. In a chat, turn Body Lab on from **+ → Connectors**. It's then available in
+   the Claude mobile app too.
+
+On a Team or Enterprise plan, an organization owner adds it first
+(**Organization settings → Connectors**). The free plan allows one custom
+connector. See Anthropic's
+[custom connector guide](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).
+
+**ChatGPT** (web; Plus, Pro, Business, Enterprise or Education):
+
+1. Open **Settings → Security and login** and turn on **Developer mode**.
+2. Open **Plugins**, press **+**, and create an app with
+   `https://bodylab.lol/mcp`, using OAuth.
+3. Sign in to Body Lab and allow ChatGPT.
+4. In a chat, choose Body Lab from **Developer mode** in the message box.
+
+See OpenAI's [developer mode guide](https://developers.openai.com/api/docs/guides/developer-mode).
 
 **Claude Code:**
 
