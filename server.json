@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "lol.bodylab/body-lab",
+  "title": "Body Lab",
+  "description": "Your Body Lab training: today's prescribed session and why, training load and recovery, activities, strength, profile.",
+  "version": "1.0.0",
+  "websiteUrl": "https://bodylab.lol",
+  "repository": {
+    "url": "https://github.com/bodylab-lol/mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://bodylab.lol/mcp"
+    }
+  ]
+}

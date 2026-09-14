@@ -1,0 +1,3272 @@
+{
+  "server": {
+    "name": "body-lab",
+    "version": "1.0.0",
+    "url": "https://bodylab.lol/mcp",
+    "instructions": "Body Lab is the athlete's training app: it reads their training load and morning recovery signals and prescribes one session a day (endurance with heart-rate and power targets, or strength with sets, reps and weights), citing the metric behind each call.\n\n- Body Lab's prescription and rationale are the source of truth for what the athlete should do; explain them rather than substituting your own plan, and say so when you disagree.\n- Quantities are SI with the unit in the field name (durationS seconds, distanceM metres, weightKg, avgPowerW). Convert to the athlete's display units (`units`: metric or imperial) when talking to them.\n- Dates like 2026-09-13 are days on the athlete's own calendar; instants are ISO-8601 UTC. get_today returns today's date and the athlete's time zone.\n- Training load is on Body Lab's calibrated scale; CTL is fitness, ATL fatigue, form = CTL − ATL, ACWR the acute:chronic ratio.\n- This is training guidance, not medical advice."
+  },
+  "scopes": {
+    "training:read": "See your training, recovery, activities and profile"
+  },
+  "tools": [
+    {
+      "name": "get_today",
+      "title": "Today's session",
+      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, and this morning's readiness. Start here when the athlete asks what to do, whether to train or rest, or why the plan says what it does. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "units": {
+            "description": "How to display quantities; the API always speaks SI.",
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ]
+          },
+          "todayIsDone": {
+            "type": "boolean"
+          },
+          "today": {
+            "type": "object",
+            "properties": {
+              "additional": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "deload": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "sessionClass": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "primary": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "alternates": {
+                "$ref": "#/$defs/__schema7"
+              },
+              "variants": {
+                "$ref": "#/$defs/__schema8"
+              },
+              "unavailable": {
+                "$ref": "#/$defs/__schema9"
+              },
+              "flags": {
+                "$ref": "#/$defs/__schema10"
+              },
+              "rationale": {
+                "$ref": "#/$defs/__schema11"
+              }
+            },
+            "required": [
+              "additional",
+              "deload",
+              "sessionClass",
+              "primary",
+              "alternates",
+              "variants",
+              "unavailable",
+              "flags",
+              "rationale"
+            ],
+            "additionalProperties": false
+          },
+          "tomorrow": {
+            "type": "object",
+            "properties": {
+              "additional": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "deload": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "sessionClass": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "primary": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "alternates": {
+                "$ref": "#/$defs/__schema7"
+              },
+              "variants": {
+                "$ref": "#/$defs/__schema8"
+              },
+              "unavailable": {
+                "$ref": "#/$defs/__schema9"
+              },
+              "flags": {
+                "$ref": "#/$defs/__schema10"
+              },
+              "rationale": {
+                "$ref": "#/$defs/__schema11"
+              }
+            },
+            "required": [
+              "additional",
+              "deload",
+              "sessionClass",
+              "primary",
+              "alternates",
+              "variants",
+              "unavailable",
+              "flags",
+              "rationale"
+            ],
+            "additionalProperties": false
+          },
+          "completed": {
+            "type": "object",
+            "properties": {
+              "activities": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "$ref": "#/$defs/__schema6"
+                    },
+                    "durationS": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "load": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "activityType": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema4"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "startTime": {
+                      "$ref": "#/$defs/__schema12"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "durationS",
+                    "load",
+                    "activityType",
+                    "startTime"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strengthSessions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "$ref": "#/$defs/__schema6"
+                    },
+                    "activityId": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema6"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "exercises": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "performedAt": {
+                      "$ref": "#/$defs/__schema12"
+                    },
+                    "durationS": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "sessionRpe": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "load": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "setCount": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "activityId",
+                    "exercises",
+                    "performedAt",
+                    "durationS",
+                    "sessionRpe",
+                    "load",
+                    "setCount"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "activities",
+              "strengthSessions"
+            ],
+            "additionalProperties": false
+          },
+          "excludedActivities": {
+            "description": "Activities in the window with no evidence to score them; non-zero means the metrics understate training.",
+            "type": "integer"
+          },
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "type": "string",
+            "format": "date"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "readiness": {
+            "description": "This morning's readiness, from recovery readings against the athlete's own baseline.",
+            "type": "object",
+            "properties": {
+              "band": {
+                "type": "string",
+                "enum": [
+                  "green",
+                  "amber",
+                  "red",
+                  "unknown"
+                ]
+              },
+              "score": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "contributors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "hrvZ": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "restingHrDelta": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "band",
+              "score",
+              "contributors",
+              "hrvZ",
+              "restingHrDelta"
+            ],
+            "additionalProperties": false
+          },
+          "planned": {
+            "description": "Sessions the athlete has committed to for today.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/__schema6"
+                },
+                "modality": {
+                  "$ref": "#/$defs/__schema4"
+                },
+                "workoutType": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "modality",
+                "workoutType"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "units",
+          "todayIsDone",
+          "today",
+          "tomorrow",
+          "completed",
+          "excludedActivities",
+          "date",
+          "timezone",
+          "readiness",
+          "planned"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "description": "Today's main session is done; this is an optional extra.",
+            "type": "boolean"
+          },
+          "__schema1": {
+            "type": "boolean"
+          },
+          "__schema2": {
+            "type": "string",
+            "enum": [
+              "rest",
+              "recovery",
+              "easy",
+              "build",
+              "quality",
+              "strength",
+              "complete"
+            ]
+          },
+          "__schema3": {
+            "description": "One prescribed session. `kind` is the discriminator; new kinds are a breaking change.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "endurance"
+                  },
+                  "modality": {
+                    "$ref": "#/$defs/__schema4"
+                  },
+                  "durationMin": {
+                    "type": "number"
+                  },
+                  "intendedDurationMin": {
+                    "type": "number"
+                  },
+                  "zone": {
+                    "type": "integer"
+                  },
+                  "hrLow": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "hrHigh": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "powerLow": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "powerHigh": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "repeat": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "work": {
+                          "$ref": "#/$defs/__schema5"
+                        },
+                        "recovery": {
+                          "anyOf": [
+                            {
+                              "$ref": "#/$defs/__schema5"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "repeat",
+                        "work",
+                        "recovery"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "workoutType": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "stimulus": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "stimulus"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "modality",
+                  "durationMin",
+                  "intendedDurationMin",
+                  "zone",
+                  "hrLow",
+                  "hrHigh",
+                  "powerLow",
+                  "powerHigh",
+                  "blocks",
+                  "workoutType",
+                  "note"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "strength"
+                  },
+                  "template": {
+                    "type": "string"
+                  },
+                  "durationMin": {
+                    "type": "number"
+                  },
+                  "exercises": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "exerciseId": {
+                          "$ref": "#/$defs/__schema6"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "sets": {
+                          "type": "integer"
+                        },
+                        "reps": {
+                          "description": "Reps, or seconds when unit is seconds.",
+                          "type": "integer"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": [
+                            "reps",
+                            "seconds"
+                          ]
+                        },
+                        "weightKg": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "rir": {
+                          "description": "Reps in reserve to stop at.",
+                          "type": "number"
+                        },
+                        "intensity": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "progression": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "axis": {
+                                  "type": "string",
+                                  "enum": [
+                                    "reps",
+                                    "load"
+                                  ]
+                                },
+                                "direction": {
+                                  "type": "string",
+                                  "enum": [
+                                    "up",
+                                    "hold"
+                                  ]
+                                },
+                                "previous": {
+                                  "type": "number"
+                                },
+                                "daysAgo": {
+                                  "type": "number"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "axis",
+                                "direction",
+                                "previous",
+                                "daysAgo",
+                                "reason"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "perSide": {
+                          "description": "Reps are per leg or per side.",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "leg",
+                                "side"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "implementCount": {
+                          "description": "2 when the weight is per dumbbell or kettlebell.",
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 1
+                            },
+                            {
+                              "type": "number",
+                              "const": 2
+                            }
+                          ]
+                        },
+                        "note": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "exerciseId",
+                        "name",
+                        "sets",
+                        "reps",
+                        "unit",
+                        "weightKg",
+                        "rir",
+                        "intensity",
+                        "progression",
+                        "perSide",
+                        "implementCount"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "template",
+                  "durationMin",
+                  "exercises",
+                  "note"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "rest"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "note"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "__schema4": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema5": {
+            "type": "object",
+            "properties": {
+              "minutes": {
+                "type": "number"
+              },
+              "zone": {
+                "description": "Heart-rate zone, 1–5.",
+                "type": "integer"
+              },
+              "hrLow": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hrHigh": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "powerLow": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "powerHigh": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "minutes",
+              "zone",
+              "hrLow",
+              "hrHigh",
+              "powerLow",
+              "powerHigh"
+            ],
+            "additionalProperties": false
+          },
+          "__schema6": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema7": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema3"
+            }
+          },
+          "__schema8": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema3"
+            }
+          },
+          "__schema9": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "modality": {
+                  "$ref": "#/$defs/__schema4"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "modality",
+                "reason"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "__schema10": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "__schema11": {
+            "description": "Why, citing the metric behind each call.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "__schema12": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_training_status",
+      "title": "Training status",
+      "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "description": "How many days back from today to cover.",
+            "default": 90,
+            "type": "integer",
+            "minimum": 28,
+            "maximum": 365
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "fitness": {
+            "type": "object",
+            "properties": {
+              "ctl": {
+                "description": "Chronic training load (fitness): 42-day exponentially weighted load.",
+                "type": "number"
+              },
+              "atl": {
+                "description": "Acute training load (fatigue): 7-day exponentially weighted load.",
+                "type": "number"
+              },
+              "form": {
+                "description": "ctl − atl.",
+                "type": "number"
+              },
+              "acwr": {
+                "description": "Acute:chronic ratio; null until there's enough chronic load to divide by.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "rampRate": {
+                "description": "Weekly change in ctl.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "ctl",
+              "atl",
+              "form",
+              "acwr",
+              "rampRate"
+            ],
+            "additionalProperties": false
+          },
+          "strain": {
+            "type": "object",
+            "properties": {
+              "monotony": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "strain": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "weeklyLoad": {
+                "type": "number"
+              },
+              "monotonyHigh": {
+                "type": "boolean"
+              },
+              "strainHigh": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "monotony",
+              "strain",
+              "weeklyLoad",
+              "monotonyHigh",
+              "strainHigh"
+            ],
+            "additionalProperties": false
+          },
+          "polarization": {
+            "type": "object",
+            "properties": {
+              "easyFraction": {
+                "type": "number"
+              },
+              "moderateFraction": {
+                "type": "number"
+              },
+              "hardFraction": {
+                "type": "number"
+              },
+              "totalSeconds": {
+                "type": "number"
+              },
+              "sufficient": {
+                "description": "Enough heart-rate data in the window to judge.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "easyFraction",
+              "moderateFraction",
+              "hardFraction",
+              "totalSeconds",
+              "sufficient"
+            ],
+            "additionalProperties": false
+          },
+          "debt": {
+            "type": "object",
+            "properties": {
+              "daysSinceStrength": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "strengthSessionsLast7": {
+                "type": "integer"
+              },
+              "strengthSessionsLast14": {
+                "type": "integer"
+              },
+              "meetsStrengthFloor": {
+                "type": "boolean"
+              },
+              "daysSinceImpact": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "daysSinceHardSession": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "supportedLoadFraction": {
+                "type": "number"
+              },
+              "windowDays": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "daysSinceStrength",
+              "strengthSessionsLast7",
+              "strengthSessionsLast14",
+              "meetsStrengthFloor",
+              "daysSinceImpact",
+              "daysSinceHardSession",
+              "supportedLoadFraction",
+              "windowDays"
+            ],
+            "additionalProperties": false
+          },
+          "readiness": {
+            "type": "object",
+            "properties": {
+              "band": {
+                "type": "string",
+                "enum": [
+                  "green",
+                  "amber",
+                  "red",
+                  "unknown"
+                ]
+              },
+              "score": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "contributors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "hrvZ": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "restingHrDelta": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "band",
+              "score",
+              "contributors",
+              "hrvZ",
+              "restingHrDelta"
+            ],
+            "additionalProperties": false
+          },
+          "block": {
+            "type": "object",
+            "properties": {
+              "consecutiveTrainingDays": {
+                "type": "integer"
+              },
+              "consecutiveLoadingWeeks": {
+                "type": "integer"
+              },
+              "week": {
+                "type": "object",
+                "properties": {
+                  "startDate": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "loadToDate": {
+                    "type": "number"
+                  },
+                  "chronicAtStart": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "daysTrained": {
+                    "type": "integer"
+                  },
+                  "daysRemaining": {
+                    "type": "integer"
+                  },
+                  "typicalSessionsPerWeek": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "startDate",
+                  "loadToDate",
+                  "chronicAtStart",
+                  "daysTrained",
+                  "daysRemaining",
+                  "typicalSessionsPerWeek"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "consecutiveTrainingDays",
+              "consecutiveLoadingWeeks",
+              "week"
+            ],
+            "additionalProperties": false
+          },
+          "seriesDays": {
+            "type": "integer"
+          },
+          "excludedActivities": {
+            "description": "Activities in the window with no evidence to score them; non-zero means the metrics understate training.",
+            "type": "integer"
+          },
+          "units": {
+            "description": "How to display quantities; the API always speaks SI.",
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ]
+          },
+          "weeks": {
+            "description": "Load, fitness and fatigue by week across the window, oldest first.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "weekStart": {
+                  "description": "The Monday the week starts on.",
+                  "$ref": "#/$defs/__schema0"
+                },
+                "days": {
+                  "description": "Days of this week inside the window (the current week is partial).",
+                  "type": "integer"
+                },
+                "load": {
+                  "description": "Total training load for the week.",
+                  "type": "number"
+                },
+                "ctl": {
+                  "description": "Fitness at the end of the week (or today).",
+                  "type": "number"
+                },
+                "atl": {
+                  "description": "Fatigue at the end of the week (or today).",
+                  "type": "number"
+                },
+                "acwr": {
+                  "description": "Acute:chronic ratio at the end of the week (or today).",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "weekStart",
+                "days",
+                "load",
+                "ctl",
+                "atl",
+                "acwr"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "fitness",
+          "strain",
+          "polarization",
+          "debt",
+          "readiness",
+          "block",
+          "seriesDays",
+          "excludedActivities",
+          "units",
+          "weeks"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    {
+      "name": "list_activities",
+      "title": "Activities",
+      "description": "The athlete's activities, newest first, 25 per page: recorded and typed-in sessions and strength workouts, with sport, start time, duration (s), distance (m) and training load. Use get_activity with an id for the detail of one.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "default": 1,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "type": {
+            "description": "Only this sport.",
+            "type": "string"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "description": "activity: a recorded or typed-in activity. strength: a logged strength session with no recording.",
+                  "type": "string",
+                  "enum": [
+                    "activity",
+                    "strength"
+                  ]
+                },
+                "id": {
+                  "description": "Opaque identifier.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "startTime": {
+                  "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "activityType": {
+                  "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "label": {
+                  "description": "The activity's name, or its sport when it has none.",
+                  "type": "string"
+                },
+                "typeLabel": {
+                  "description": "The sport, for display.",
+                  "type": "string"
+                },
+                "source": {
+                  "anyOf": [
+                    {
+                      "description": "Where the activity came from: typed in, an uploaded file, or a connected service's name. Known values: manual, file, garmin. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "durationS": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "distanceM": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "load": {
+                  "description": "Training load on Body Lab's calibrated scale.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "loadSource": {
+                  "anyOf": [
+                    {
+                      "description": "Which evidence an activity's load was derived from, best first. Known values: provider, stream_trimp, avg_hr_trimp, srpe, duration. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "hasTrack": {
+                  "type": "boolean"
+                },
+                "hasStrengthLog": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "id",
+                "startTime",
+                "activityType",
+                "label",
+                "typeLabel",
+                "source",
+                "durationS",
+                "distanceM",
+                "load",
+                "loadSource",
+                "hasTrack",
+                "hasStrengthLog"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "hasMore"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_activity",
+      "title": "One activity",
+      "description": "One activity in detail: duration, distance, elevation, heart rate, power, session RPE, notes, the training load and where it came from, time in each heart-rate zone, power bests, how it compared with the planned session (if there was one), and the strength sets logged against it.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "An activity id from list_activities or get_today.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "source": {
+            "description": "Where the activity came from: typed in, an uploaded file, or a connected service's name. Known values: manual, file, garmin. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "activityType": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "typeLabel": {
+            "type": "string"
+          },
+          "startTime": {
+            "$ref": "#/$defs/__schema1"
+          },
+          "durationS": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "elapsedDurationS": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "movingDurationS": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "distanceM": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "elevationGainM": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avgHr": {
+            "description": "Beats per minute.",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "maxHr": {
+            "description": "Beats per minute.",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avgPowerW": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sessionRpe": {
+            "description": "Session RPE, 1–10.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "file": {
+            "description": "The recording the activity was imported from, if any.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "fit",
+                      "gpx"
+                    ]
+                  },
+                  "sizeBytes": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "filename",
+                  "format",
+                  "sizeBytes"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "load": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "load": {
+                    "type": "number"
+                  },
+                  "source": {
+                    "description": "Which evidence an activity's load was derived from, best first. Known values: provider, stream_trimp, avg_hr_trimp, srpe, duration. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "zoneSeconds": {
+                    "description": "Seconds in heart-rate zones 1–5, when there's a stream.",
+                    "anyOf": [
+                      {
+                        "minItems": 5,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "load",
+                  "source",
+                  "zoneSeconds"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "powerBests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "durationS": {
+                  "type": "integer"
+                },
+                "watts": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "durationS",
+                "watts"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "hasRoute": {
+            "description": "Whether a GPS route was recorded (not included here).",
+            "type": "boolean"
+          },
+          "adherence": {
+            "description": "How the activity compared with the session planned for it, if one was.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "matchKind": {
+                    "description": "How the activity was matched to its plan. Known values: explicit, inferred. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "workoutType": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metric": {
+                    "description": "What the plan targeted. Known values: power, heart_rate. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "prescribedWorkSeconds": {
+                    "type": "number"
+                  },
+                  "actualWorkSeconds": {
+                    "type": "number"
+                  },
+                  "repsPrescribed": {
+                    "type": "integer"
+                  },
+                  "repsCompleted": {
+                    "type": "integer"
+                  },
+                  "average": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "easySeconds": {
+                    "type": "number"
+                  },
+                  "totalSeconds": {
+                    "type": "number"
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "repeat": {
+                          "type": "integer"
+                        },
+                        "targetLow": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "targetHigh": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "prescribedSeconds": {
+                          "type": "number"
+                        },
+                        "deliveredSeconds": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "direction": {
+                          "type": "string"
+                        },
+                        "repsCompleted": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "repDurations": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "repeat",
+                        "targetLow",
+                        "targetHigh",
+                        "prescribedSeconds",
+                        "deliveredSeconds",
+                        "direction",
+                        "repsCompleted",
+                        "repDurations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "plan": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "repeat": {
+                          "type": "integer"
+                        },
+                        "work": {
+                          "type": "object",
+                          "properties": {
+                            "minutes": {
+                              "$ref": "#/$defs/__schema2"
+                            },
+                            "zone": {
+                              "$ref": "#/$defs/__schema3"
+                            },
+                            "hrLow": {
+                              "$ref": "#/$defs/__schema4"
+                            },
+                            "hrHigh": {
+                              "$ref": "#/$defs/__schema5"
+                            },
+                            "powerLow": {
+                              "$ref": "#/$defs/__schema6"
+                            },
+                            "powerHigh": {
+                              "$ref": "#/$defs/__schema7"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "recovery": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "minutes": {
+                                  "$ref": "#/$defs/__schema2"
+                                },
+                                "zone": {
+                                  "$ref": "#/$defs/__schema3"
+                                },
+                                "hrLow": {
+                                  "$ref": "#/$defs/__schema4"
+                                },
+                                "hrHigh": {
+                                  "$ref": "#/$defs/__schema5"
+                                },
+                                "powerLow": {
+                                  "$ref": "#/$defs/__schema6"
+                                },
+                                "powerHigh": {
+                                  "$ref": "#/$defs/__schema7"
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "repeat",
+                        "work",
+                        "recovery"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "matchKind",
+                  "workoutType",
+                  "metric",
+                  "prescribedWorkSeconds",
+                  "actualWorkSeconds",
+                  "repsPrescribed",
+                  "repsCompleted",
+                  "average",
+                  "easySeconds",
+                  "totalSeconds",
+                  "blocks",
+                  "plan"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strengthSession": {
+            "description": "The strength session logged against this activity, if any.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "activityId": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema0"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "performedAt": {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  "durationS": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sessionRpe": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "notes": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "load": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sets": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "exerciseId": {
+                          "$ref": "#/$defs/__schema0"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "movementPattern": {
+                          "type": "string"
+                        },
+                        "howToUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "defaultUnit": {
+                          "type": "string",
+                          "enum": [
+                            "reps",
+                            "seconds"
+                          ]
+                        },
+                        "setIndex": {
+                          "type": "integer"
+                        },
+                        "reps": {
+                          "type": "integer"
+                        },
+                        "weightKg": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "rir": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "isWarmup": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "exerciseId",
+                        "name",
+                        "movementPattern",
+                        "howToUrl",
+                        "defaultUnit",
+                        "setIndex",
+                        "reps",
+                        "weightKg",
+                        "rir",
+                        "isWarmup"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "activityId",
+                  "performedAt",
+                  "durationS",
+                  "sessionRpe",
+                  "notes",
+                  "load",
+                  "sets"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "units": {
+            "description": "How to display quantities; the API always speaks SI.",
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "name",
+          "activityType",
+          "typeLabel",
+          "startTime",
+          "durationS",
+          "elapsedDurationS",
+          "movingDurationS",
+          "distanceM",
+          "elevationGainM",
+          "avgHr",
+          "maxHr",
+          "avgPowerW",
+          "sessionRpe",
+          "notes",
+          "file",
+          "load",
+          "powerBests",
+          "hasRoute",
+          "adherence",
+          "strengthSession",
+          "units"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema1": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "__schema2": {
+            "type": "number"
+          },
+          "__schema3": {
+            "description": "Heart-rate zone, 1–5.",
+            "type": "integer"
+          },
+          "__schema4": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema5": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema6": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema7": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "get_recovery",
+      "title": "Recovery readings",
+      "description": "Morning recovery readings by day, newest first: resting heart rate (bpm), overnight HRV (ms, RMSSD), sleep score and a device energy score (both 0–100). Days without readings are absent. Use for sleep, HRV or 'how recovered am I' questions; get_today already includes today's readiness verdict.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "description": "How many days back from today.",
+            "default": 28,
+            "type": "integer",
+            "minimum": 7,
+            "maximum": 365
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "description": "Today on the athlete's calendar, in their time zone.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "entries": {
+            "description": "Days with readings, newest first; days without are absent.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "restingHr": {
+                  "description": "Morning resting heart rate, beats per minute.",
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 25,
+                      "maximum": 150
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "hrv": {
+                  "description": "Overnight heart-rate variability, milliseconds (RMSSD).",
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 400
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sleepScore": {
+                  "description": "Sleep score, 0–100.",
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "energy": {
+                  "description": "A device's energy or body-battery score, 0–100.",
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "source": {
+                  "description": "Who recorded the day's readings. Known values: manual, garmin. Treat unknown values as \"other\".",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "date",
+                "restingHr",
+                "hrv",
+                "sleepScore",
+                "energy",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "today",
+          "entries"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_strength",
+      "title": "Strength training",
+      "description": "The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held), estimated one-rep maxes, and the most recent logged strength sessions set by set.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "recentSessions": {
+            "description": "How many recent sessions to include.",
+            "default": 5,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "type": "object",
+            "properties": {
+              "session": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "strength"
+                  },
+                  "template": {
+                    "type": "string"
+                  },
+                  "durationMin": {
+                    "type": "number"
+                  },
+                  "exercises": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "exerciseId": {
+                          "$ref": "#/$defs/__schema0"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "sets": {
+                          "type": "integer"
+                        },
+                        "reps": {
+                          "description": "Reps, or seconds when unit is seconds.",
+                          "type": "integer"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": [
+                            "reps",
+                            "seconds"
+                          ]
+                        },
+                        "weightKg": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "rir": {
+                          "description": "Reps in reserve to stop at.",
+                          "type": "number"
+                        },
+                        "intensity": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "progression": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "axis": {
+                                  "type": "string",
+                                  "enum": [
+                                    "reps",
+                                    "load"
+                                  ]
+                                },
+                                "direction": {
+                                  "type": "string",
+                                  "enum": [
+                                    "up",
+                                    "hold"
+                                  ]
+                                },
+                                "previous": {
+                                  "type": "number"
+                                },
+                                "daysAgo": {
+                                  "type": "number"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "axis",
+                                "direction",
+                                "previous",
+                                "daysAgo",
+                                "reason"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "perSide": {
+                          "description": "Reps are per leg or per side.",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "leg",
+                                "side"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "implementCount": {
+                          "description": "2 when the weight is per dumbbell or kettlebell.",
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 1
+                            },
+                            {
+                              "type": "number",
+                              "const": 2
+                            }
+                          ]
+                        },
+                        "note": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "exerciseId",
+                        "name",
+                        "sets",
+                        "reps",
+                        "unit",
+                        "weightKg",
+                        "rir",
+                        "intensity",
+                        "progression",
+                        "perSide",
+                        "implementCount"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "template",
+                  "durationMin",
+                  "exercises",
+                  "note"
+                ],
+                "additionalProperties": false
+              },
+              "oneRepMaxes": {
+                "description": "Estimated one-rep max in kg, by exercise id.",
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "number"
+                }
+              },
+              "deload": {
+                "type": "boolean"
+              },
+              "units": {
+                "description": "How to display quantities; the API always speaks SI.",
+                "type": "string",
+                "enum": [
+                  "metric",
+                  "imperial"
+                ]
+              }
+            },
+            "required": [
+              "session",
+              "oneRepMaxes",
+              "deload",
+              "units"
+            ],
+            "additionalProperties": false
+          },
+          "recent": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "performedAt": {
+                  "type": "string"
+                },
+                "durationS": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sessionRpe": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "load": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "notes": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "exerciseId": {
+                        "$ref": "#/$defs/__schema0"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "setIndex": {
+                        "type": "integer"
+                      },
+                      "reps": {
+                        "description": "Reps, or seconds for a timed exercise.",
+                        "type": "integer"
+                      },
+                      "weightKg": {
+                        "description": "Negative is assistance.",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rir": {
+                        "description": "Reps in reserve.",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "isWarmup": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "exerciseId",
+                      "name",
+                      "setIndex",
+                      "reps",
+                      "weightKg",
+                      "rir",
+                      "isWarmup"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "performedAt",
+                "durationS",
+                "sessionRpe",
+                "load",
+                "notes",
+                "sets"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "template",
+          "recent"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
+      }
+    },
+    {
+      "name": "get_profile",
+      "title": "Athlete profile",
+      "description": "The athlete's profile: sports, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "type": "object",
+            "properties": {
+              "displayName": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "timezone": {
+                "description": "IANA time zone, e.g. America/Denver.",
+                "type": "string"
+              },
+              "units": {
+                "description": "How to display quantities; the API always speaks SI.",
+                "type": "string",
+                "enum": [
+                  "metric",
+                  "imperial"
+                ]
+              },
+              "sex": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "m",
+                      "f"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "birthYear": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "weightKg": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "heightCm": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hrMax": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hrMaxSource": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "hrRest": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hrRestSource": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "lthr": {
+                "description": "Lactate threshold heart rate, bpm.",
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "ftpW": {
+                "description": "Functional threshold power, watts.",
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "ftpUpdatedAt": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sports": {
+                "description": "Sports the athlete does, most important first.",
+                "type": "array",
+                "items": {
+                  "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+                  "type": "string"
+                }
+              },
+              "onboardedAt": {
+                "description": "Null until onboarding is complete; the app gates on it.",
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "displayName",
+              "timezone",
+              "units",
+              "sex",
+              "birthYear",
+              "weightKg",
+              "heightCm",
+              "hrMax",
+              "hrMaxSource",
+              "hrRest",
+              "hrRestSource",
+              "lthr",
+              "ftpW",
+              "ftpUpdatedAt",
+              "sports",
+              "onboardedAt"
+            ],
+            "additionalProperties": false
+          },
+          "testResults": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "$ref": "#/$defs/__schema2"
+                },
+                "vo2max": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "vo2maxCycling": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ftpW": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "lthr": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "thresholdSpeedMs": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "vo2max",
+                "vo2maxCycling",
+                "ftpW",
+                "lthr",
+                "thresholdSpeedMs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "powerCurve": {
+            "type": "object",
+            "properties": {
+              "recent": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema3"
+                }
+              },
+              "allTime": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema3"
+                }
+              },
+              "weightKg": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "ftpW": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "impliedFtpW": {
+                "description": "0.95 × the recent 20-minute best.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "recent",
+              "allTime",
+              "weightKg",
+              "ftpW",
+              "impliedFtpW"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "profile",
+          "testResults",
+          "powerCurve"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "description": "Where a heart-rate anchor comes from: typed in, estimated from age, or observed in the athlete's own data (observed replaces estimated; entered is never overwritten). Known values: entered, estimated, observed. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema1": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "__schema2": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema3": {
+            "type": "object",
+            "properties": {
+              "durationS": {
+                "type": "integer"
+              },
+              "watts": {
+                "type": "number"
+              },
+              "achievedOn": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "daysAgo": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "durationS",
+              "watts",
+              "achievedOn",
+              "daysAgo"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "name": "find_exercises",
+      "title": "Exercise catalogue",
+      "description": "Body Lab's strength exercise catalogue, optionally filtered by a word in the name or by movement pattern (squat, hinge, lunge, horizontal_push, vertical_pull…).",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "description": "A word to match in the exercise name, e.g. 'squat'.",
+            "type": "string",
+            "maxLength": 80
+          },
+          "movementPattern": {
+            "type": "string",
+            "maxLength": 40
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "exercises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Opaque identifier.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "name": {
+                  "type": "string"
+                },
+                "notes": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "movementPattern": {
+                  "description": "Movement pattern. Known values: squat, hinge, lunge, horizontal_push, vertical_push, horizontal_pull, vertical_pull, carry, core, calf, isolation. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "loadType": {
+                  "description": "Equipment. Known values: barbell, dumbbell, kettlebell, machine, bodyweight, band. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "isUnilateral": {
+                  "type": "boolean"
+                },
+                "implementCount": {
+                  "type": "integer"
+                },
+                "allowsAssistance": {
+                  "description": "Negative weight (assistance) is meaningful, e.g. an assisted pull-up.",
+                  "type": "boolean"
+                },
+                "defaultUnit": {
+                  "type": "string",
+                  "enum": [
+                    "reps",
+                    "seconds"
+                  ]
+                },
+                "howToUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "notes",
+                "movementPattern",
+                "loadType",
+                "isUnilateral",
+                "implementCount",
+                "allowsAssistance",
+                "defaultUnit",
+                "howToUrl"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "exercises"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "suggest_routes",
+      "title": "Routes for today",
+      "description": "Routes the athlete has done before that fit today's prescribed endurance sessions, grouped by start area and sport, with duration, distance, climbing, how often they've been done and why each fits. Only sports with a prescribed session today and a route history appear.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "modality": {
+            "description": "Only this sport, e.g. road_biking or running.",
+            "type": "string"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "byModality": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "lat": {
+                    "type": "number"
+                  },
+                  "lon": {
+                    "type": "number"
+                  },
+                  "rideCount": {
+                    "type": "integer"
+                  },
+                  "routes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "activityId": {
+                          "description": "Opaque identifier.",
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "activityName": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "lastRidden": {
+                          "$ref": "#/$defs/__schema0"
+                        },
+                        "rideCount": {
+                          "type": "integer"
+                        },
+                        "durationMin": {
+                          "type": "number"
+                        },
+                        "distanceM": {
+                          "type": "number"
+                        },
+                        "gainM": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "isLoop": {
+                          "type": "boolean"
+                        },
+                        "medianLoad": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "unpavedFraction": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "surfaceCoverage": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "score": {
+                          "type": "number"
+                        },
+                        "reasons": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "place": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "activityId",
+                        "activityName",
+                        "lastRidden",
+                        "rideCount",
+                        "durationMin",
+                        "distanceM",
+                        "gainM",
+                        "isLoop",
+                        "medianLoad",
+                        "unpavedFraction",
+                        "surfaceCoverage",
+                        "score",
+                        "reasons",
+                        "place"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "label",
+                  "lat",
+                  "lon",
+                  "rideCount",
+                  "routes"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "required": [
+          "date",
+          "byModality"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "name": "todays-session",
+      "title": "What should I do today?",
+      "description": "Today's prescribed session, why Body Lab chose it, and the alternatives.",
+      "scope": "training:read"
+    },
+    {
+      "name": "weekly-review",
+      "title": "Review my week",
+      "description": "How the last week of training went against the weeks before it.",
+      "scope": "training:read"
+    }
+  ]
+}

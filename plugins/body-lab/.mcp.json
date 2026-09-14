@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "body-lab": {
+      "type": "http",
+      "url": "https://bodylab.lol/mcp"
+    }
+  }
+}

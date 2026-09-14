@@ -1,0 +1,12 @@
+{
+  "name": "body-lab",
+  "description": "Connects Claude Code to Body Lab's MCP server (https://bodylab.lol/mcp), with skills for reading training data and reasoning about the day's plan.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Boulder Creek Body Lab",
+    "url": "https://bodylab.lol"
+  },
+  "homepage": "https://github.com/bodylab-lol/mcp",
+  "repository": "https://github.com/bodylab-lol/mcp",
+  "license": "MIT"
+}

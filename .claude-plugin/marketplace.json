@@ -1,0 +1,15 @@
+{
+  "name": "bodylab-lol",
+  "description": "Body Lab's official Claude Code plugins.",
+  "owner": {
+    "name": "Boulder Creek Body Lab",
+    "url": "https://bodylab.lol"
+  },
+  "plugins": [
+    {
+      "name": "body-lab",
+      "source": "./plugins/body-lab",
+      "description": "Your Body Lab training in Claude Code: today's session and why, load and recovery, activities and strength."
+    }
+  ]
+}
