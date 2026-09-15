@@ -14,6 +14,7 @@ are read-only.
 | --- | --- |
 | What should I do today? Should I rest? Why that session? | `get_today` |
 | How's my training going? Am I overdoing it? Compare weeks | `get_training_status` (`days` 28–365) |
+| How long until my race? Why is today easier before it? | `get_today`'s `nearestEvent` (also in `get_training_status`) |
 | What did I do? How did a particular session go? | `list_activities`, then `get_activity` with its `id` |
 | Sleep, HRV, resting heart rate, "am I recovered" | `get_recovery` (and `get_today`'s `readiness`) |
 | Lifting: what weights next, recent sessions, estimated maxes | `get_strength` |
@@ -40,6 +41,16 @@ returns the athlete's local `date`, `timezone` and `units`.
 - `excludedActivities` above zero means some sessions had no heart rate,
   effort rating or duration to score. The metrics read low; say so.
 - A reading, target or anchor that's `null` is unknown, not zero.
+- `nearestEvent` is the athlete's nearest A event: its `name`, `daysUntil`
+  (negative once it has passed) and `phase`: `build`, `taper`, `event_day`
+  or `recovery`. In `taper` and `recovery`, `totalDays` is the window's
+  length. Lighter sessions in those phases are deliberate. Explain them from
+  the phase and the `rationale`, not as a sign the athlete is falling behind.
+- When more than one source recorded the same session, `list_activities`
+  shows it once, and `get_activity` lists the other copies in
+  `alsoRecordedBy`. An activity whose `duplicateOf` is set is one of those
+  copies: the session it points to is the one that counts. Don't present a
+  copy as a separate workout.
 
 ## Presenting it
 

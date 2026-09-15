@@ -6,7 +6,7 @@ Quantities are SI with the unit in the field name (`durationS`, `distanceM`, `we
 
 ## `get_today` — Today's session
 
-The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, and this morning's readiness. Start here when the athlete asks what to do, whether to train or rest, or why the plan says what it does. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.
+The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, and the nearest A event's name, date, days until and taper/event-day/recovery phase, if one is set. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.
 
 Scope: `training:read`
 
@@ -14,7 +14,7 @@ _No arguments._
 
 ## `get_training_status` — Training status
 
-Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.
+Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.
 
 Scope: `training:read`
 
