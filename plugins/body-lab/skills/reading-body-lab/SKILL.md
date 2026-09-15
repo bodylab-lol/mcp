@@ -41,6 +41,10 @@ returns the athlete's local `date`, `timezone` and `units`.
 - `excludedActivities` above zero means some sessions had no heart rate,
   effort rating or duration to score. The metrics read low; say so.
 - A reading, target or anchor that's `null` is unknown, not zero.
+- In `get_recovery`, `sleepMinutes` is minutes asleep on the night that ended
+  that morning, awake time excluded; say it as hours and minutes. It's a
+  separate reading from `sleepScore`, the device's 0–100 score. Readiness
+  uses the score, not the minutes. One night can have either or both.
 - `nearestEvent` is the athlete's nearest A event: its `name`, `daysUntil`
   (negative once it has passed) and `phase`: `build`, `taper`, `event_day`
   or `recovery`. In `taper` and `recovery`, `totalDays` is the window's

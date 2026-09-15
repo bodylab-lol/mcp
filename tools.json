@@ -2303,6 +2303,19 @@
                     }
                   ]
                 },
+                "sleepMinutes": {
+                  "description": "Minutes asleep on the night that ended this morning, awake time excluded, as the source's sleep tracking measured it. Not used by readiness.",
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 1440
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "source": {
                   "description": "Who recorded the day's readings. Known values: manual, garmin. Treat unknown values as \"other\".",
                   "type": "string"
@@ -2314,6 +2327,7 @@
                 "hrv",
                 "sleepScore",
                 "energy",
+                "sleepMinutes",
                 "source"
               ]
             }
