@@ -65,7 +65,7 @@ Scope: `training:read`
 
 ## `get_profile` — Athlete profile
 
-The athlete's profile: sports, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.
+The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.
 
 Scope: `training:read`
 

@@ -85,7 +85,7 @@ delete anything.
 | `list_activities`, `get_activity` | Your activities, and one in detail with load, zones, power bests and plan adherence |
 | `get_recovery` | Morning resting HR, HRV, sleep and energy scores |
 | `get_strength` | The strength session Body Lab would prescribe now, estimated maxes, recent sessions |
-| `get_profile` | Heart-rate anchors, FTP, test results, power curve |
+| `get_profile` | Heart-rate anchors, FTP, strength equipment, test results, power curve |
 | `find_exercises` | The strength exercise catalogue |
 | `suggest_routes` | Routes you've done before that fit today's session |
 

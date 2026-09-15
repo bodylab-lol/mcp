@@ -2697,7 +2697,7 @@
     {
       "name": "get_profile",
       "title": "Athlete profile",
-      "description": "The athlete's profile: sports, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.",
+      "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.",
       "scope": "training:read",
       "inputSchema": {
         "type": "object",
@@ -2841,6 +2841,10 @@
                   "type": "string"
                 }
               },
+              "strengthEquipment": {
+                "description": "What the athlete lifts with. Strength sessions name only exercises this allows: gym is a barbell and rack (the default), dumbbells is dumbbells or kettlebells, bodyweight is no weights. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
+                "type": "string"
+              },
               "onboardedAt": {
                 "description": "Null until onboarding is complete; the app gates on it.",
                 "anyOf": [
@@ -2869,6 +2873,7 @@
               "ftpW",
               "ftpUpdatedAt",
               "sports",
+              "strengthEquipment",
               "onboardedAt"
             ]
           },
