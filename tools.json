@@ -61,6 +61,9 @@
               },
               "rationale": {
                 "$ref": "#/$defs/__schema11"
+              },
+              "environment": {
+                "$ref": "#/$defs/__schema12"
               }
             },
             "required": [
@@ -72,7 +75,8 @@
               "variants",
               "unavailable",
               "flags",
-              "rationale"
+              "rationale",
+              "environment"
             ]
           },
           "tomorrow": {
@@ -104,6 +108,9 @@
               },
               "rationale": {
                 "$ref": "#/$defs/__schema11"
+              },
+              "environment": {
+                "$ref": "#/$defs/__schema12"
               }
             },
             "required": [
@@ -115,7 +122,8 @@
               "variants",
               "unavailable",
               "flags",
-              "rationale"
+              "rationale",
+              "environment"
             ]
           },
           "completed": {
@@ -160,7 +168,7 @@
                       ]
                     },
                     "startTime": {
-                      "$ref": "#/$defs/__schema12"
+                      "$ref": "#/$defs/__schema14"
                     }
                   },
                   "required": [
@@ -197,7 +205,7 @@
                       }
                     },
                     "performedAt": {
-                      "$ref": "#/$defs/__schema12"
+                      "$ref": "#/$defs/__schema14"
                     },
                     "durationS": {
                       "anyOf": [
@@ -365,7 +373,7 @@
                       "description": "Illness only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema14"
+                          "$ref": "#/$defs/__schema15"
                         },
                         {
                           "type": "null"
@@ -376,7 +384,7 @@
                       "description": "Injury only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema15"
+                          "$ref": "#/$defs/__schema16"
                         },
                         {
                           "type": "null"
@@ -446,7 +454,7 @@
                     "severity": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema14"
+                          "$ref": "#/$defs/__schema15"
                         },
                         {
                           "type": "null"
@@ -456,7 +464,7 @@
                     "region": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema15"
+                          "$ref": "#/$defs/__schema16"
                         },
                         {
                           "type": "null"
@@ -1136,9 +1144,94 @@
             }
           },
           "__schema12": {
-            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
-            "type": "string",
-            "format": "date-time"
+            "description": "Altitude and recent heat, where either applies today; null otherwise.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "altitude": {
+                    "description": "Set when watt targets were lowered for altitude. Heart-rate targets never are.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "todayAltitudeM": {
+                            "description": "The altitude today's session is expected at, metres.",
+                            "type": "number"
+                          },
+                          "basis": {
+                            "description": "Where that came from: home is the profile's home altitude; recent_recordings means the last two days' recordings both started there. Known values: home, recent_recordings. Treat unknown values as \"other\".",
+                            "type": "string"
+                          },
+                          "ftpAltitudeM": {
+                            "description": "The altitude the FTP behind the watt targets was set at, metres: from rides around its date, or home.",
+                            "type": "number"
+                          },
+                          "powerFactor": {
+                            "description": "What every watt target was multiplied by: below 1, never above.",
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "todayAltitudeM",
+                          "basis",
+                          "ftpAltitudeM",
+                          "powerFactor"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "heat": {
+                    "description": "Set when a recent session was recorded in hot air. Nothing is known about today's weather; sessions and targets are unchanged.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "temperatureC": {
+                            "description": "Air temperature of the hottest session in the last few days, °C. Never a wrist reading.",
+                            "type": "number"
+                          },
+                          "recordedOn": {
+                            "$ref": "#/$defs/__schema13"
+                          },
+                          "daysAgo": {
+                            "type": "integer"
+                          },
+                          "hotDaysLast14": {
+                            "description": "Days in the last two weeks with a hot session of an hour or more.",
+                            "type": "integer"
+                          },
+                          "acclimatised": {
+                            "description": "Whether that is enough hot days for heat adaptation to be under way.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "temperatureC",
+                          "recordedOn",
+                          "daysAgo",
+                          "hotDaysLast14",
+                          "acclimatised"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "altitude",
+                  "heat"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "__schema13": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
@@ -1146,10 +1239,15 @@
             "format": "date"
           },
           "__schema14": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "__schema15": {
             "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema15": {
+          "__schema16": {
             "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
             "type": "string"
           }
@@ -2070,6 +2168,86 @@
               ]
             }
           },
+          "environment": {
+            "description": "Altitude and temperature read from the recording; null for an activity without one.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "altitudeM": {
+                    "description": "Median altitude over the recording, metres. Null without an altitude channel or for a virtual course.",
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "startAltitudeM": {
+                    "description": "Median altitude over the first minute, metres.",
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "temperatureC": {
+                    "description": "Median temperature from the best source the recording carries, °C.",
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "temperatureSource": {
+                    "anyOf": [
+                      {
+                        "description": "Where temperatureC was measured. external_sensor, bike_computer and weather_report are air temperature; wearable is a watch's own sensor, warmed by the wrist, and reads well above the air. Known values: external_sensor, bike_computer, weather_report, wearable. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "temperatureIsAir": {
+                    "description": "Whether temperatureC is air temperature, which only the engine's air sources are.",
+                    "type": "boolean"
+                  },
+                  "recorder": {
+                    "description": "The recording device as manufacturer/product, e.g. garmin/edge540.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "altitudeM",
+                  "startAltitudeM",
+                  "temperatureC",
+                  "temperatureSource",
+                  "temperatureIsAir",
+                  "recorder"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "hasRoute": {
             "description": "Whether a GPS route was recorded (not included here).",
             "type": "boolean"
@@ -2482,6 +2660,7 @@
           "file",
           "load",
           "powerBests",
+          "environment",
           "hasRoute",
           "adherence",
           "strengthSession",
@@ -3176,6 +3355,28 @@
                   "type": "string"
                 }
               },
+              "homeAltitudeM": {
+                "description": "The altitude the athlete lives and usually trains at, metres. Watt targets are lowered only where today's altitude differs from the one their FTP was set at, so an athlete at altitude with an FTP from there sees no change.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "homeAltitudeSource": {
+                "anyOf": [
+                  {
+                    "description": "Where home altitude comes from: typed in (never overwritten), or observed from where the athlete's recorded runs and rides usually start (follows the recordings). Known values: entered, observed. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
               "strengthEquipment": {
                 "description": "What the athlete lifts with. Strength sessions name only exercises this allows: gym is a barbell and rack (the default), dumbbells is dumbbells or kettlebells, bodyweight is no weights. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
                 "type": "string"
@@ -3208,6 +3409,8 @@
               "ftpW",
               "ftpUpdatedAt",
               "sports",
+              "homeAltitudeM",
+              "homeAltitudeSource",
               "strengthEquipment",
               "onboardedAt"
             ]
