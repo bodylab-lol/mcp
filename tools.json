@@ -334,9 +334,58 @@
                 ]
               },
               "contributors": {
+                "description": "Every signal readiness knows about, heaviest first, whether or not it counted today — see ReadinessContributor.",
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "description": "Which wellness signal this is. Known values: hrv, restingHr, sleep, energy. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "What to call the signal to an athlete, lower case for mid-sentence use: \"resting heart rate\".",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "Whether this signal counted towards today's score. `baselining` means readings are arriving but there isn't enough history to judge them against yet — it must never be shown as a zero, which on this scale means \"exactly normal for you\". `missing` means nothing recent enough was recorded. Known values: scored, baselining, missing. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "score": {
+                      "description": "This signal's own score, −1 to +1, positive meaning recovered. Null unless state is `scored`.",
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weight": {
+                      "description": "Share of today's composite this signal carries, 0 to 1 — not a fixed weight. Readiness reweights to the signals it has, so one signal alone carries all of it. 0 unless state is `scored`.",
+                      "type": "number"
+                    },
+                    "z": {
+                      "description": "Signed deviation from this signal's own rolling baseline in standard deviations, in the direction of the reading: resting heart rate above baseline is positive, though that's the unfavourable direction — `score` is the field that always points the same way. Null when the signal isn't judged against a baseline at all, as a device's already-calibrated sleep or energy score isn't.",
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "label",
+                    "state",
+                    "score",
+                    "weight",
+                    "z"
+                  ]
                 }
               },
               "hrvZ": {
@@ -861,10 +910,36 @@
             }
           },
           "__schema11": {
-            "description": "Why, citing the metric behind each call.",
+            "description": "Why, citing the metric behind each call — the deciding reason first.",
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "role": {
+                  "description": "What this reason is doing. Known values: decision, phase, context. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "headline": {
+                  "description": "The claim: metric, value, threshold. One line.",
+                  "type": "string"
+                },
+                "detail": {
+                  "description": "The mechanism, and any citation. Null when the headline is all of it.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "role",
+                "headline",
+                "detail"
+              ]
             }
           },
           "__schema12": {
@@ -921,6 +996,10 @@
                   }
                 ]
               },
+              "acwrChronic": {
+                "description": "The chronic load acwr divides by — a 28-day EWMA, not ctl's 42-day one.",
+                "type": "number"
+              },
               "rampRate": {
                 "description": "Weekly change in ctl.",
                 "anyOf": [
@@ -938,6 +1017,7 @@
               "atl",
               "form",
               "acwr",
+              "acwrChronic",
               "rampRate"
             ]
           },
@@ -1093,9 +1173,58 @@
                 ]
               },
               "contributors": {
+                "description": "Every signal readiness knows about, heaviest first, whether or not it counted today — see ReadinessContributor.",
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "description": "Which wellness signal this is. Known values: hrv, restingHr, sleep, energy. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "What to call the signal to an athlete, lower case for mid-sentence use: \"resting heart rate\".",
+                      "type": "string"
+                    },
+                    "state": {
+                      "description": "Whether this signal counted towards today's score. `baselining` means readings are arriving but there isn't enough history to judge them against yet — it must never be shown as a zero, which on this scale means \"exactly normal for you\". `missing` means nothing recent enough was recorded. Known values: scored, baselining, missing. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "score": {
+                      "description": "This signal's own score, −1 to +1, positive meaning recovered. Null unless state is `scored`.",
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "weight": {
+                      "description": "Share of today's composite this signal carries, 0 to 1 — not a fixed weight. Readiness reweights to the signals it has, so one signal alone carries all of it. 0 unless state is `scored`.",
+                      "type": "number"
+                    },
+                    "z": {
+                      "description": "Signed deviation from this signal's own rolling baseline in standard deviations, in the direction of the reading: resting heart rate above baseline is positive, though that's the unfavourable direction — `score` is the field that always points the same way. Null when the signal isn't judged against a baseline at all, as a device's already-calibrated sleep or energy score isn't.",
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "label",
+                    "state",
+                    "score",
+                    "weight",
+                    "z"
+                  ]
                 }
               },
               "hrvZ": {
@@ -1375,7 +1504,7 @@
                 "source": {
                   "anyOf": [
                     {
-                      "description": "Where the activity came from: typed in, an uploaded file, or a connected service's name. Known values: manual, file, garmin. Treat unknown values as \"other\".",
+                      "description": "Where the activity came from. manual (typed in) and file (uploaded) are Body Lab's own; any other value is the service the athlete synced it from.",
                       "type": "string"
                     },
                     {
@@ -2160,7 +2289,7 @@
             "maxLength": 64
           },
           "__schema1": {
-            "description": "Where the activity came from: typed in, an uploaded file, or a connected service's name. Known values: manual, file, garmin. Treat unknown values as \"other\".",
+            "description": "Where the activity came from. manual (typed in) and file (uploaded) are Body Lab's own; any other value is the service the athlete synced it from.",
             "type": "string"
           },
           "__schema2": {
@@ -2317,7 +2446,7 @@
                   ]
                 },
                 "source": {
-                  "description": "Who recorded the day's readings. Known values: manual, garmin. Treat unknown values as \"other\".",
+                  "description": "Who recorded the day's readings. manual (typed in) is Body Lab's own; any other value is the service the athlete synced it from.",
                   "type": "string"
                 }
               },
