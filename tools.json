@@ -12,7 +12,7 @@
     {
       "name": "get_today",
       "title": "Today's session",
-      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, and the nearest A event's name, date, days until and taper/event-day/recovery phase, if one is set, and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, or away from their equipment or sports — which the session already respects, plus any return window after an illness or injury was cleared. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
+      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, and the nearest A event's name, date, days until and taper/event-day/recovery phase, if one is set, and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, or away from their equipment or sports, or the altitude they confirmed they're at today — which the session already respects, plus any return window after an illness or injury was cleared. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
       "scope": "training:read",
       "inputSchema": {
         "type": "object",
@@ -347,13 +347,39 @@
                     "items": {
                       "$ref": "#/$defs/__schema4"
                     }
+                  },
+                  "expectedAltitude": {
+                    "description": "The altitude the athlete confirmed they're at today. It sets today's watt targets ahead of recent recordings and home altitude; heart-rate targets never change. Only the altitude is kept, never a location.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "altitudeM": {
+                            "description": "Metres, rounded to 10.",
+                            "type": "integer"
+                          },
+                          "source": {
+                            "description": "How the altitude was worked out: device_altitude (the phone measured it), recordings (the athlete's own activities that started near where they are), elevation_data (a terrain model at their rough location), entered (typed in). Known values: device_altitude, recordings, elevation_data, entered. Treat unknown values as \"other\".",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "altitudeM",
+                          "source"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
                   "date",
                   "timeAvailableMin",
                   "equipment",
-                  "unavailableSports"
+                  "unavailableSports",
+                  "expectedAltitude"
                 ]
               },
               "active": {
@@ -1160,7 +1186,7 @@
                             "type": "number"
                           },
                           "basis": {
-                            "description": "Where that came from: home is the profile's home altitude; recent_recordings means the last two days' recordings both started there. Known values: home, recent_recordings. Treat unknown values as \"other\".",
+                            "description": "Where that came from, most trustworthy first: confirmed means the athlete confirmed it for today; recent_recordings means the last two days' recordings both started there; home is the profile's home altitude. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
                             "type": "string"
                           },
                           "ftpAltitudeM": {
