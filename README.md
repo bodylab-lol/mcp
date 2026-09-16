@@ -82,6 +82,7 @@ delete anything.
 | --- | --- |
 | `get_today` | Today's (and tomorrow's) prescribed session, the reasons behind it, alternatives, readiness |
 | `get_week` | The next seven days as the engine projects them: detailed through tomorrow, summarised after, and shifting each morning |
+| `get_weekly_review` | How a complete week went against what was prescribed, load against the band, the strength floor, and whether training so far supports an upcoming event |
 | `get_training_status` | Fitness, fatigue, form, workload ratio, strain, intensity balance, week by week |
 | `list_activities`, `get_activity` | Your activities, and one in detail with load, zones, power bests and plan adherence |
 | `get_recovery` | Morning resting HR, HRV, sleep and energy scores |

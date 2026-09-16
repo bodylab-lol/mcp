@@ -1568,6 +1568,635 @@
       }
     },
     {
+      "name": "get_weekly_review",
+      "title": "How the week went",
+      "description": "A review of one finished week (Monday to Sunday on the athlete's calendar; only complete weeks). The sessions the athlete committed to (planned, exported or sent to a device) against what was done: as prescribed, differently (fewer intervals, less work at target, another sport), skipped, or done without a recording to measure, judged in the metric each workout targeted, with any illness, injury or short day that explains it. Where the acute:chronic ratio and chronic load sat and moved; the strength floor with the count; what the athlete reported. For the most recent week, also what changes in the next seven days and why, as a projection, and what the training so far supports for an A event in the next eight weeks, from rules Body Lab already applies, not a prediction. Omit `week` for the most recent week. Use for 'how did my week go', 'did I do what was planned' or 'am I on track for my race'. Pass the sentences on as written; they cite their numbers.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "week": {
+            "description": "Any day in the week to review, e.g. from previousWeek. Omit for the most recent complete week.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "weekStart": {
+            "description": "The Monday the week starts on.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "weekEnd": {
+            "description": "The Sunday it ends on.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "latest": {
+            "description": "The most recent complete week. Only it carries `ahead` and `event`.",
+            "type": "boolean"
+          },
+          "previousWeek": {
+            "description": "The Monday of the week before, or null past the oldest week that can be reviewed.",
+            "anyOf": [
+              {
+                "$ref": "#/$defs/__schema0"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nextWeek": {
+            "description": "The Monday of the week after, or null when that week isn't over yet.",
+            "anyOf": [
+              {
+                "$ref": "#/$defs/__schema0"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "units": {
+            "description": "How to display quantities; the API always speaks SI.",
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ]
+          },
+          "hasData": {
+            "description": "Whether anything was recorded, planned or reported that week.",
+            "type": "boolean"
+          },
+          "headline": {
+            "description": "The week in one line.",
+            "$ref": "#/$defs/__schema1"
+          },
+          "sessions": {
+            "type": "object",
+            "properties": {
+              "committed": {
+                "description": "Sessions planned, exported or sent to a device for the week: the only ones there's a plan to judge against.",
+                "type": "integer"
+              },
+              "asPrescribed": {
+                "type": "integer"
+              },
+              "differently": {
+                "type": "integer"
+              },
+              "skipped": {
+                "type": "integer"
+              },
+              "unmeasured": {
+                "type": "integer"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "prescriptionId": {
+                      "$ref": "#/$defs/__schema2"
+                    },
+                    "date": {
+                      "$ref": "#/$defs/__schema0"
+                    },
+                    "modality": {
+                      "$ref": "#/$defs/__schema3"
+                    },
+                    "workoutName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "description": "as_prescribed: matched, with the work there. differently: matched but short of the work, or done as another sport. skipped: nothing in its place that day. unmeasured: done in the same sport but not matched to the plan (usually no heart-rate or power recording), so not measured. Known values: as_prescribed, differently, skipped, unmeasured. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "reason": {
+                      "anyOf": [
+                        {
+                          "description": "Why it was done differently. Known values: other_sport, fewer_intervals, less_work. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "reported": {
+                      "anyOf": [
+                        {
+                          "description": "What the athlete reported that day, where it explains a skipped or short session. Known values: illness, injury, short_on_time. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "activityId": {
+                      "description": "The activity it was matched to or replaced by, if any.",
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema2"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "text": {
+                      "$ref": "#/$defs/__schema1"
+                    }
+                  },
+                  "required": [
+                    "prescriptionId",
+                    "date",
+                    "modality",
+                    "workoutName",
+                    "status",
+                    "reason",
+                    "reported",
+                    "activityId",
+                    "text"
+                  ]
+                }
+              },
+              "done": {
+                "type": "object",
+                "properties": {
+                  "activities": {
+                    "description": "Recorded or typed-in activities.",
+                    "type": "integer"
+                  },
+                  "durationS": {
+                    "type": "number"
+                  },
+                  "load": {
+                    "type": "number"
+                  },
+                  "strengthSessions": {
+                    "description": "Strength sessions logged in Body Lab.",
+                    "type": "integer"
+                  },
+                  "restDays": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "activities",
+                  "durationS",
+                  "load",
+                  "strengthSessions",
+                  "restDays"
+                ]
+              },
+              "summary": {
+                "$ref": "#/$defs/__schema1"
+              }
+            },
+            "required": [
+              "committed",
+              "asPrescribed",
+              "differently",
+              "skipped",
+              "unmeasured",
+              "items",
+              "done",
+              "summary"
+            ]
+          },
+          "load": {
+            "type": "object",
+            "properties": {
+              "weekLoad": {
+                "type": "number"
+              },
+              "conditionedWeekLoad": {
+                "description": "Chronic load × 7 the day before the week: what a loading week is judged against. Null without a base.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "acwrLow": {
+                "description": "The bottom of the acute:chronic band.",
+                "type": "number"
+              },
+              "acwrHigh": {
+                "description": "The top of the band.",
+                "type": "number"
+              },
+              "acwrEnd": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "acwrMin": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "acwrMax": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "daysAboveBand": {
+                "type": "integer"
+              },
+              "daysBelowBand": {
+                "type": "integer"
+              },
+              "daysInBand": {
+                "type": "integer"
+              },
+              "chronicStart": {
+                "description": "Chronic load (CTL) the day before the week.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "chronicEnd": {
+                "description": "Chronic load on the Sunday.",
+                "type": "number"
+              },
+              "rampRate": {
+                "description": "Chronic load's change over the week, as a fraction.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "rampCeiling": {
+                "description": "The weekly change the engine holds chronic load under, as a fraction.",
+                "type": "number"
+              },
+              "loadingWeeks": {
+                "description": "Completed weeks in a row above chronic load; three earn a recovery week.",
+                "type": "integer"
+              },
+              "summary": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              }
+            },
+            "required": [
+              "weekLoad",
+              "conditionedWeekLoad",
+              "acwrLow",
+              "acwrHigh",
+              "acwrEnd",
+              "acwrMin",
+              "acwrMax",
+              "daysAboveBand",
+              "daysBelowBand",
+              "daysInBand",
+              "chronicStart",
+              "chronicEnd",
+              "rampRate",
+              "rampCeiling",
+              "loadingWeeks",
+              "summary"
+            ]
+          },
+          "strength": {
+            "type": "object",
+            "properties": {
+              "sessions": {
+                "type": "integer"
+              },
+              "floor": {
+                "description": "Strength sessions a week the engine defends.",
+                "type": "integer"
+              },
+              "met": {
+                "type": "boolean"
+              },
+              "last14": {
+                "description": "Sessions in the 14 days to the Sunday, the count the engine's own rule reads.",
+                "type": "integer"
+              },
+              "unloggedRecordings": {
+                "description": "Strength workouts a device recorded that were never logged, which the floor can't count.",
+                "type": "integer"
+              },
+              "summary": {
+                "$ref": "#/$defs/__schema1"
+              }
+            },
+            "required": [
+              "sessions",
+              "floor",
+              "met",
+              "last14",
+              "unloggedRecordings",
+              "summary"
+            ]
+          },
+          "reported": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "What was reported. Known values: illness, injury. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "How to name it mid-sentence: \"a head cold\", \"your knee\".",
+                      "type": "string"
+                    },
+                    "startedOn": {
+                      "$ref": "#/$defs/__schema0"
+                    },
+                    "clearedOn": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema0"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "daysInWeek": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "startedOn",
+                    "clearedOn",
+                    "daysInWeek"
+                  ]
+                }
+              },
+              "shortOnTimeDays": {
+                "type": "integer"
+              },
+              "shortestTimeMin": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "awayFromEquipmentDays": {
+                "type": "integer"
+              },
+              "summary": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              }
+            },
+            "required": [
+              "items",
+              "shortOnTimeDays",
+              "shortestTimeMin",
+              "awayFromEquipmentDays",
+              "summary"
+            ]
+          },
+          "ahead": {
+            "description": "What changes in the next seven days and why, for the most recent week only. A projection that recalculates daily, not a plan.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "description": "The day the projection was made: today.",
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "changes": {
+                    "description": "What changes in the next seven days and why, most significant first.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "headline": {
+                          "$ref": "#/$defs/__schema1"
+                        },
+                        "detail": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "headline",
+                        "detail"
+                      ]
+                    }
+                  },
+                  "note": {
+                    "description": "Why the projection will shift. Always pass it on.",
+                    "type": "string"
+                  },
+                  "assumptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "healthAssumption": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "from",
+                  "changes",
+                  "note",
+                  "assumptions",
+                  "healthAssumption"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "event": {
+            "description": "The nearest A event in the next eight weeks, for the latest week only.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/__schema2"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "eventDate": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "sport": {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "daysUntil": {
+                    "type": "integer"
+                  },
+                  "phase": {
+                    "description": "Where the athlete is relative to it. Known values: build, taper. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "taperStartsOn": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "status": {
+                    "description": "on_track: no rule the engine applies counts against it. at_risk: one does (the goal-at-risk flag, or the return-to-impact gate). too_little_evidence: no training in its sport to judge from. Known values: on_track, at_risk, too_little_evidence. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "headline": {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  "supports": {
+                    "description": "What the training so far shows, as facts.",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema1"
+                    }
+                  },
+                  "notYet": {
+                    "description": "What it doesn't support yet, from rules the engine already applies.",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema1"
+                    }
+                  },
+                  "note": {
+                    "description": "Said with the section, every time: it isn't a prediction.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "eventDate",
+                  "sport",
+                  "daysUntil",
+                  "phase",
+                  "taperStartsOn",
+                  "status",
+                  "headline",
+                  "supports",
+                  "notYet",
+                  "note"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone; weeks run Monday to Sunday in it.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "weekStart",
+          "weekEnd",
+          "latest",
+          "previousWeek",
+          "nextWeek",
+          "units",
+          "hasData",
+          "headline",
+          "sessions",
+          "load",
+          "strength",
+          "reported",
+          "ahead",
+          "event",
+          "timezone"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "description": "A sentence to show as written: it cites the number it rests on.",
+            "type": "string"
+          },
+          "__schema2": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema3": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
       "name": "get_training_status",
       "title": "Training status",
       "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
@@ -4213,7 +4842,7 @@
     {
       "name": "weekly-review",
       "title": "Review my week",
-      "description": "How the last week of training went against the weeks before it.",
+      "description": "How the last week of training went against what was prescribed, and what changes next.",
       "scope": "training:read"
     }
   ]

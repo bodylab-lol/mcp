@@ -20,6 +20,16 @@ Scope: `training:read`
 
 _No arguments._
 
+## `get_weekly_review` — How the week went
+
+A review of one finished week (Monday to Sunday on the athlete's calendar; only complete weeks). The sessions the athlete committed to (planned, exported or sent to a device) against what was done: as prescribed, differently (fewer intervals, less work at target, another sport), skipped, or done without a recording to measure, judged in the metric each workout targeted, with any illness, injury or short day that explains it. Where the acute:chronic ratio and chronic load sat and moved; the strength floor with the count; what the athlete reported. For the most recent week, also what changes in the next seven days and why, as a projection, and what the training so far supports for an A event in the next eight weeks, from rules Body Lab already applies, not a prediction. Omit `week` for the most recent week. Use for 'how did my week go', 'did I do what was planned' or 'am I on track for my race'. Pass the sentences on as written; they cite their numbers.
+
+Scope: `training:read`
+
+| Argument | Type | |
+| --- | --- | --- |
+| `week` | string (optional) | Any day in the week to review, e.g. from previousWeek. Omit for the most recent complete week. |
+
 ## `get_training_status` — Training status
 
 Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.
@@ -103,7 +113,7 @@ Scope: `training:read`
 # Prompts
 
 - **`todays-session`** — What should I do today?: Today's prescribed session, why Body Lab chose it, and the alternatives.
-- **`weekly-review`** — Review my week: How the last week of training went against the weeks before it.
+- **`weekly-review`** — Review my week: How the last week of training went against what was prescribed, and what changes next.
 
 # Server instructions
 
