@@ -1281,6 +1281,293 @@
       }
     },
     {
+      "name": "get_week",
+      "title": "The week ahead",
+      "description": "A projection of the next seven days, today first: for each day the kind of session (rest, easy, long/build, quality, strength), the sport and roughly how long, which day is the long one, when strength follows a session, planned volume cuts, and whether a taper, event day, post-event recovery or recovery week shapes it, with any illness or injury it assumes is still active. Today and tomorrow match get_today; later days are outlines with no targets. It is not a plan: each day is decided that morning from how training and recovery actually went, so always pass on the `note` and the assumptions. Use for 'what does my week look like', 'when's my long day', or planning around rest days and a race.",
+      "scope": "training:read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "description": "The day this was computed on. It recalculates every day.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "days": {
+            "description": "Seven days, today first.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "precision": {
+                  "description": "session: today or tomorrow, the same session as that card. outline: a later day — class, sport and an approximate duration, no targets. Known values: session, outline. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "sessionClass": {
+                  "type": "string",
+                  "enum": [
+                    "rest",
+                    "recovery",
+                    "easy",
+                    "build",
+                    "quality",
+                    "strength",
+                    "complete"
+                  ]
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "endurance",
+                    "strength",
+                    "rest"
+                  ]
+                },
+                "modality": {
+                  "description": "The sport, for an endurance session.",
+                  "anyOf": [
+                    {
+                      "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "durationMin": {
+                  "description": "Exact on a session day, rounded to 5 minutes and approximate on an outline day; null on a rest day.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "workoutName": {
+                  "description": "The workout's name, on a session day only.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "longest": {
+                  "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
+                  "type": "boolean"
+                },
+                "strengthAfter": {
+                  "description": "A strength session follows the day's endurance session: the strength floor is owed one, and it's offered once the ride or run is done.",
+                  "type": "boolean"
+                },
+                "deload": {
+                  "description": "A planned volume cut: a recovery week, a taper or post-event recovery.",
+                  "type": "boolean"
+                },
+                "phase": {
+                  "description": "event_day, taper and recovery come from the nearest A event; recovery_week from the training block. Null on an ordinary day.",
+                  "anyOf": [
+                    {
+                      "description": "What shapes the day beyond its session. Known values: event_day, taper, recovery, recovery_week. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "events": {
+                  "description": "Events on this date, any priority.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Opaque identifier.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "priority": {
+                        "type": "string",
+                        "enum": [
+                          "A",
+                          "B",
+                          "C"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "priority"
+                    ]
+                  }
+                },
+                "assumedHealth": {
+                  "description": "An illness or injury still open on this day, which the projection assumes hasn't cleared — nobody knows the day it will. Null today, and on days with none.",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "illness": {
+                          "anyOf": [
+                            {
+                              "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "injuries": {
+                          "type": "array",
+                          "items": {
+                            "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "illness",
+                        "injuries"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "precision",
+                "sessionClass",
+                "kind",
+                "modality",
+                "durationMin",
+                "workoutName",
+                "longest",
+                "strengthAfter",
+                "deload",
+                "phase",
+                "events",
+                "assumedHealth"
+              ]
+            }
+          },
+          "note": {
+            "description": "Why the week will change, to show with it wherever it's shown.",
+            "type": "string"
+          },
+          "assumptions": {
+            "description": "What every projection takes as given, one sentence each.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "healthAssumption": {
+            "description": "The illness or injury the week assumes is still active, in a sentence to show with the week; null when there's none.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "nearestEvent": {
+            "description": "The nearest A event and its phase, for Today's countdown chip — the same summary training-status uses.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "daysUntil": {
+                    "description": "Negative once the event has passed — only true while still inside its recovery window.",
+                    "type": "integer"
+                  },
+                  "phase": {
+                    "type": "string",
+                    "enum": [
+                      "build",
+                      "taper",
+                      "event_day",
+                      "recovery"
+                    ]
+                  },
+                  "totalDays": {
+                    "description": "Length of the taper or recovery window in days; null in the build and event_day phases.",
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "daysUntil",
+                  "phase",
+                  "totalDays"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "from",
+          "days",
+          "note",
+          "assumptions",
+          "healthAssumption",
+          "date",
+          "timezone",
+          "nearestEvent"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    {
       "name": "get_training_status",
       "title": "Training status",
       "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
