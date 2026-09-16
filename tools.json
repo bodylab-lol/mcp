@@ -12,7 +12,7 @@
     {
       "name": "get_today",
       "title": "Today's session",
-      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, and the nearest A event's name, date, days until and taper/event-day/recovery phase, if one is set. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
+      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, and the nearest A event's name, date, days until and taper/event-day/recovery phase, if one is set, and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, or away from their equipment or sports — which the session already respects, plus any return window after an illness or injury was cleared. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
       "scope": "training:read",
       "inputSchema": {
         "type": "object",
@@ -301,10 +301,202 @@
               }
             ]
           },
+          "report": {
+            "description": "What the athlete told Body Lab about today, and any return window still running. Tomorrow's plan carries illnesses and injuries forward, not today's time or equipment.",
+            "type": "object",
+            "properties": {
+              "day": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "$ref": "#/$defs/__schema13"
+                  },
+                  "timeAvailableMin": {
+                    "description": "Minutes available today; the prescription is shortened to fit.",
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "equipment": {
+                    "anyOf": [
+                      {
+                        "description": "Today's strength equipment when it isn't the profile's. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unavailableSports": {
+                    "description": "Sports the athlete can't do today.",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema4"
+                    }
+                  }
+                },
+                "required": [
+                  "date",
+                  "timeAvailableMin",
+                  "equipment",
+                  "unavailableSports"
+                ]
+              },
+              "active": {
+                "description": "Illnesses and injuries still going, oldest first.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "$ref": "#/$defs/__schema6"
+                    },
+                    "kind": {
+                      "description": "What was reported. Known values: illness, injury. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "severity": {
+                      "description": "Illness only.",
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema14"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "region": {
+                      "description": "Injury only.",
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema15"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "hurtsToLoad": {
+                      "description": "Injury only: whether putting load through it hurts.",
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "startedOn": {
+                      "$ref": "#/$defs/__schema13"
+                    },
+                    "confirmedOn": {
+                      "description": "The last day the athlete said it was still going.",
+                      "$ref": "#/$defs/__schema13"
+                    },
+                    "clearedOn": {
+                      "description": "Null while it's still going.",
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema13"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "needsConfirmation": {
+                      "description": "Still going, and last confirmed before today: ask the athlete whether it still is. It applies either way until cleared.",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "severity",
+                    "region",
+                    "hurtsToLoad",
+                    "startedOn",
+                    "confirmedOn",
+                    "clearedOn",
+                    "needsConfirmation"
+                  ]
+                }
+              },
+              "returning": {
+                "description": "Cleared recently enough that the first days back are still capped.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "reportId": {
+                      "$ref": "#/$defs/__schema6"
+                    },
+                    "kind": {
+                      "description": "What is being returned from. Known values: illness, injury. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "severity": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema14"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "region": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/__schema15"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "day": {
+                      "description": "1 on the day it was cleared.",
+                      "type": "integer"
+                    },
+                    "of": {
+                      "description": "How many days the window runs.",
+                      "type": "integer"
+                    },
+                    "maxMin": {
+                      "description": "Today's minute ceiling on the sessions it applies to.",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "reportId",
+                    "kind",
+                    "severity",
+                    "region",
+                    "day",
+                    "of",
+                    "maxMin"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "day",
+              "active",
+              "returning"
+            ]
+          },
           "date": {
             "description": "Today on the athlete's calendar.",
-            "type": "string",
-            "format": "date"
+            "$ref": "#/$defs/__schema13"
           },
           "timezone": {
             "description": "The athlete's IANA time zone.",
@@ -456,6 +648,7 @@
           "completed",
           "excludedActivities",
           "nearestEvent",
+          "report",
           "date",
           "timezone",
           "readiness",
@@ -946,6 +1139,19 @@
             "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
             "type": "string",
             "format": "date-time"
+          },
+          "__schema13": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema14": {
+            "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema15": {
+            "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
+            "type": "string"
           }
         }
       }
