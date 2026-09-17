@@ -6,7 +6,8 @@ description: Use when answering questions about the user's training, recovery, a
 
 Body Lab prescribes one session a day from the athlete's training load and
 morning recovery signals, and cites the metric behind each call. Its tools
-are read-only.
+are read-only, except that, where the athlete allowed it, an assistant can add
+lab results (`record_lab_results`); nothing can be changed or deleted.
 
 ## Which tool
 
@@ -18,6 +19,8 @@ are read-only.
 | What did I do? How did a particular session go? | `list_activities`, then `get_activity` with its `id` |
 | Sleep, HRV, resting heart rate, "am I recovered" | `get_recovery` (and `get_today`'s `readiness`) |
 | Lifting: what weights next, recent sessions, estimated maxes | `get_strength` |
+| Blood tests: how's my ferritin, what did my last panel show | `get_lab_results` (needs the athlete to have allowed lab results) |
+| Record this lab report | `record_lab_results`, after reading every value back to the athlete and getting their yes |
 | Zones, FTP, max/resting HR, test results, power curve | `get_profile` |
 | Which exercise is which | `find_exercises` |
 | Where to ride or run today | `suggest_routes` |

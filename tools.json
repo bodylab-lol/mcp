@@ -6,7 +6,9 @@
     "instructions": "Body Lab is the athlete's training app: it reads their training load and morning recovery signals and prescribes one session a day (endurance with heart-rate and power targets, or strength with sets, reps and weights), citing the metric behind each call.\n\n- Body Lab's prescription and rationale are the source of truth for what the athlete should do; explain them rather than substituting your own plan, and say so when you disagree.\n- Quantities are SI with the unit in the field name (durationS seconds, distanceM metres, weightKg, avgPowerW). Convert to the athlete's display units (`units`: metric or imperial) when talking to them.\n- Dates like 2026-09-13 are days on the athlete's own calendar; instants are ISO-8601 UTC. get_today returns today's date and the athlete's time zone.\n- Training load is on Body Lab's calibrated scale; CTL is fitness, ATL fatigue, form = CTL − ATL, ACWR the acute:chronic ratio.\n- This is training guidance, not medical advice."
   },
   "scopes": {
-    "training:read": "See your training, recovery, activities and profile"
+    "training:read": "See your training, recovery, activities and profile",
+    "labs:read": "See your lab results",
+    "labs:write": "Add lab results you give it. It can't change or delete them"
   },
   "tools": [
     {
@@ -14,6 +16,7 @@
       "title": "Today's session",
       "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, and the nearest A event's name, date, days until and taper/event-day/recovery phase, if one is set, and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, or away from their equipment or sports, or the altitude they confirmed they're at today — which the session already respects, plus any return window after an illness or injury was cleared. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {}
@@ -1285,6 +1288,7 @@
       "title": "The week ahead",
       "description": "A projection of the next seven days, today first: for each day the kind of session (rest, easy, long/build, quality, strength), the sport and roughly how long, which day is the long one, when strength follows a session, planned volume cuts, and whether a taper, event day, post-event recovery or recovery week shapes it, with any illness or injury it assumes is still active. Today and tomorrow match get_today; later days are outlines with no targets. It is not a plan: each day is decided that morning from how training and recovery actually went, so always pass on the `note` and the assumptions. Use for 'what does my week look like', 'when's my long day', or planning around rest days and a race.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {}
@@ -1572,6 +1576,7 @@
       "title": "How the week went",
       "description": "A review of one finished week (Monday to Sunday on the athlete's calendar; only complete weeks). The sessions the athlete committed to (planned, exported or sent to a device) against what was done: as prescribed, differently (fewer intervals, less work at target, another sport), skipped, or done without a recording to measure, judged in the metric each workout targeted, with any illness, injury or short day that explains it. Where the acute:chronic ratio and chronic load sat and moved; the strength floor with the count; what the athlete reported. For the most recent week, also what changes in the next seven days and why, as a projection, and what the training so far supports for an A event in the next eight weeks, from rules Body Lab already applies, not a prediction. Omit `week` for the most recent week. Use for 'how did my week go', 'did I do what was planned' or 'am I on track for my race'. Pass the sentences on as written; they cite their numbers.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2201,6 +2206,7 @@
       "title": "Training status",
       "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2693,6 +2699,7 @@
       "title": "Activities",
       "description": "The athlete's activities, newest first, 25 per page: recorded and typed-in sessions and strength workouts, with sport, start time, duration (s), distance (m) and training load. Use get_activity with an id for the detail of one.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2844,6 +2851,7 @@
       "title": "One activity",
       "description": "One activity in detail: duration, distance, elevation, heart rate, power, session RPE, notes, the training load and where it came from, time in each heart-rate zone, power bests (the best average watts over each duration within this activity; after intervals a longer duration's best can be higher than a shorter one's, because the longer window spans two efforts and the shorter can hold only one plus recovery), how it compared with the planned session (if there was one), and the strength sets logged against it.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3679,6 +3687,7 @@
       "title": "Recovery readings",
       "description": "Morning recovery readings by day, newest first: resting heart rate (bpm), overnight HRV (ms, RMSSD), sleep score and a device energy score (both 0–100). Days without readings are absent. Use for sleep, HRV or 'how recovered am I' questions; get_today already includes today's readiness verdict.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3807,6 +3816,7 @@
       "title": "Strength training",
       "description": "The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held), estimated one-rep maxes, and the most recent logged strength sessions set by set.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4155,6 +4165,7 @@
       "title": "Athlete profile",
       "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {}
@@ -4546,6 +4557,7 @@
       "title": "Exercise catalogue",
       "description": "Body Lab's strength exercise catalogue, optionally filtered by a word in the name or by movement pattern (squat, hinge, lunge, horizontal_push, vertical_pull…).",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4648,6 +4660,7 @@
       "title": "Routes for today",
       "description": "Routes the athlete has done before that fit today's prescribed endurance sessions, grouped by start area and sport, with duration, distance, climbing, how often they've been done and why each fits. Only sports with a prescribed session today and a route history appear.",
       "scope": "training:read",
+      "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4827,6 +4840,1424 @@
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_lab_results",
+      "title": "Lab results",
+      "description": "The athlete's blood test results as entered from lab reports. Each marker over time: the latest value against the lab's range and flag and any guideline limit (naming its source and population), whether the change since the last comparable draw is beyond the marker's normal variation, and how loudly to raise it (`tier`, `message`). Each draw: date, lab, results as printed, and the conditions that decide whether draws compare. Pass `message` on word for word, and never call a value safe, healthy or optimal. Lab results never change the training Body Lab prescribes, and this isn't a diagnosis. Use for 'how's my ferritin', 'what did my last blood test show', or to check what's already recorded before recording more.",
+      "scope": "labs:read",
+      "readOnly": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "marker": {
+            "description": "Only this marker's key (e.g. ferritin, ldl_c), and only draws that include it. Omit for everything.",
+            "type": "string",
+            "maxLength": 64
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "markers": {
+            "description": "Each marker read over time, grouped by catalog group, then by name.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "marker": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "group": {
+                  "description": "The catalog group, for grouping cards; other for anything the catalog doesn't know. Known values: iron, blood_count, lipids, glycaemic, thyroid, hormones, kidney, liver_muscle, inflammation, vitamins, other. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "groupLabel": {
+                  "type": "string"
+                },
+                "known": {
+                  "description": "Whether the catalog knows this marker. Unknown markers are trended without guideline limits or a measure of normal variation.",
+                  "type": "boolean"
+                },
+                "labRange": {
+                  "description": "The latest result's range, as the lab printed it. Label it \"Lab range\".",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "low": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "high": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "text": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "low",
+                        "high",
+                        "text"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "labFlag": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "limits": {
+                  "description": "Guideline limits that apply to this result, as ticks on the same axis as the lab range. Empty where no guideline states one.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "description": "Who states the limit, and what kind: \"EAS/EFLM 2016 flag\".",
+                        "type": "string"
+                      },
+                      "population": {
+                        "description": "Whom it was stated for.",
+                        "type": "string"
+                      },
+                      "comparison": {
+                        "$ref": "#/$defs/__schema0"
+                      },
+                      "value": {
+                        "description": "In the latest result's unit.",
+                        "type": "number"
+                      },
+                      "unit": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "description": "For display: \"EAS/EFLM 2016 flag, adults: ≥115 mg/dL\".",
+                        "type": "string"
+                      },
+                      "tier": {
+                        "description": "How loud crossing it is. Known values: none, raise, soon, today. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      "crossed": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "source",
+                      "population",
+                      "comparison",
+                      "value",
+                      "unit",
+                      "label",
+                      "tier",
+                      "crossed"
+                    ]
+                  }
+                },
+                "tier": {
+                  "description": "none: say nothing. raise: \"Worth raising with a clinician.\" soon: \"Contact a clinician soon.\" today: \"Contact a clinician today.\" Known values: none, raise, soon, today. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "The tier's sentence, word for word; null for none.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reasons": {
+                  "description": "What triggered the tier, loudest first.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tier": {
+                        "description": "How loud this reason is on its own. Known values: none, raise, soon, today. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "tier",
+                      "text"
+                    ]
+                  }
+                },
+                "notes": {
+                  "description": "Caveats to show with the card.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "context": {
+                  "description": "A population fact about athletes, never about this athlete.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "latest": {
+                  "$ref": "#/$defs/__schema1"
+                },
+                "trend": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "description": "trend: a line through comparable draws. once: measured once (Lp(a)), list only. not_trended: listed, never joined. Known values: trend, once, not_trended. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "note": {
+                      "description": "Why a marker isn't trended.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "points": {
+                      "description": "Every result for this marker, oldest first; the last is `latest`.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/__schema1"
+                      }
+                    },
+                    "change": {
+                      "description": "Since the last comparable draw on the same line.",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "fromDrawId": {
+                              "$ref": "#/$defs/__schema2"
+                            },
+                            "fromDate": {
+                              "$ref": "#/$defs/__schema3"
+                            },
+                            "percent": {
+                              "type": "number"
+                            },
+                            "verdict": {
+                              "anyOf": [
+                                {
+                                  "description": "within normal variation, or a rise or fall beyond it; null where the marker has no known variation. Known values: within, rise, fall. Treat unknown values as \"other\".",
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "risePercent": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "fallPercent": {
+                              "anyOf": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "text": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "fromDrawId",
+                            "fromDate",
+                            "percent",
+                            "verdict",
+                            "risePercent",
+                            "fallPercent",
+                            "text"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "mode",
+                    "note",
+                    "points",
+                    "change"
+                  ]
+                }
+              },
+              "required": [
+                "marker",
+                "label",
+                "group",
+                "groupLabel",
+                "known",
+                "labRange",
+                "labFlag",
+                "limits",
+                "tier",
+                "message",
+                "reasons",
+                "notes",
+                "context",
+                "latest",
+                "trend"
+              ]
+            }
+          },
+          "draws": {
+            "description": "Blood draws, newest first, each with its results as the report printed them and the conditions it was drawn under.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/__schema2"
+                },
+                "localDate": {
+                  "description": "The day of the draw on the athlete's calendar.",
+                  "$ref": "#/$defs/__schema3"
+                },
+                "collectedTime": {
+                  "description": "HH:MM on the athlete's clock, where the report gave a time.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "collectedAt": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/__schema4"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "labName": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "fastingHours": {
+                  "description": "Null: not answered.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "recentIllness": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ironSupplement10d": {
+                  "description": "Iron by mouth or infusion in the 10 days before.",
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "biotin": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "creatine": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "hormoneMedication": {
+                  "description": "Thyroid or sex-hormone medication, hormonal contraception included.",
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "menstruating": {
+                  "description": "false: no current cycle.",
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "cycleDay": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "altitudeM": {
+                  "description": "The altitude the athlete lived at, metres.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "hoursSinceSession": {
+                  "description": "Hours from the end of the athlete's last recorded session to the draw, worked out from their activities when read; null where it can't be told.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "source": {
+                  "description": "How the draw was entered. Known values: manual. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "$ref": "#/$defs/__schema2"
+                      },
+                      "marker": {
+                        "description": "A catalog key (ferritin, ldl_c, apob, …) or a key made from a printed name the catalog doesn't know.",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "The marker's name as printed, where it was typed.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "label": {
+                        "description": "The catalog's name for a known marker, else the printed name.",
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "number"
+                      },
+                      "comparator": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/__schema0"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "unit": {
+                        "description": "As printed.",
+                        "type": "string"
+                      },
+                      "valueCanonical": {
+                        "description": "In `canonicalUnit`, only where the conversion is a fixed factor. Always null for Lp(a).",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "canonicalUnit": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "method": {
+                        "description": "For example the LDL or eGFR equation.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "assay": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rangeLow": {
+                        "description": "The lab's range as printed.",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rangeHigh": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rangeText": {
+                        "description": "The range as printed, where it isn't two numbers.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "labFlag": {
+                        "description": "As printed: H, L, critical, …",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "marker",
+                      "name",
+                      "label",
+                      "value",
+                      "comparator",
+                      "unit",
+                      "valueCanonical",
+                      "canonicalUnit",
+                      "method",
+                      "assay",
+                      "rangeLow",
+                      "rangeHigh",
+                      "rangeText",
+                      "labFlag"
+                    ]
+                  }
+                },
+                "createdAt": {
+                  "$ref": "#/$defs/__schema4"
+                },
+                "updatedAt": {
+                  "$ref": "#/$defs/__schema4"
+                }
+              },
+              "required": [
+                "id",
+                "localDate",
+                "collectedTime",
+                "collectedAt",
+                "labName",
+                "fastingHours",
+                "recentIllness",
+                "ironSupplement10d",
+                "biotin",
+                "creatine",
+                "hormoneMedication",
+                "menstruating",
+                "cycleDay",
+                "altitudeM",
+                "hoursSinceSession",
+                "source",
+                "results",
+                "createdAt",
+                "updatedAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "markers",
+          "draws"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "How a result printed like \"<0.5\" compares; null for a plain number. Known values: <, <=, >, >=. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema1": {
+            "type": "object",
+            "properties": {
+              "drawId": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "localDate": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "value": {
+                "type": "number"
+              },
+              "comparator": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "unit": {
+                "type": "string"
+              },
+              "comparable": {
+                "description": "Drawn under the same relevant conditions as the latest result, so the two can be compared. Otherwise `differences` says what differs.",
+                "type": "boolean"
+              },
+              "differences": {
+                "description": "Which conditions differ from the latest draw, or weren't answered.",
+                "type": "array",
+                "items": {
+                  "description": "What about a draw decides comparability: time_of_day (before or after noon), fasting (8 h or more), recent_training (under 48 h, 2–7 days, 7 days or more since the last session), recent_illness, iron_supplement (in the 10 days before), biotin, creatine, hormone_medication (thyroid or sex-hormone, hormonal contraception included), cycle, altitude (WHO's 500 m bands). Known values: time_of_day, fasting, recent_training, recent_illness, iron_supplement, biotin, creatine, hormone_medication, cycle, altitude. Treat unknown values as \"other\".",
+                  "type": "string"
+                }
+              },
+              "hoursSinceSession": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "labName": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "method": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "assay": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "drawId",
+              "localDate",
+              "value",
+              "comparator",
+              "unit",
+              "comparable",
+              "differences",
+              "hoursSinceSession",
+              "labName",
+              "method",
+              "assay"
+            ]
+          },
+          "__schema2": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema3": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema4": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "record_lab_results",
+      "title": "Record lab results",
+      "description": "Records one blood draw and its results from a lab report the athlete gives you (a PDF, a photo, or values they type), exactly as printed. Before calling, read every marker, value, unit and range back to the athlete and get their yes: this can't edit or delete anything afterwards; only the athlete can, in Body Lab on the web. One call per draw date. Use `marker` keys from the list in its description; for a marker not listed, leave `marker` out and give `name` as printed. It's all or nothing: if any result is refused (an unknown key, a unit Body Lab doesn't recognise for that marker, a marker already recorded for a draw on that date, a range whose ends are reversed) nothing is saved, and the error lists each problem so you can fix it and call again. Returns the draw as saved.",
+      "scope": "labs:write",
+      "readOnly": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "localDate": {
+            "description": "The day the blood was drawn (collected) on the athlete's calendar, YYYY-MM-DD — not the day the report was issued.",
+            "type": "string",
+            "format": "date"
+          },
+          "collectedTime": {
+            "description": "The collection time, HH:MM on the athlete's clock. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "labName": {
+            "description": "The lab's name, as the report prints it.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fastingHours": {
+            "description": "Hours since the athlete last ate before the draw. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 96
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recentIllness": {
+            "description": "Whether the athlete was ill in the days before. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ironSupplement10d": {
+            "description": "Iron by mouth or infusion in the 10 days before. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "biotin": {
+            "description": "Biotin taken before the draw. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "creatine": {
+            "description": "Creatine taken before the draw. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hormoneMedication": {
+            "description": "Thyroid or sex-hormone medication, hormonal contraception included. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "menstruating": {
+            "description": "true: has a current menstrual cycle; false: no current cycle. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cycleDay": {
+            "description": "Day of the cycle, only with menstruating true. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 90
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "altitudeM": {
+            "description": "The altitude the athlete lived at, metres. Only if the athlete told you or the report says; leave out rather than guess.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -450,
+                "maximum": 5500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "results": {
+            "description": "Every result on the report to record, each once.",
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "marker": {
+                  "description": "Body Lab's key for the marker. Known keys, each with the units Body Lab recognises for it (µ may be written u, and µg mcg): ferritin (Ferritin): ng/mL, µg/L; iron (Iron (serum)): µg/dL, µmol/L; transferrin (Transferrin): mg/dL, g/L; tibc (Total iron-binding capacity (TIBC)): µg/dL, µmol/L; transferrin_saturation (Transferrin saturation): %; haemoglobin (Haemoglobin): g/dL, g/L; haematocrit (Haematocrit): %, L/L; red_cells (Red blood cells): 10^6/µL, 10^12/L; mcv (Mean cell volume (MCV)): fL; mch (Mean cell haemoglobin (MCH)): pg; mchc (Mean cell haemoglobin concentration (MCHC)): g/dL, g/L; white_cells (White blood cells): 10^3/µL, 10^9/L; platelets (Platelets): 10^3/µL, 10^9/L; total_cholesterol (Total cholesterol): mg/dL, mmol/L; ldl_c (LDL cholesterol): mg/dL, mmol/L; hdl_c (HDL cholesterol): mg/dL, mmol/L; non_hdl_c (Non-HDL cholesterol): mg/dL, mmol/L; triglycerides (Triglycerides): mg/dL, mmol/L; apob (Apolipoprotein B (ApoB)): mg/dL, g/L; lpa (Lipoprotein(a)): mg/dL, nmol/L; hba1c (HbA1c): %, mmol/mol; glucose (Glucose): mg/dL, mmol/L; tsh (TSH): mIU/L, µIU/mL; free_t4 (Free T4): ng/dL, pmol/L; free_t3 (Free T3): pg/mL, pmol/L; testosterone (Testosterone (total)): ng/dL, nmol/L; free_testosterone (Free testosterone): pg/mL, pmol/L; shbg (SHBG): nmol/L; oestradiol (Oestradiol): pg/mL, pmol/L; cortisol (Cortisol): µg/dL, nmol/L; insulin (Insulin): µIU/mL, pmol/L; creatinine (Creatinine): mg/dL, µmol/L; egfr (eGFR): mL/min/1.73m²; cystatin_c (Cystatin C): mg/L; alt (ALT): U/L; ast (AST): U/L; ggt (GGT): U/L; ck (Creatine kinase (CK)): U/L; hs_crp (hs-CRP): mg/L, mg/dL; crp (CRP): mg/L, mg/dL; vitamin_d (Vitamin D (25-OH)): ng/mL, nmol/L; vitamin_b12 (Vitamin B12): pg/mL, pmol/L; folate (Folate): ng/mL, nmol/L; magnesium (Magnesium (serum)): mg/dL, mmol/L; omega3_index (Omega-3 index): %. For a marker not on this list, leave marker out and give `name`.",
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "name": {
+                  "description": "The marker's name exactly as the report prints it. Needed only when `marker` is left out; a name that matches a known marker is recorded as that marker.",
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "value": {
+                  "description": "The number as printed, without any \"<\" or \">\": 0.5 for \"<0.5\".",
+                  "type": "number"
+                },
+                "comparator": {
+                  "description": "For a result printed like \"<0.5\" or \">=90\": the sign. Leave out for a plain number.",
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "<",
+                        "<=",
+                        ">",
+                        ">="
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unit": {
+                  "description": "The unit exactly as the report prints it.",
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "rangeLow": {
+                  "description": "The low end of the lab's own reference range, as printed. Leave out if the report gives none.",
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rangeHigh": {
+                  "description": "The high end of the lab's reference range, as printed.",
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rangeText": {
+                  "description": "The range as printed when it isn't two numbers, e.g. \"<200\" or \"Negative\".",
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 120
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "labFlag": {
+                  "description": "The flag the lab printed beside the result (H, L, critical, …), if any.",
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 40
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "method": {
+                  "description": "A method the report names for this result, such as the LDL or eGFR equation.",
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 120
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "assay": {
+                  "description": "An assay the report names for this result.",
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 120
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "value",
+                "unit"
+              ]
+            }
+          }
+        },
+        "required": [
+          "localDate",
+          "results"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "draw": {
+            "description": "The draw as Body Lab saved it, with each result's catalog name.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "localDate": {
+                "description": "The day of the draw on the athlete's calendar.",
+                "type": "string",
+                "format": "date"
+              },
+              "collectedTime": {
+                "description": "HH:MM on the athlete's clock, where the report gave a time.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "collectedAt": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "labName": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "fastingHours": {
+                "description": "Null: not answered.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "recentIllness": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "ironSupplement10d": {
+                "description": "Iron by mouth or infusion in the 10 days before.",
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "biotin": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "creatine": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hormoneMedication": {
+                "description": "Thyroid or sex-hormone medication, hormonal contraception included.",
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "menstruating": {
+                "description": "false: no current cycle.",
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "cycleDay": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "altitudeM": {
+                "description": "The altitude the athlete lived at, metres.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hoursSinceSession": {
+                "description": "Hours from the end of the athlete's last recorded session to the draw, worked out from their activities when read; null where it can't be told.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "source": {
+                "description": "How the draw was entered. Known values: manual. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              "results": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "$ref": "#/$defs/__schema0"
+                    },
+                    "marker": {
+                      "description": "A catalog key (ferritin, ldl_c, apob, …) or a key made from a printed name the catalog doesn't know.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "The marker's name as printed, where it was typed.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "label": {
+                      "description": "The catalog's name for a known marker, else the printed name.",
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "comparator": {
+                      "anyOf": [
+                        {
+                          "description": "How a result printed like \"<0.5\" compares; null for a plain number. Known values: <, <=, >, >=. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "unit": {
+                      "description": "As printed.",
+                      "type": "string"
+                    },
+                    "valueCanonical": {
+                      "description": "In `canonicalUnit`, only where the conversion is a fixed factor. Always null for Lp(a).",
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "canonicalUnit": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "method": {
+                      "description": "For example the LDL or eGFR equation.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "assay": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "rangeLow": {
+                      "description": "The lab's range as printed.",
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "rangeHigh": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "rangeText": {
+                      "description": "The range as printed, where it isn't two numbers.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "labFlag": {
+                      "description": "As printed: H, L, critical, …",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "marker",
+                    "name",
+                    "label",
+                    "value",
+                    "comparator",
+                    "unit",
+                    "valueCanonical",
+                    "canonicalUnit",
+                    "method",
+                    "assay",
+                    "rangeLow",
+                    "rangeHigh",
+                    "rangeText",
+                    "labFlag"
+                  ]
+                }
+              },
+              "createdAt": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "updatedAt": {
+                "$ref": "#/$defs/__schema1"
+              }
+            },
+            "required": [
+              "id",
+              "localDate",
+              "collectedTime",
+              "collectedAt",
+              "labName",
+              "fastingHours",
+              "recentIllness",
+              "ironSupplement10d",
+              "biotin",
+              "creatine",
+              "hormoneMedication",
+              "menstruating",
+              "cycleDay",
+              "altitudeM",
+              "hoursSinceSession",
+              "source",
+              "results",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        },
+        "required": [
+          "draw"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema1": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

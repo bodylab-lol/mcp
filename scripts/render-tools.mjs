@@ -7,31 +7,47 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 const manifest = JSON.parse(readFileSync(new URL("../tools.json", import.meta.url), "utf8"));
 
-function params(schema) {
-  const props = Object.entries(schema.properties ?? {});
-  if (props.length === 0) return "_No arguments._\n";
+// One row per argument. An array of objects (record_lab_results' `results`)
+// also gets a row for each of its items' fields, as `results[].marker`, so
+// what each item takes is in the reference and not only in tools.json.
+function rows(schema, prefix = "") {
   const required = new Set(schema.required ?? []);
-  const rows = props.map(([name, p]) => {
-    const type = p.type ?? (p.anyOf ? p.anyOf.map((a) => a.type).filter(Boolean).join(" | ") : "");
-    const range = [p.minimum !== undefined ? `min ${p.minimum}` : "", p.maximum !== undefined ? `max ${p.maximum}` : "", p.default !== undefined ? `default ${JSON.stringify(p.default)}` : ""]
+  return Object.entries(schema.properties ?? {}).flatMap(([name, p]) => {
+    // "or", not "|", which would end the table cell.
+    const type = p.type ?? (p.anyOf ? p.anyOf.map((a) => a.type).filter(Boolean).join(" or ") : "");
+    const range = [
+      p.minimum !== undefined ? `min ${p.minimum}` : "",
+      p.maximum !== undefined ? `max ${p.maximum}` : "",
+      p.minItems !== undefined ? `at least ${p.minItems}` : "",
+      p.maxItems !== undefined ? `at most ${p.maxItems}` : "",
+      p.default !== undefined ? `default ${JSON.stringify(p.default)}` : "",
+    ]
       .filter(Boolean)
       .join(", ");
     const desc = (p.description ?? "").replace(/\|/g, "\\|");
-    return `| \`${name}\` | ${type}${required.has(name) && p.default === undefined ? "" : " (optional)"} | ${[desc, range].filter(Boolean).join(" ")} |`;
+    const row = `| \`${prefix}${name}\` | ${type}${required.has(name) && p.default === undefined ? "" : " (optional)"} | ${[desc, range].filter(Boolean).join(" ")} |`;
+    const items = p.type === "array" && p.items?.type === "object" ? rows(p.items, `${prefix}${name}[].`) : [];
+    return [row, ...items];
   });
-  return ["| Argument | Type | |", "| --- | --- | --- |", ...rows].join("\n") + "\n";
+}
+
+function params(schema) {
+  const all = rows(schema);
+  if (all.length === 0) return "_No arguments._\n";
+  return ["| Argument | Type | |", "| --- | --- | --- |", ...all].join("\n") + "\n";
 }
 
 const out = [
   "# Tools",
   "",
-  "Generated from [`tools.json`](tools.json) by `node scripts/render-tools.mjs`. Every tool is read-only and returns structured content matching its `outputSchema` in `tools.json`, plus the same JSON as text.",
+  "Generated from [`tools.json`](tools.json) by `node scripts/render-tools.mjs`. Every tool returns structured content matching its `outputSchema` in `tools.json`, plus the same JSON as text. Every tool is read-only except where it says it writes, and a tool is only available when the athlete allowed its scope.",
   "",
   "Quantities are SI with the unit in the field name (`durationS`, `distanceM`, `weightKg`, `avgPowerW`); dates like `2026-09-13` are days on the athlete's calendar; instants are ISO-8601 UTC.",
   "",
 ];
 for (const t of manifest.tools) {
-  out.push(`## \`${t.name}\` — ${t.title}`, "", t.description, "", `Scope: \`${t.scope}\``, "", params(t.inputSchema));
+  const access = t.readOnly === false ? "Writes: adds data, and can't change or delete it." : "Read-only.";
+  out.push(`## \`${t.name}\` — ${t.title}`, "", t.description, "", `Scope: \`${t.scope}\`. ${access}`, "", params(t.inputSchema));
 }
 out.push("# Prompts", "");
 for (const p of manifest.prompts) out.push(`- **\`${p.name}\`** — ${p.title}: ${p.description}`);

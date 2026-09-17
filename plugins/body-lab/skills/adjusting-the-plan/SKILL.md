@@ -30,6 +30,6 @@ than starting over.
 4. Check `tomorrow`: moving today's hard session often changes what tomorrow
    should be.
 
-Body Lab's tools are read-only. Once the athlete has picked, they record it
+Body Lab's training tools are read-only. Once the athlete has picked, they record it
 in the Body Lab app ("Plan it" or the session runner); the next recommendation
 accounts for what they actually did.
