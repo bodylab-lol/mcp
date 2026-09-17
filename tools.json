@@ -14,7 +14,7 @@
     {
       "name": "get_today",
       "title": "Today's session",
-      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, and the nearest A event's name, date, days until and taper/event-day/recovery phase, if one is set, and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, or away from their equipment or sports, or the altitude they confirmed they're at today — which the session already respects, plus any return window after an illness or injury was cleared. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
+      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, the nearest A event's name, date, days until and taper/event-day/recovery phase, and its preparation phase — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan — and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, or away from their equipment or sports, or the altitude they confirmed they're at today — which the session already respects, plus any return window after an illness or injury was cleared. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -312,6 +312,76 @@
               }
             ]
           },
+          "preparation": {
+            "description": "The preparation phase today falls in, for the status strip's countdown; null when none applies.",
+            "anyOf": [
+              {
+                "description": "The emphasis of the current block of training before the athlete's nearest A event. Recomputed every morning from the event's date and expected duration; readiness still decides each day, and a phase never overrides a rest day, a taper or a recovery window.",
+                "type": "object",
+                "properties": {
+                  "eventId": {
+                    "$ref": "#/$defs/__schema6"
+                  },
+                  "eventName": {
+                    "type": "string"
+                  },
+                  "phase": {
+                    "$ref": "#/$defs/__schema15"
+                  },
+                  "week": {
+                    "description": "Which week of this phase today is in, from 1.",
+                    "type": "integer"
+                  },
+                  "weeks": {
+                    "description": "How many weeks the phase runs for.",
+                    "type": "integer"
+                  },
+                  "startsOn": {
+                    "$ref": "#/$defs/__schema13"
+                  },
+                  "endsOn": {
+                    "description": "Inclusive: the last day of this phase.",
+                    "$ref": "#/$defs/__schema13"
+                  },
+                  "nextPhase": {
+                    "description": "The phase after this one; null in the taper, whose successor is the event itself.",
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema15"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nextStartsOn": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema13"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "eventId",
+                  "eventName",
+                  "phase",
+                  "week",
+                  "weeks",
+                  "startsOn",
+                  "endsOn",
+                  "nextPhase",
+                  "nextStartsOn"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "report": {
             "description": "What the athlete told Body Lab about today, and any return window still running. Tomorrow's plan carries illnesses and injuries forward, not today's time or equipment.",
             "type": "object",
@@ -402,7 +472,7 @@
                       "description": "Illness only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema15"
+                          "$ref": "#/$defs/__schema16"
                         },
                         {
                           "type": "null"
@@ -413,7 +483,7 @@
                       "description": "Injury only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema16"
+                          "$ref": "#/$defs/__schema17"
                         },
                         {
                           "type": "null"
@@ -483,7 +553,7 @@
                     "severity": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema15"
+                          "$ref": "#/$defs/__schema16"
                         },
                         {
                           "type": "null"
@@ -493,7 +563,7 @@
                     "region": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema16"
+                          "$ref": "#/$defs/__schema17"
                         },
                         {
                           "type": "null"
@@ -685,6 +755,7 @@
           "completed",
           "excludedActivities",
           "nearestEvent",
+          "preparation",
           "report",
           "date",
           "timezone",
@@ -1279,10 +1350,14 @@
             "format": "date-time"
           },
           "__schema15": {
-            "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+            "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
             "type": "string"
           },
           "__schema16": {
+            "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema17": {
             "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
             "type": "string"
           }
@@ -1292,7 +1367,7 @@
     {
       "name": "get_week",
       "title": "The week ahead",
-      "description": "A projection of the next seven days, today first: for each day the kind of session (rest, easy, long/build, quality, strength), the sport and roughly how long, which day is the long one, when strength follows a session, planned volume cuts, and whether a taper, event day, post-event recovery or recovery week shapes it, with any illness or injury it assumes is still active. Today and tomorrow match get_today; later days are outlines with no targets. It is not a plan: each day is decided that morning from how training and recovery actually went, so always pass on the `note` and the assumptions. Use for 'what does my week look like', 'when's my long day', or planning around rest days and a race.",
+      "description": "A projection of the next seven days, today first: for each day the kind of session (rest, easy, long/build, quality, strength), the sport and roughly how long, which day is the long one, when strength follows a session, planned volume cuts, and whether a taper, event day, post-event recovery or recovery week shapes it, with any illness or injury it assumes is still active. Each day carries its preparation phase too (Base, Build, Specific — often called Peak — or Taper): an emphasis recomputed each morning from the A event's date, not a plan. Today and tomorrow match get_today; later days are outlines with no targets. It is not a plan: each day is decided that morning from how training and recovery actually went, so always pass on the `note` and the assumptions. Use for 'what does my week look like', 'when's my long day', or planning around rest days and a race.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -1397,6 +1472,17 @@
                     }
                   ]
                 },
+                "preparation": {
+                  "description": "The preparation phase this day falls in (see PreparationPhase), or null. Separate from `phase` above because a day can be both — Build and a recovery week — and a client that had to pick one would drop the one the athlete plans around.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/__schema1"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "events": {
                   "description": "Events on this date, any priority.",
                   "type": "array",
@@ -1404,10 +1490,7 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "description": "Opaque identifier.",
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 64
+                        "$ref": "#/$defs/__schema2"
                       },
                       "name": {
                         "type": "string"
@@ -1476,6 +1559,7 @@
                 "strengthAfter",
                 "deload",
                 "phase",
+                "preparation",
                 "events",
                 "assumedHealth"
               ]
@@ -1556,6 +1640,76 @@
                 "type": "null"
               }
             ]
+          },
+          "preparation": {
+            "description": "The preparation phase today falls in, for the status strip's countdown; null when none applies.",
+            "anyOf": [
+              {
+                "description": "The emphasis of the current block of training before the athlete's nearest A event. Recomputed every morning from the event's date and expected duration; readiness still decides each day, and a phase never overrides a rest day, a taper or a recovery window.",
+                "type": "object",
+                "properties": {
+                  "eventId": {
+                    "$ref": "#/$defs/__schema2"
+                  },
+                  "eventName": {
+                    "type": "string"
+                  },
+                  "phase": {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  "week": {
+                    "description": "Which week of this phase today is in, from 1.",
+                    "type": "integer"
+                  },
+                  "weeks": {
+                    "description": "How many weeks the phase runs for.",
+                    "type": "integer"
+                  },
+                  "startsOn": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "endsOn": {
+                    "description": "Inclusive: the last day of this phase.",
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "nextPhase": {
+                    "description": "The phase after this one; null in the taper, whose successor is the event itself.",
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nextStartsOn": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema0"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "eventId",
+                  "eventName",
+                  "phase",
+                  "week",
+                  "weeks",
+                  "startsOn",
+                  "endsOn",
+                  "nextPhase",
+                  "nextStartsOn"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -1566,13 +1720,24 @@
           "healthAssumption",
           "date",
           "timezone",
-          "nearestEvent"
+          "nearestEvent",
+          "preparation"
         ],
         "$defs": {
           "__schema0": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
+          },
+          "__schema1": {
+            "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema2": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           }
         }
       }
@@ -2210,7 +2375,7 @@
     {
       "name": "get_training_status",
       "title": "Training status",
-      "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
+      "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set, and the preparation phase the run-up to it is in (Base, Build, Specific — often called Peak — or Taper), which is an emphasis worked out daily from the event's date rather than a plan — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -2639,6 +2804,79 @@
               }
             ]
           },
+          "preparation": {
+            "description": "The preparation phase the athlete is in, or null: no A event within 24 weeks, the event today, or a post-event recovery window still running.",
+            "anyOf": [
+              {
+                "description": "The emphasis of the current block of training before the athlete's nearest A event. Recomputed every morning from the event's date and expected duration; readiness still decides each day, and a phase never overrides a rest day, a taper or a recovery window.",
+                "type": "object",
+                "properties": {
+                  "eventId": {
+                    "description": "Opaque identifier.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "eventName": {
+                    "type": "string"
+                  },
+                  "phase": {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  "week": {
+                    "description": "Which week of this phase today is in, from 1.",
+                    "type": "integer"
+                  },
+                  "weeks": {
+                    "description": "How many weeks the phase runs for.",
+                    "type": "integer"
+                  },
+                  "startsOn": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "endsOn": {
+                    "description": "Inclusive: the last day of this phase.",
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "nextPhase": {
+                    "description": "The phase after this one; null in the taper, whose successor is the event itself.",
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nextStartsOn": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema0"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "eventId",
+                  "eventName",
+                  "phase",
+                  "week",
+                  "weeks",
+                  "startsOn",
+                  "endsOn",
+                  "nextPhase",
+                  "nextStartsOn"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "units": {
             "description": "How to display quantities; the API always speaks SI.",
             "type": "string",
@@ -2706,6 +2944,7 @@
           "seriesDays",
           "excludedActivities",
           "nearestEvent",
+          "preparation",
           "units",
           "weeks"
         ],
@@ -2714,6 +2953,10 @@
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
+          },
+          "__schema1": {
+            "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+            "type": "string"
           }
         }
       }
