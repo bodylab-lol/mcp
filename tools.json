@@ -4163,7 +4163,7 @@
     {
       "name": "get_profile",
       "title": "Athlete profile",
-      "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.",
+      "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -4334,6 +4334,10 @@
                 "description": "What the athlete lifts with. Strength sessions name only exercises this allows: gym is a barbell and rack (the default), dumbbells is dumbbells or kettlebells, bodyweight is no weights. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
                 "type": "string"
               },
+              "trainingFocus": {
+                "description": "What the athlete wants training to build: endurance for their sports (the default), or strength as much as endurance. It sets how many strength sessions a week the athlete is held to: two, or three for strength. Known values: endurance, strength. Treat unknown values as \"other\".",
+                "type": "string"
+              },
               "onboardedAt": {
                 "description": "Null until onboarding is complete; the app gates on it.",
                 "anyOf": [
@@ -4365,6 +4369,7 @@
               "homeAltitudeM",
               "homeAltitudeSource",
               "strengthEquipment",
+              "trainingFocus",
               "onboardedAt"
             ]
           },
