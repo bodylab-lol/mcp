@@ -153,6 +153,52 @@ Scope: `labs:write`. Writes: adds data, and can't change or delete it.
 | `results[].method` | string or null (optional) | A method the report names for this result, such as the LDL or eGFR equation. default null |
 | `results[].assay` | string or null (optional) | An assay the report names for this result. default null |
 
+## `get_body_composition` — Body composition scans
+
+The athlete's body composition scans (DEXA) as recorded from their reports: total and regional fat, lean and bone mass, body fat percent, visceral fat, and whole-body bone density with the report's own percentiles. Values are as the report gave them, in the unit each field names. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't suggest a body fat, weight or diet goal, and don't compare the athlete with anyone. Whole-body bone density is a measurement, not a diagnosis, and not a diagnostic bone density exam (those read the hip or spine and give T- or Z-scores); questions about it go to a clinician. Body Lab can't diagnose anything, and a scan never changes the training it prescribes. `comparableToPrevious` is false when the previous scan was done by another company or on another scanner model, which means a change may be the machine — it never means a change is real.
+
+Scope: `body:read`. Read-only.
+
+_No arguments._
+
+## `record_body_composition` — Record a body composition scan
+
+Records one body composition scan (DEXA) from a report the athlete gives you — structured data from their scanning service, a PDF, a photo, or values they read out — exactly as printed. Prefer structured data over a photo where you have both. Before calling, read every value back to the athlete with its unit and get their yes: this can't edit or delete anything afterwards, and nothing else can edit a scan either; only the athlete can remove one, in Body Lab on the web. Masses are kilograms, density g/cm², volume cm³: convert from pounds yourself and say so in the read-back. Call get_body_composition first to see what's already recorded; one call per scan. It's all or nothing — if anything is refused (a scan already recorded for that date and provider, a region Body Lab doesn't know, fat plus lean plus bone not adding up to the total) nothing is saved, and the error lists each problem. Body Lab can't diagnose anything, and a scan never changes the training it prescribes.
+
+Scope: `body:write`. Writes: adds data, and can't change or delete it.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `localDate` | string | The day the scan was done on the athlete's calendar, YYYY-MM-DD — not the day the report was issued. |
+| `scannedAt` | string (optional) | The instant the scan was acquired, ISO-8601 with offset, where the report gives a time. |
+| `provider` | string (optional) | The company or facility as the report prints it, e.g. "BodySpec". |
+| `scannerModel` | string (optional) | The scanner as the report prints it, e.g. "GE Lunar iDXA". Worth asking for: Body Lab only reads two scans as one line when the machine is the same. |
+| `totalMassKg` | number (optional) | Total body mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. Recorded as a weigh-in for that day as well. min 20, max 400 |
+| `fatMassKg` | number (optional) | Total fat mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 300 |
+| `leanMassKg` | number (optional) | Total lean mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 300 |
+| `boneMassKg` | number (optional) | Total bone mineral mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 20 |
+| `tissueFatPct` | number (optional) | Body fat percent of tissue, which excludes bone — the figure most reports headline. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 80 |
+| `regionFatPct` | number (optional) | Body fat percent including bone, where the report gives both. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 80 |
+| `androidGynoidRatio` | number (optional) | Android/gynoid ratio, where the report gives it. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 10 |
+| `vatMassKg` | number (optional) | Visceral fat (VAT) mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 20 |
+| `vatVolumeCm3` | number (optional) | Visceral fat (VAT) volume, cm³. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 20000 |
+| `bmdGCm2` | number (optional) | Whole-body bone mineral density, g/cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. Never a T- or Z-score, and never a hip or spine value from a diagnostic exam. min 0.1, max 3 |
+| `bmcG` | number (optional) | Whole-body bone mineral content, grams. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 10000 |
+| `boneAreaCm2` | number (optional) | Whole-body bone area, cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 5000 |
+| `bmdAgeSexPercentile` | integer (optional) | The report's own percentile for bone density against people of the same age and sex, 1-99, only if the report prints one. min 1, max 99 |
+| `bmdPeakSexPercentile` | integer (optional) | The report's own percentile for bone density against 30-year-olds of the same sex, 1-99, only if the report prints one. min 1, max 99 |
+| `regions` | array (optional) | Each region the report breaks the body into, each once. Leave out entirely if the report gives only whole-body figures. at most 24 |
+| `regions[].region` | string | Which part of the body this row is: left_arm, right_arm, left_leg, right_leg, trunk, android, gynoid. |
+| `regions[].fatMassKg` | number (optional) | Fat mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 300 |
+| `regions[].leanMassKg` | number (optional) | Lean mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 300 |
+| `regions[].boneMassKg` | number (optional) | Bone mineral mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 20 |
+| `regions[].totalMassKg` | number (optional) | Total mass of the region, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 400 |
+| `regions[].tissueFatPct` | number (optional) | Tissue fat percent (excludes bone). As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 80 |
+| `regions[].regionFatPct` | number (optional) | Region fat percent (includes bone). As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 80 |
+| `regions[].bmdGCm2` | number (optional) | Bone mineral density, g/cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0.1, max 3 |
+| `regions[].bmcG` | number (optional) | Bone mineral content, grams. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 10000 |
+| `regions[].boneAreaCm2` | number (optional) | Bone area, cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 5000 |
+
 # Prompts
 
 - **`todays-session`** — What should I do today?: Today's prescribed session, why Body Lab chose it, and the alternatives.

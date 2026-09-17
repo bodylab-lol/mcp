@@ -77,7 +77,8 @@ JSON:
 
 An assistant can see your training. With your permission it can also see
 your lab results and add new ones, for example from a PDF or photo of a lab
-report. It can't change or delete anything.
+report, and do the same with body composition scans such as DEXA. It can't
+change or delete anything.
 
 | Tool | For |
 | --- | --- |
@@ -93,6 +94,8 @@ report. It can't change or delete anything.
 | `suggest_routes` | Routes you've done before that fit today's session |
 | `get_lab_results` | Your blood test results: each marker over time against the lab's range and guideline limits, and whether a change is beyond normal variation. Needs `labs:read` |
 | `record_lab_results` | Adds a blood draw and its results as the report prints them, after the assistant checks the values with you. It can't edit or delete results. Needs `labs:write` |
+| `get_body_composition` | Your body composition scans: total and regional fat, lean and bone mass, body fat percent, visceral fat, and whole-body bone density, as your report gave them. Needs `body:read` |
+| `record_body_composition` | Adds one scan as the report prints it, after the assistant reads every value back to you. It can't edit or delete scans. Needs `body:write` |
 
 Prompts: **What should I do today?** (`todays-session`) and **Review my week**
 (`weekly-review`).
@@ -102,19 +105,28 @@ with input and output schemas: [tools.json](tools.json).
 
 ## Your data and permissions
 
-Every connection can see your training (`training:read`). Lab results are
-separate, and off unless you turn them on when you approve an assistant:
+Every connection can see your training (`training:read`). Lab results and
+body composition scans are separate from it and from each other, and each is
+off unless you turn it on when you approve an assistant:
 
 | Scope | Lets the assistant |
 | --- | --- |
 | `training:read` | See your training, recovery, activities and profile |
 | `labs:read` | See your lab results |
 | `labs:write` | Add lab results you give it. It can't change or delete them |
+| `body:read` | See your body composition scans |
+| `body:write` | Add body composition scans you give it. It can't change or delete them |
 
-An assistant you connected before lab results existed doesn't get them
-automatically. To allow them, connect it again (in Claude, disconnect and
-reconnect Body Lab) and tick the lab results boxes when Body Lab asks. To
-correct or delete a result, use Body Lab on the web.
+An assistant you connected before these existed doesn't get them
+automatically, and one you allowed for lab results doesn't get body
+composition. To allow either, connect it again (in Claude, disconnect and
+reconnect Body Lab) and tick those boxes when Body Lab asks. To correct or
+delete a lab result, or to remove a scan, use Body Lab on the web.
+
+Body composition scans, including bone density, are measurements you
+recorded. Body Lab shows them back to you and nothing more: they are not a
+diagnosis, a whole-body scan is not a diagnostic bone density test, and
+nothing Body Lab prescribes reads them.
 
 - When you approve an assistant, Body Lab shows who published it (or that it's
   unverified), where it will send you back to, and what it can do.
@@ -139,7 +151,8 @@ The server follows the MCP authorization spec (2026-07-28):
 - **Clients:** public only (`token_endpoint_auth_method: none`). Refresh
   tokens rotate. Revoke at `/oauth/revoke`.
 - **Scopes:** `training:read` (every connection), plus the optional
-  `labs:read` and `labs:write`. A 401 names all three; the athlete chooses the
+  `labs:read`, `labs:write`, `body:read` and `body:write`. A 401 names all
+  five; the athlete chooses the
   optional ones on the consent page, and the token response's `scope` says
   what was granted. `tools/list` shows only the tools the grant covers. A
   `tools/call` for a tool it doesn't cover gets `403` with

@@ -8,7 +8,9 @@
   "scopes": {
     "training:read": "See your training, recovery, activities and profile",
     "labs:read": "See your lab results",
-    "labs:write": "Add lab results you give it. It can't change or delete them"
+    "labs:write": "Add lab results you give it. It can't change or delete them",
+    "body:read": "See your body composition scans",
+    "body:write": "Add body composition scans you give it. It can't change or delete them"
   },
   "tools": [
     {
@@ -6616,6 +6618,914 @@
             "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
             "type": "string",
             "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_body_composition",
+      "title": "Body composition scans",
+      "description": "The athlete's body composition scans (DEXA) as recorded from their reports: total and regional fat, lean and bone mass, body fat percent, visceral fat, and whole-body bone density with the report's own percentiles. Values are as the report gave them, in the unit each field names. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't suggest a body fat, weight or diet goal, and don't compare the athlete with anyone. Whole-body bone density is a measurement, not a diagnosis, and not a diagnostic bone density exam (those read the hip or spine and give T- or Z-scores); questions about it go to a clinician. Body Lab can't diagnose anything, and a scan never changes the training it prescribes. `comparableToPrevious` is false when the previous scan was done by another company or on another scanner model, which means a change may be the machine — it never means a change is real.",
+      "scope": "body:read",
+      "readOnly": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "scans": {
+            "description": "Every scan the athlete has recorded, newest first, with each region and whether it compares with the scan before it.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Opaque identifier.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "localDate": {
+                  "description": "The day of the scan on the athlete's calendar.",
+                  "type": "string",
+                  "format": "date"
+                },
+                "scannedAt": {
+                  "description": "When the scan was acquired, where the report gave a time.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/__schema0"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "source": {
+                  "description": "How the scan was entered. Known values: manual. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "provider": {
+                  "description": "The company or facility as the report prints it, e.g. BodySpec.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "scannerModel": {
+                  "description": "The scanner as the report prints it, e.g. \"GE Lunar iDXA\".",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "totalMassKg": {
+                  "description": "Total mass, kilograms. Also recorded as a weigh-in, where it's given.",
+                  "$ref": "#/$defs/__schema1"
+                },
+                "fatMassKg": {
+                  "$ref": "#/$defs/__schema2"
+                },
+                "leanMassKg": {
+                  "$ref": "#/$defs/__schema3"
+                },
+                "boneMassKg": {
+                  "$ref": "#/$defs/__schema4"
+                },
+                "tissueFatPct": {
+                  "$ref": "#/$defs/__schema5"
+                },
+                "regionFatPct": {
+                  "$ref": "#/$defs/__schema6"
+                },
+                "androidGynoidRatio": {
+                  "description": "Android fat over gynoid fat, where the report gives it.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "vatMassKg": {
+                  "description": "Visceral adipose tissue mass, kilograms.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "vatVolumeCm3": {
+                  "description": "Visceral adipose tissue volume, cm³.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "bmdGCm2": {
+                  "description": "Whole-body bone mineral density, g/cm². A measurement from a whole-body scan, not a diagnostic bone density test, and not a T- or Z-score.",
+                  "$ref": "#/$defs/__schema7"
+                },
+                "bmcG": {
+                  "$ref": "#/$defs/__schema8"
+                },
+                "boneAreaCm2": {
+                  "$ref": "#/$defs/__schema9"
+                },
+                "bmdAgeSexPercentile": {
+                  "description": "The report's own comparison of the whole-body bone density with people of the same age and sex, 1-99, as printed. A comparison with a reference group, not a diagnosis.",
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "bmdPeakSexPercentile": {
+                  "description": "The report's own comparison with 30-year-olds of the same sex, 1-99, as printed. A comparison with a reference group, not a diagnosis.",
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "regions": {
+                  "description": "Each region the report measured, in the order the report's own list is read.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "region": {
+                        "description": "Which part of the body this row measures. Known values: left_arm, right_arm, left_leg, right_leg, trunk, android, gynoid. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      "fatMassKg": {
+                        "$ref": "#/$defs/__schema2"
+                      },
+                      "leanMassKg": {
+                        "$ref": "#/$defs/__schema3"
+                      },
+                      "boneMassKg": {
+                        "$ref": "#/$defs/__schema4"
+                      },
+                      "totalMassKg": {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      "tissueFatPct": {
+                        "$ref": "#/$defs/__schema5"
+                      },
+                      "regionFatPct": {
+                        "$ref": "#/$defs/__schema6"
+                      },
+                      "bmdGCm2": {
+                        "$ref": "#/$defs/__schema7"
+                      },
+                      "bmcG": {
+                        "$ref": "#/$defs/__schema8"
+                      },
+                      "boneAreaCm2": {
+                        "$ref": "#/$defs/__schema9"
+                      }
+                    },
+                    "required": [
+                      "region",
+                      "fatMassKg",
+                      "leanMassKg",
+                      "boneMassKg",
+                      "totalMassKg",
+                      "tissueFatPct",
+                      "regionFatPct",
+                      "bmdGCm2",
+                      "bmcG",
+                      "boneAreaCm2"
+                    ]
+                  }
+                },
+                "comparableToPrevious": {
+                  "description": "Whether the previous scan was done by the same company on the same scanner model, so the two read as one line. Null for the first scan.",
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "differences": {
+                  "description": "Why this scan isn't comparable with the previous one. Empty when it is, or when there's no previous scan.",
+                  "type": "array",
+                  "items": {
+                    "description": "What differs from the previous scan. Known values: provider, scanner_model. Treat unknown values as \"other\".",
+                    "type": "string"
+                  }
+                },
+                "createdAt": {
+                  "$ref": "#/$defs/__schema0"
+                }
+              },
+              "required": [
+                "id",
+                "localDate",
+                "scannedAt",
+                "source",
+                "provider",
+                "scannerModel",
+                "totalMassKg",
+                "fatMassKg",
+                "leanMassKg",
+                "boneMassKg",
+                "tissueFatPct",
+                "regionFatPct",
+                "androidGynoidRatio",
+                "vatMassKg",
+                "vatVolumeCm3",
+                "bmdGCm2",
+                "bmcG",
+                "boneAreaCm2",
+                "bmdAgeSexPercentile",
+                "bmdPeakSexPercentile",
+                "regions",
+                "comparableToPrevious",
+                "differences",
+                "createdAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "scans"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "__schema1": {
+            "description": "Total mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema2": {
+            "description": "Fat mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema3": {
+            "description": "Lean (non-bone, non-fat) mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema4": {
+            "description": "Bone mineral mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema5": {
+            "description": "Body fat percent of tissue, which excludes bone — the figure most reports headline.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema6": {
+            "description": "Body fat percent including bone.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema7": {
+            "description": "Bone mineral density, g/cm². A measurement, not a diagnosis.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema8": {
+            "description": "Bone mineral content, grams.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema9": {
+            "description": "The bone area the density was measured over, cm².",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "record_body_composition",
+      "title": "Record a body composition scan",
+      "description": "Records one body composition scan (DEXA) from a report the athlete gives you — structured data from their scanning service, a PDF, a photo, or values they read out — exactly as printed. Prefer structured data over a photo where you have both. Before calling, read every value back to the athlete with its unit and get their yes: this can't edit or delete anything afterwards, and nothing else can edit a scan either; only the athlete can remove one, in Body Lab on the web. Masses are kilograms, density g/cm², volume cm³: convert from pounds yourself and say so in the read-back. Call get_body_composition first to see what's already recorded; one call per scan. It's all or nothing — if anything is refused (a scan already recorded for that date and provider, a region Body Lab doesn't know, fat plus lean plus bone not adding up to the total) nothing is saved, and the error lists each problem. Body Lab can't diagnose anything, and a scan never changes the training it prescribes.",
+      "scope": "body:write",
+      "readOnly": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "localDate": {
+            "description": "The day the scan was done on the athlete's calendar, YYYY-MM-DD — not the day the report was issued.",
+            "type": "string",
+            "format": "date"
+          },
+          "scannedAt": {
+            "description": "The instant the scan was acquired, ISO-8601 with offset, where the report gives a time.",
+            "type": "string"
+          },
+          "provider": {
+            "description": "The company or facility as the report prints it, e.g. \"BodySpec\".",
+            "type": "string",
+            "maxLength": 120
+          },
+          "scannerModel": {
+            "description": "The scanner as the report prints it, e.g. \"GE Lunar iDXA\". Worth asking for: Body Lab only reads two scans as one line when the machine is the same.",
+            "type": "string",
+            "maxLength": 120
+          },
+          "totalMassKg": {
+            "description": "Total body mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. Recorded as a weigh-in for that day as well.",
+            "type": "number",
+            "minimum": 20,
+            "maximum": 400
+          },
+          "fatMassKg": {
+            "description": "Total fat mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 300
+          },
+          "leanMassKg": {
+            "description": "Total lean mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 300
+          },
+          "boneMassKg": {
+            "description": "Total bone mineral mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "tissueFatPct": {
+            "description": "Body fat percent of tissue, which excludes bone — the figure most reports headline. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 80
+          },
+          "regionFatPct": {
+            "description": "Body fat percent including bone, where the report gives both. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 80
+          },
+          "androidGynoidRatio": {
+            "description": "Android/gynoid ratio, where the report gives it. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "vatMassKg": {
+            "description": "Visceral fat (VAT) mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "vatVolumeCm3": {
+            "description": "Visceral fat (VAT) volume, cm³. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20000
+          },
+          "bmdGCm2": {
+            "description": "Whole-body bone mineral density, g/cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. Never a T- or Z-score, and never a hip or spine value from a diagnostic exam.",
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 3
+          },
+          "bmcG": {
+            "description": "Whole-body bone mineral content, grams. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "boneAreaCm2": {
+            "description": "Whole-body bone area, cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5000
+          },
+          "bmdAgeSexPercentile": {
+            "description": "The report's own percentile for bone density against people of the same age and sex, 1-99, only if the report prints one.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "bmdPeakSexPercentile": {
+            "description": "The report's own percentile for bone density against 30-year-olds of the same sex, 1-99, only if the report prints one.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "regions": {
+            "description": "Each region the report breaks the body into, each once. Leave out entirely if the report gives only whole-body figures.",
+            "maxItems": 24,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "region": {
+                  "description": "Which part of the body this row is: left_arm, right_arm, left_leg, right_leg, trunk, android, gynoid.",
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "fatMassKg": {
+                  "description": "Fat mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 300
+                },
+                "leanMassKg": {
+                  "description": "Lean mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 300
+                },
+                "boneMassKg": {
+                  "description": "Bone mineral mass, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 20
+                },
+                "totalMassKg": {
+                  "description": "Total mass of the region, kilograms. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 400
+                },
+                "tissueFatPct": {
+                  "description": "Tissue fat percent (excludes bone). As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 80
+                },
+                "regionFatPct": {
+                  "description": "Region fat percent (includes bone). As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 80
+                },
+                "bmdGCm2": {
+                  "description": "Bone mineral density, g/cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0.1,
+                  "maximum": 3
+                },
+                "bmcG": {
+                  "description": "Bone mineral content, grams. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 10000
+                },
+                "boneAreaCm2": {
+                  "description": "Bone area, cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity.",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5000
+                }
+              },
+              "required": [
+                "region"
+              ]
+            }
+          }
+        },
+        "required": [
+          "localDate"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "scan": {
+            "description": "The scan as Body Lab saved it.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "Opaque identifier.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "localDate": {
+                "description": "The day of the scan on the athlete's calendar.",
+                "type": "string",
+                "format": "date"
+              },
+              "scannedAt": {
+                "description": "When the scan was acquired, where the report gave a time.",
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "source": {
+                "description": "How the scan was entered. Known values: manual. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              "provider": {
+                "description": "The company or facility as the report prints it, e.g. BodySpec.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "scannerModel": {
+                "description": "The scanner as the report prints it, e.g. \"GE Lunar iDXA\".",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "totalMassKg": {
+                "description": "Total mass, kilograms. Also recorded as a weigh-in, where it's given.",
+                "$ref": "#/$defs/__schema1"
+              },
+              "fatMassKg": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "leanMassKg": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "boneMassKg": {
+                "$ref": "#/$defs/__schema4"
+              },
+              "tissueFatPct": {
+                "$ref": "#/$defs/__schema5"
+              },
+              "regionFatPct": {
+                "$ref": "#/$defs/__schema6"
+              },
+              "androidGynoidRatio": {
+                "description": "Android fat over gynoid fat, where the report gives it.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "vatMassKg": {
+                "description": "Visceral adipose tissue mass, kilograms.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "vatVolumeCm3": {
+                "description": "Visceral adipose tissue volume, cm³.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "bmdGCm2": {
+                "description": "Whole-body bone mineral density, g/cm². A measurement from a whole-body scan, not a diagnostic bone density test, and not a T- or Z-score.",
+                "$ref": "#/$defs/__schema7"
+              },
+              "bmcG": {
+                "$ref": "#/$defs/__schema8"
+              },
+              "boneAreaCm2": {
+                "$ref": "#/$defs/__schema9"
+              },
+              "bmdAgeSexPercentile": {
+                "description": "The report's own comparison of the whole-body bone density with people of the same age and sex, 1-99, as printed. A comparison with a reference group, not a diagnosis.",
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "bmdPeakSexPercentile": {
+                "description": "The report's own comparison with 30-year-olds of the same sex, 1-99, as printed. A comparison with a reference group, not a diagnosis.",
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "regions": {
+                "description": "Each region the report measured, in the order the report's own list is read.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "region": {
+                      "description": "Which part of the body this row measures. Known values: left_arm, right_arm, left_leg, right_leg, trunk, android, gynoid. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "fatMassKg": {
+                      "$ref": "#/$defs/__schema2"
+                    },
+                    "leanMassKg": {
+                      "$ref": "#/$defs/__schema3"
+                    },
+                    "boneMassKg": {
+                      "$ref": "#/$defs/__schema4"
+                    },
+                    "totalMassKg": {
+                      "$ref": "#/$defs/__schema1"
+                    },
+                    "tissueFatPct": {
+                      "$ref": "#/$defs/__schema5"
+                    },
+                    "regionFatPct": {
+                      "$ref": "#/$defs/__schema6"
+                    },
+                    "bmdGCm2": {
+                      "$ref": "#/$defs/__schema7"
+                    },
+                    "bmcG": {
+                      "$ref": "#/$defs/__schema8"
+                    },
+                    "boneAreaCm2": {
+                      "$ref": "#/$defs/__schema9"
+                    }
+                  },
+                  "required": [
+                    "region",
+                    "fatMassKg",
+                    "leanMassKg",
+                    "boneMassKg",
+                    "totalMassKg",
+                    "tissueFatPct",
+                    "regionFatPct",
+                    "bmdGCm2",
+                    "bmcG",
+                    "boneAreaCm2"
+                  ]
+                }
+              },
+              "comparableToPrevious": {
+                "description": "Whether the previous scan was done by the same company on the same scanner model, so the two read as one line. Null for the first scan.",
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "differences": {
+                "description": "Why this scan isn't comparable with the previous one. Empty when it is, or when there's no previous scan.",
+                "type": "array",
+                "items": {
+                  "description": "What differs from the previous scan. Known values: provider, scanner_model. Treat unknown values as \"other\".",
+                  "type": "string"
+                }
+              },
+              "createdAt": {
+                "$ref": "#/$defs/__schema0"
+              }
+            },
+            "required": [
+              "id",
+              "localDate",
+              "scannedAt",
+              "source",
+              "provider",
+              "scannerModel",
+              "totalMassKg",
+              "fatMassKg",
+              "leanMassKg",
+              "boneMassKg",
+              "tissueFatPct",
+              "regionFatPct",
+              "androidGynoidRatio",
+              "vatMassKg",
+              "vatVolumeCm3",
+              "bmdGCm2",
+              "bmcG",
+              "boneAreaCm2",
+              "bmdAgeSexPercentile",
+              "bmdPeakSexPercentile",
+              "regions",
+              "comparableToPrevious",
+              "differences",
+              "createdAt"
+            ]
+          }
+        },
+        "required": [
+          "scan"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "__schema1": {
+            "description": "Total mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema2": {
+            "description": "Fat mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema3": {
+            "description": "Lean (non-bone, non-fat) mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema4": {
+            "description": "Bone mineral mass, kilograms.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema5": {
+            "description": "Body fat percent of tissue, which excludes bone — the figure most reports headline.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema6": {
+            "description": "Body fat percent including bone.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema7": {
+            "description": "Bone mineral density, g/cm². A measurement, not a diagnosis.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema8": {
+            "description": "Bone mineral content, grams.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema9": {
+            "description": "The bone area the density was measured over, cm².",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       }
