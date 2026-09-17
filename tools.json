@@ -2278,6 +2278,76 @@
                     "description": "Where the athlete is relative to it. Known values: build, taper. Treat unknown values as \"other\".",
                     "type": "string"
                   },
+                  "preparation": {
+                    "description": "Which part of the run-up to this event the athlete is in, or null when none applies. Separate from `phase` above, which only says whether the taper has opened: a day can be phase \"build\" and preparation \"specific\".",
+                    "anyOf": [
+                      {
+                        "description": "The emphasis of the current block of training before the athlete's nearest A event. Recomputed every morning from the event's date and expected duration; readiness still decides each day, and a phase never overrides a rest day, a taper or a recovery window.",
+                        "type": "object",
+                        "properties": {
+                          "eventId": {
+                            "$ref": "#/$defs/__schema2"
+                          },
+                          "eventName": {
+                            "type": "string"
+                          },
+                          "phase": {
+                            "$ref": "#/$defs/__schema4"
+                          },
+                          "week": {
+                            "description": "Which week of this phase today is in, from 1.",
+                            "type": "integer"
+                          },
+                          "weeks": {
+                            "description": "How many weeks the phase runs for.",
+                            "type": "integer"
+                          },
+                          "startsOn": {
+                            "$ref": "#/$defs/__schema0"
+                          },
+                          "endsOn": {
+                            "description": "Inclusive: the last day of this phase.",
+                            "$ref": "#/$defs/__schema0"
+                          },
+                          "nextPhase": {
+                            "description": "The phase after this one; null in the taper, whose successor is the event itself.",
+                            "anyOf": [
+                              {
+                                "$ref": "#/$defs/__schema4"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "nextStartsOn": {
+                            "anyOf": [
+                              {
+                                "$ref": "#/$defs/__schema0"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "eventId",
+                          "eventName",
+                          "phase",
+                          "week",
+                          "weeks",
+                          "startsOn",
+                          "endsOn",
+                          "nextPhase",
+                          "nextStartsOn"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "taperStartsOn": {
                     "$ref": "#/$defs/__schema0"
                   },
@@ -2314,6 +2384,7 @@
                   "sport",
                   "daysUntil",
                   "phase",
+                  "preparation",
                   "taperStartsOn",
                   "status",
                   "headline",
@@ -2367,6 +2438,10 @@
           },
           "__schema3": {
             "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema4": {
+            "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
             "type": "string"
           }
         }
