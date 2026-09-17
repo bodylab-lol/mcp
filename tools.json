@@ -984,6 +984,11 @@
                             }
                           ]
                         },
+                        "restSeconds": {
+                          "description": "Suggested rest between this exercise's sets, in seconds: shorter for jumps and accessories, longer for the heaviest lifts.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
                         "note": {
                           "type": "string"
                         }
@@ -999,7 +1004,8 @@
                         "intensity",
                         "progression",
                         "perSide",
-                        "implementCount"
+                        "implementCount",
+                        "restSeconds"
                       ]
                     }
                   },
@@ -2204,7 +2210,7 @@
     {
       "name": "get_training_status",
       "title": "Training status",
-      "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
+      "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -2303,6 +2309,22 @@
                 "type": "boolean"
               },
               "strainHigh": {
+                "description": "The fixed rule: monotony at or above 2.0 on a week at or above the load the athlete is conditioned for.",
+                "type": "boolean"
+              },
+              "personalHigh": {
+                "description": "The athlete's own threshold: their highest 7-day strain in the 12 weeks before this week. Null until 8 weeks of that history have a strain.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "aboveOwnHigh": {
+                "description": "strainHigh, and this week's strain above personalHigh too: what holds today's session easy. False while personalHigh is null.",
                 "type": "boolean"
               }
             },
@@ -2311,7 +2333,9 @@
               "strain",
               "weeklyLoad",
               "monotonyHigh",
-              "strainHigh"
+              "strainHigh",
+              "personalHigh",
+              "aboveOwnHigh"
             ]
           },
           "polarization": {
@@ -3967,6 +3991,11 @@
                             }
                           ]
                         },
+                        "restSeconds": {
+                          "description": "Suggested rest between this exercise's sets, in seconds: shorter for jumps and accessories, longer for the heaviest lifts.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
                         "note": {
                           "type": "string"
                         }
@@ -3982,7 +4011,8 @@
                         "intensity",
                         "progression",
                         "perSide",
-                        "implementCount"
+                        "implementCount",
+                        "restSeconds"
                       ]
                     }
                   },
