@@ -53,22 +53,22 @@
                 "$ref": "#/$defs/__schema3"
               },
               "alternates": {
-                "$ref": "#/$defs/__schema7"
-              },
-              "variants": {
                 "$ref": "#/$defs/__schema8"
               },
-              "unavailable": {
+              "variants": {
                 "$ref": "#/$defs/__schema9"
               },
-              "flags": {
+              "unavailable": {
                 "$ref": "#/$defs/__schema10"
               },
-              "rationale": {
+              "flags": {
                 "$ref": "#/$defs/__schema11"
               },
-              "environment": {
+              "rationale": {
                 "$ref": "#/$defs/__schema12"
+              },
+              "environment": {
+                "$ref": "#/$defs/__schema13"
               }
             },
             "required": [
@@ -100,22 +100,22 @@
                 "$ref": "#/$defs/__schema3"
               },
               "alternates": {
-                "$ref": "#/$defs/__schema7"
-              },
-              "variants": {
                 "$ref": "#/$defs/__schema8"
               },
-              "unavailable": {
+              "variants": {
                 "$ref": "#/$defs/__schema9"
               },
-              "flags": {
+              "unavailable": {
                 "$ref": "#/$defs/__schema10"
               },
-              "rationale": {
+              "flags": {
                 "$ref": "#/$defs/__schema11"
               },
-              "environment": {
+              "rationale": {
                 "$ref": "#/$defs/__schema12"
+              },
+              "environment": {
+                "$ref": "#/$defs/__schema13"
               }
             },
             "required": [
@@ -140,7 +140,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "durationS": {
                       "anyOf": [
@@ -173,7 +173,7 @@
                       ]
                     },
                     "startTime": {
-                      "$ref": "#/$defs/__schema14"
+                      "$ref": "#/$defs/__schema15"
                     }
                   },
                   "required": [
@@ -191,12 +191,12 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "activityId": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema6"
+                          "$ref": "#/$defs/__schema7"
                         },
                         {
                           "type": "null"
@@ -210,7 +210,7 @@
                       }
                     },
                     "performedAt": {
-                      "$ref": "#/$defs/__schema14"
+                      "$ref": "#/$defs/__schema15"
                     },
                     "durationS": {
                       "anyOf": [
@@ -322,13 +322,13 @@
                 "type": "object",
                 "properties": {
                   "eventId": {
-                    "$ref": "#/$defs/__schema6"
+                    "$ref": "#/$defs/__schema7"
                   },
                   "eventName": {
                     "type": "string"
                   },
                   "phase": {
-                    "$ref": "#/$defs/__schema15"
+                    "$ref": "#/$defs/__schema16"
                   },
                   "week": {
                     "description": "Which week of this phase today is in, from 1.",
@@ -339,17 +339,17 @@
                     "type": "integer"
                   },
                   "startsOn": {
-                    "$ref": "#/$defs/__schema13"
+                    "$ref": "#/$defs/__schema14"
                   },
                   "endsOn": {
                     "description": "Inclusive: the last day of this phase.",
-                    "$ref": "#/$defs/__schema13"
+                    "$ref": "#/$defs/__schema14"
                   },
                   "nextPhase": {
                     "description": "The phase after this one; null in the taper, whose successor is the event itself.",
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema15"
+                        "$ref": "#/$defs/__schema16"
                       },
                       {
                         "type": "null"
@@ -359,7 +359,7 @@
                   "nextStartsOn": {
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema13"
+                        "$ref": "#/$defs/__schema14"
                       },
                       {
                         "type": "null"
@@ -392,7 +392,7 @@
                 "type": "object",
                 "properties": {
                   "date": {
-                    "$ref": "#/$defs/__schema13"
+                    "$ref": "#/$defs/__schema14"
                   },
                   "timeAvailableMin": {
                     "description": "Minutes available today; the prescription is shortened to fit.",
@@ -464,7 +464,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "kind": {
                       "description": "What was reported. Known values: illness, injury. Treat unknown values as \"other\".",
@@ -474,7 +474,7 @@
                       "description": "Illness only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema16"
+                          "$ref": "#/$defs/__schema17"
                         },
                         {
                           "type": "null"
@@ -485,7 +485,7 @@
                       "description": "Injury only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema17"
+                          "$ref": "#/$defs/__schema18"
                         },
                         {
                           "type": "null"
@@ -504,17 +504,17 @@
                       ]
                     },
                     "startedOn": {
-                      "$ref": "#/$defs/__schema13"
+                      "$ref": "#/$defs/__schema14"
                     },
                     "confirmedOn": {
                       "description": "The last day the athlete said it was still going.",
-                      "$ref": "#/$defs/__schema13"
+                      "$ref": "#/$defs/__schema14"
                     },
                     "clearedOn": {
                       "description": "Null while it's still going.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema13"
+                          "$ref": "#/$defs/__schema14"
                         },
                         {
                           "type": "null"
@@ -546,7 +546,7 @@
                   "type": "object",
                   "properties": {
                     "reportId": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "kind": {
                       "description": "What is being returned from. Known values: illness, injury. Treat unknown values as \"other\".",
@@ -555,7 +555,7 @@
                     "severity": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema16"
+                          "$ref": "#/$defs/__schema17"
                         },
                         {
                           "type": "null"
@@ -565,7 +565,7 @@
                     "region": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema17"
+                          "$ref": "#/$defs/__schema18"
                         },
                         {
                           "type": "null"
@@ -605,7 +605,7 @@
           },
           "date": {
             "description": "Today on the athlete's calendar.",
-            "$ref": "#/$defs/__schema13"
+            "$ref": "#/$defs/__schema14"
           },
           "timezone": {
             "description": "The athlete's IANA time zone.",
@@ -725,7 +725,7 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "$ref": "#/$defs/__schema6"
+                  "$ref": "#/$defs/__schema7"
                 },
                 "modality": {
                   "$ref": "#/$defs/__schema4"
@@ -908,6 +908,9 @@
                   },
                   "note": {
                     "type": "string"
+                  },
+                  "tradeoff": {
+                    "$ref": "#/$defs/__schema6"
                   }
                 },
                 "required": [
@@ -922,7 +925,8 @@
                   "powerHigh",
                   "blocks",
                   "workoutType",
-                  "note"
+                  "note",
+                  "tradeoff"
                 ]
               },
               {
@@ -944,7 +948,7 @@
                       "type": "object",
                       "properties": {
                         "exerciseId": {
-                          "$ref": "#/$defs/__schema6"
+                          "$ref": "#/$defs/__schema7"
                         },
                         "name": {
                           "type": "string"
@@ -1084,6 +1088,9 @@
                   },
                   "note": {
                     "type": "string"
+                  },
+                  "tradeoff": {
+                    "$ref": "#/$defs/__schema6"
                   }
                 },
                 "required": [
@@ -1091,7 +1098,8 @@
                   "template",
                   "durationMin",
                   "exercises",
-                  "note"
+                  "note",
+                  "tradeoff"
                 ]
               },
               {
@@ -1103,11 +1111,15 @@
                   },
                   "note": {
                     "type": "string"
+                  },
+                  "tradeoff": {
+                    "$ref": "#/$defs/__schema6"
                   }
                 },
                 "required": [
                   "kind",
-                  "note"
+                  "note",
+                  "tradeoff"
                 ]
               }
             ]
@@ -1177,16 +1189,21 @@
             ]
           },
           "__schema6": {
+            "description": "What choosing this instead of today's session costs or gains, one sentence. Set only on alternates; null on the prescribed session and on variants.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema7": {
             "description": "Opaque identifier.",
             "type": "string",
             "minLength": 1,
             "maxLength": 64
-          },
-          "__schema7": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/__schema3"
-            }
           },
           "__schema8": {
             "type": "array",
@@ -1195,6 +1212,12 @@
             }
           },
           "__schema9": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema3"
+            }
+          },
+          "__schema10": {
             "type": "array",
             "items": {
               "type": "object",
@@ -1212,13 +1235,13 @@
               ]
             }
           },
-          "__schema10": {
+          "__schema11": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "__schema11": {
+          "__schema12": {
             "description": "Why, citing the metric behind each call — the deciding reason first.",
             "type": "array",
             "items": {
@@ -1251,7 +1274,7 @@
               ]
             }
           },
-          "__schema12": {
+          "__schema13": {
             "description": "Altitude and recent heat, where either applies today; null otherwise.",
             "anyOf": [
               {
@@ -1303,7 +1326,7 @@
                             "type": "number"
                           },
                           "recordedOn": {
-                            "$ref": "#/$defs/__schema13"
+                            "$ref": "#/$defs/__schema14"
                           },
                           "daysAgo": {
                             "type": "integer"
@@ -1341,25 +1364,25 @@
               }
             ]
           },
-          "__schema13": {
+          "__schema14": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
           },
-          "__schema14": {
+          "__schema15": {
             "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
             "type": "string",
             "format": "date-time"
           },
-          "__schema15": {
+          "__schema16": {
             "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema16": {
+          "__schema17": {
             "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema17": {
+          "__schema18": {
             "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
             "type": "string"
           }
@@ -1747,7 +1770,7 @@
     {
       "name": "get_weekly_review",
       "title": "How the week went",
-      "description": "A review of one finished week (Monday to Sunday on the athlete's calendar; only complete weeks). The sessions the athlete committed to (planned, exported or sent to a device) against what was done: as prescribed, differently (fewer intervals, less work at target, another sport), skipped, or done without a recording to measure, judged in the metric each workout targeted, with any illness, injury or short day that explains it. Where the acute:chronic ratio and chronic load sat and moved; the strength floor with the count; what the athlete reported. For the most recent week, also what changes in the next seven days and why, as a projection, and what the training so far supports for an A event in the next eight weeks, from rules Body Lab already applies, not a prediction. Omit `week` for the most recent week. Use for 'how did my week go', 'did I do what was planned' or 'am I on track for my race'. Pass the sentences on as written; they cite their numbers.",
+      "description": "A review of one finished week (Monday to Sunday on the athlete's calendar; only complete weeks). The sessions the athlete committed to (planned, exported or sent to a device) against what was done: as prescribed, differently (fewer intervals, less work at target, another sport), skipped, done without a recording, or no_data (nothing could reach Body Lab that day, so never a skip), judged in the metric each workout targeted, with any illness, injury or short day that explains it. Where the acute:chronic ratio and chronic load sat and moved; the strength floor with the count; what the athlete reported. For the most recent week, also what changes in the next seven days and why, as a projection, and what the training so far supports for an A event in the next eight weeks, from rules Body Lab already applies, not a prediction. Omit `week` for the most recent week. Use for 'how did my week go', 'did I do what was planned' or 'am I on track for my race'. Pass the sentences on as written; they cite their numbers.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -1827,9 +1850,14 @@
                 "type": "integer"
               },
               "skipped": {
+                "description": "Planned sessions with nothing in their place, on days Body Lab could have seen.",
                 "type": "integer"
               },
               "unmeasured": {
+                "type": "integer"
+              },
+              "noData": {
+                "description": "Planned sessions on days no data could have reached Body Lab. Not skips: nothing is known about them either way.",
                 "type": "integer"
               },
               "items": {
@@ -1857,7 +1885,7 @@
                       ]
                     },
                     "status": {
-                      "description": "as_prescribed: matched, with the work there. differently: matched but short of the work, or done as another sport. skipped: nothing in its place that day. unmeasured: done in the same sport but not matched to the plan (usually no heart-rate or power recording), so not measured. Known values: as_prescribed, differently, skipped, unmeasured. Treat unknown values as \"other\".",
+                      "description": "as_prescribed: matched, with the work there. differently: matched but short of the work, or done as another sport. skipped: nothing in its place that day, on a day Body Lab could have seen. unmeasured: done in the same sport but not matched to the plan (usually no heart-rate or power recording), so not measured. no_data: nothing was matched to it and no data for that day could have reached Body Lab — no connected service or device was delivering and nothing was entered by hand — so there is no evidence either way. Never read no_data as a session missed. Known values: as_prescribed, differently, skipped, unmeasured, no_data. Treat unknown values as \"other\".",
                       "type": "string"
                     },
                     "reason": {
@@ -1949,6 +1977,7 @@
               "differently",
               "skipped",
               "unmeasured",
+              "noData",
               "items",
               "done",
               "summary"
@@ -4338,6 +4367,17 @@
                   },
                   "note": {
                     "type": "string"
+                  },
+                  "tradeoff": {
+                    "description": "What choosing this instead of today's session costs or gains, one sentence. Set only on alternates; null on the prescribed session and on variants.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -4345,7 +4385,8 @@
                   "template",
                   "durationMin",
                   "exercises",
-                  "note"
+                  "note",
+                  "tradeoff"
                 ]
               },
               "oneRepMaxes": {
