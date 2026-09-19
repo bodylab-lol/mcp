@@ -6,11 +6,23 @@ Quantities are SI with the unit in the field name (`durationS`, `distanceM`, `we
 
 ## `get_today` — Today's session
 
-The session Body Lab prescribes for today and tomorrow, with the reasons behind it (each citing the metric that drove it), alternatives in other sports, what's already been done today, sessions the athlete committed to, this morning's readiness, the nearest A event's name, date, days until and taper/event-day/recovery phase, and its preparation phase — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan — and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, or away from their equipment or sports, or the altitude they confirmed they're at today — which the session already respects, plus any return window after an illness or injury was cleared. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race is affecting the plan. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength sessions list sets, reps, weight (kg) and reps in reserve.
+The session Body Lab prescribes for today, with the reasons behind it (each citing the metric that drove it) and alternatives in other sports; tomorrow's session, without its options; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength lists sets, reps, weight (kg) and reps in reserve.
 
 Scope: `training:read`. Read-only.
 
 _No arguments._
+
+## `set_today_context` — Tell Body Lab about today
+
+Tells Body Lab what today actually looks like for the athlete — how many minutes they have, which strength equipment is to hand, which sports are out — and returns the session Body Lab prescribes once it knows. Use it when the athlete pushes back with a constraint, instead of shortening the session yourself: the engine re-prescribes, and its answer is the one to give them. Only the fields you pass change; anything the athlete set in Body Lab today is read first and kept. Today only, on their own calendar — it's gone tomorrow, they can change it on Body Lab's Today screen, and nothing in their training history is touched. It can't record an illness or an injury and refuses to try: deciding that someone is ill, or that a sore knee is an injury, is a health judgement, and the athlete reports that themselves in the app. Check with the athlete before calling, then read the `report` it returns back to them before today's session — that's what was recorded, not what was asked for.
+
+Scope: `today:write`. Writes: adds data, and can't change or delete it.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `timeAvailableMin` | integer or null (optional) | Minutes the athlete has for training today, 10 to 600. The session is shortened to fit. Null clears it; leave it out to keep what Body Lab already has. |
+| `equipment` | string or null (optional) | The strength equipment to hand today, when it isn't the athlete's usual. It decides which exercises a strength session can name. Null goes back to their profile's; leave it out to keep what Body Lab already has. |
+| `unavailableSports` | array (optional) | Sports the athlete can't do today — the pool is shut, the bike is in the shop. Body Lab prescribes around them. An empty array clears the list; leave it out to keep what Body Lab already has. at most 20 |
 
 ## `get_week` — The week ahead
 
@@ -32,7 +44,7 @@ Scope: `training:read`. Read-only.
 
 ## `get_training_status` — Training status
 
-Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the nearest A event's name, days until and taper/event-day/recovery phase, if one is set, and the preparation phase the run-up to it is in (Base, Build, Specific — often called Peak — or Taper), which is an emphasis worked out daily from the event's date rather than a plan — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.
+Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the event the plan is built around, if one is set — its name, days until, and whether the day sits in its taper or the recovery window after it, or is the day of an event at any priority — and the preparation phase the run-up to it is in (Base, Build, Specific — often called Peak — or Taper), which is an emphasis worked out daily from the event's date rather than a plan — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.
 
 Scope: `training:read`. Read-only.
 
@@ -42,7 +54,7 @@ Scope: `training:read`. Read-only.
 
 ## `list_activities` — Activities
 
-The athlete's activities, newest first, 25 per page: recorded and typed-in sessions and strength workouts, with sport, start time, duration (s), distance (m) and training load. Use get_activity with an id for the detail of one.
+The athlete's activities, newest first, 25 per page: recorded and typed-in sessions and strength workouts, with sport, start time, duration (s), distance (m) and training load. For a question about a particular span — last week, a month, the day of a race — give `from` and `to` rather than paging back to it. Use get_activity with an id for the detail of one.
 
 Scope: `training:read`. Read-only.
 
@@ -50,6 +62,8 @@ Scope: `training:read`. Read-only.
 | --- | --- | --- |
 | `page` | integer (optional) | min 1, max 200, default 1 |
 | `type` | string (optional) | Only this sport. |
+| `from` |  (optional) | Only activities on or after this day, on the athlete's own calendar (get_today says what today is there). |
+| `to` |  (optional) | Only activities on or before this day, inclusive. |
 
 ## `get_activity` — One activity
 
@@ -73,13 +87,15 @@ Scope: `training:read`. Read-only.
 
 ## `get_strength` — Strength training
 
-The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held), estimated one-rep maxes, and the most recent logged strength sessions set by set.
+The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held); the most recent logged sessions, exercise by exercise; and `trend`, the heaviest working set of each session per lift over the past year with the heaviest ever recorded. Every number in `trend` is a weight the athlete actually lifted: nothing is estimated there, and it must not be presented as a one-rep max. The template's `oneRepMaxes` are the opposite — estimates, which account for reps left in reserve and are usually higher than anything the athlete has lifted — so quote `trend` for 'what's my best squat' and never the estimate. Give `lift` to ask about one exercise. Use for 'how's my lifting going', 'is my deadlift moving', or what today's session would be.
 
 Scope: `training:read`. Read-only.
 
 | Argument | Type | |
 | --- | --- | --- |
 | `recentSessions` | integer (optional) | How many recent sessions to include. min 1, max 20, default 5 |
+| `lift` | string (optional) | Narrow `trend` to one exercise: its id, or a word from its name (e.g. 'squat'). Omit for the most-trained lifts. |
+| `includeWarmups` | boolean (optional) | Include warm-up sets in the recent sessions. Off by default: they say nothing about what the athlete can lift. default false |
 
 ## `get_profile` — Athlete profile
 
@@ -102,7 +118,7 @@ Scope: `training:read`. Read-only.
 
 ## `suggest_routes` — Routes for today
 
-Routes the athlete has done before that fit today's prescribed endurance sessions, grouped by start area and sport, with duration, distance, climbing, how often they've been done and why each fits. Only sports with a prescribed session today and a route history appear.
+Routes the athlete has done before that fit today's prescribed endurance sessions, grouped by start area and sport, with duration, distance, climbing, how often they've been done and why each fits. Without `modality` it covers today's likeliest sports — the prescribed session and its nearest alternatives — so name a sport to be sure of that one. Only sports with a prescribed session today and a route history appear.
 
 Scope: `training:read`. Read-only.
 
@@ -112,13 +128,14 @@ Scope: `training:read`. Read-only.
 
 ## `get_lab_results` — Lab results
 
-The athlete's blood test results as entered from lab reports. Each marker over time: the latest value against the lab's range and flag and any guideline limit (naming its source and population), whether the change since the last comparable draw is beyond the marker's normal variation, and how loudly to raise it (`tier`, `message`). Each draw: date, lab, results as printed, and the conditions that decide whether draws compare. Pass `message` on word for word, and never call a value safe, healthy or optimal. Lab results never change the training Body Lab prescribes, and this isn't a diagnosis. Use for 'how's my ferritin', 'what did my last blood test show', or to check what's already recorded before recording more.
+The athlete's blood test results as entered from lab reports. Each marker over time: every value, the latest against the lab's range and flag and any guideline limit (naming its source and population), whether the change since the last comparable draw is beyond the marker's normal variation, and how loudly to raise it (`tier`, `message`). Pass `message` on word for word, and never call a value safe, healthy or optimal. Lab results never change the training Body Lab prescribes, and this isn't a diagnosis. Use for 'how's my ferritin' or 'what did my last blood test show' — the markers answer both. Ask for the draws only to check what's already recorded before recording more: they are the same values again as each report printed them, with the lab, the date and the conditions that decide whether two draws compare.
 
 Scope: `labs:read`. Read-only.
 
 | Argument | Type | |
 | --- | --- | --- |
 | `marker` | string (optional) | Only this marker's key (e.g. ferritin, ldl_c), and only draws that include it. Omit for everything. |
+| `include` | string (optional) | markers: each marker over time, which is every value the athlete has. markers_and_draws: those, plus the draws they came from. default "markers" |
 
 ## `record_lab_results` — Record lab results
 
@@ -203,6 +220,8 @@ Scope: `body:write`. Writes: adds data, and can't change or delete it.
 
 - **`todays-session`** — What should I do today?: Today's prescribed session, why Body Lab chose it, and the alternatives.
 - **`weekly-review`** — Review my week: How the last week of training went against what was prescribed, and what changes next.
+- **`record-a-lab-report`** — Record a lab report: Transcribe a blood test report into Body Lab, read back for my yes before anything is saved.
+- **`record-a-body-scan`** — Record a body composition scan: Transcribe a body composition (DEXA) report into Body Lab, read back for my yes before anything is saved.
 
 # Server instructions
 

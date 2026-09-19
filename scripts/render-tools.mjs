@@ -46,7 +46,17 @@ const out = [
   "",
 ];
 for (const t of manifest.tools) {
-  const access = t.readOnly === false ? "Writes: adds data, and can't change or delete it." : "Read-only.";
+  // Every write tool was additive until one arrived that can land on a value
+  // already there, and a reader told "can't change or delete it" about that
+  // one has been told the opposite of the truth. `replaces` comes from the
+  // server's own manifest, so this sentence can't drift from what the tool
+  // actually does.
+  const access =
+    t.readOnly === false
+      ? t.replaces
+        ? "Writes: can change what's already set for today. It can't delete anything, and never touches your history."
+        : "Writes: adds data, and can't change or delete it."
+      : "Read-only.";
   out.push(`## \`${t.name}\` — ${t.title}`, "", t.description, "", `Scope: \`${t.scope}\`. ${access}`, "", params(t.inputSchema));
 }
 out.push("# Prompts", "");
