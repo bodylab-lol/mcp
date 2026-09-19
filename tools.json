@@ -39,98 +39,10 @@
             "type": "boolean"
           },
           "today": {
-            "type": "object",
-            "properties": {
-              "additional": {
-                "$ref": "#/$defs/__schema0"
-              },
-              "deload": {
-                "$ref": "#/$defs/__schema1"
-              },
-              "sessionClass": {
-                "$ref": "#/$defs/__schema2"
-              },
-              "primary": {
-                "$ref": "#/$defs/__schema3"
-              },
-              "alternates": {
-                "$ref": "#/$defs/__schema8"
-              },
-              "variants": {
-                "$ref": "#/$defs/__schema9"
-              },
-              "unavailable": {
-                "$ref": "#/$defs/__schema10"
-              },
-              "flags": {
-                "$ref": "#/$defs/__schema11"
-              },
-              "rationale": {
-                "$ref": "#/$defs/__schema12"
-              },
-              "environment": {
-                "$ref": "#/$defs/__schema13"
-              }
-            },
-            "required": [
-              "additional",
-              "deload",
-              "sessionClass",
-              "primary",
-              "alternates",
-              "variants",
-              "unavailable",
-              "flags",
-              "rationale",
-              "environment"
-            ]
+            "$ref": "#/$defs/__schema0"
           },
           "tomorrow": {
-            "type": "object",
-            "properties": {
-              "additional": {
-                "$ref": "#/$defs/__schema0"
-              },
-              "deload": {
-                "$ref": "#/$defs/__schema1"
-              },
-              "sessionClass": {
-                "$ref": "#/$defs/__schema2"
-              },
-              "primary": {
-                "$ref": "#/$defs/__schema3"
-              },
-              "alternates": {
-                "$ref": "#/$defs/__schema8"
-              },
-              "variants": {
-                "$ref": "#/$defs/__schema9"
-              },
-              "unavailable": {
-                "$ref": "#/$defs/__schema10"
-              },
-              "flags": {
-                "$ref": "#/$defs/__schema11"
-              },
-              "rationale": {
-                "$ref": "#/$defs/__schema12"
-              },
-              "environment": {
-                "$ref": "#/$defs/__schema13"
-              }
-            },
-            "required": [
-              "additional",
-              "deload",
-              "sessionClass",
-              "primary",
-              "alternates",
-              "variants",
-              "unavailable",
-              "flags",
-              "rationale",
-              "environment"
-            ]
+            "$ref": "#/$defs/__schema0"
           },
           "completed": {
             "type": "object",
@@ -141,7 +53,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema7"
+                      "$ref": "#/$defs/__schema5"
                     },
                     "durationS": {
                       "anyOf": [
@@ -166,7 +78,7 @@
                     "activityType": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema4"
+                          "$ref": "#/$defs/__schema2"
                         },
                         {
                           "type": "null"
@@ -174,7 +86,7 @@
                       ]
                     },
                     "startTime": {
-                      "$ref": "#/$defs/__schema15"
+                      "$ref": "#/$defs/__schema7"
                     }
                   },
                   "required": [
@@ -192,12 +104,12 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema7"
+                      "$ref": "#/$defs/__schema5"
                     },
                     "activityId": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema7"
+                          "$ref": "#/$defs/__schema5"
                         },
                         {
                           "type": "null"
@@ -211,7 +123,7 @@
                       }
                     },
                     "performedAt": {
-                      "$ref": "#/$defs/__schema15"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "durationS": {
                       "anyOf": [
@@ -276,13 +188,13 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "$ref": "#/$defs/__schema7"
+                  "$ref": "#/$defs/__schema5"
                 },
                 "name": {
                   "type": "string"
                 },
                 "sport": {
-                  "$ref": "#/$defs/__schema4"
+                  "$ref": "#/$defs/__schema2"
                 },
                 "priority": {
                   "type": "string",
@@ -293,7 +205,7 @@
                   ]
                 },
                 "eventDate": {
-                  "$ref": "#/$defs/__schema14"
+                  "$ref": "#/$defs/__schema6"
                 },
                 "daysUntil": {
                   "type": "integer"
@@ -363,13 +275,13 @@
                 "type": "object",
                 "properties": {
                   "eventId": {
-                    "$ref": "#/$defs/__schema7"
+                    "$ref": "#/$defs/__schema5"
                   },
                   "eventName": {
                     "type": "string"
                   },
                   "phase": {
-                    "$ref": "#/$defs/__schema16"
+                    "$ref": "#/$defs/__schema8"
                   },
                   "week": {
                     "description": "Which week of this phase today is in, from 1.",
@@ -380,17 +292,17 @@
                     "type": "integer"
                   },
                   "startsOn": {
-                    "$ref": "#/$defs/__schema14"
+                    "$ref": "#/$defs/__schema6"
                   },
                   "endsOn": {
                     "description": "Inclusive: the last day of this phase.",
-                    "$ref": "#/$defs/__schema14"
+                    "$ref": "#/$defs/__schema6"
                   },
                   "nextPhase": {
                     "description": "The phase after this one; null in the taper, whose successor is the event itself.",
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema16"
+                        "$ref": "#/$defs/__schema8"
                       },
                       {
                         "type": "null"
@@ -400,7 +312,7 @@
                   "nextStartsOn": {
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema14"
+                        "$ref": "#/$defs/__schema6"
                       },
                       {
                         "type": "null"
@@ -433,7 +345,7 @@
                 "type": "object",
                 "properties": {
                   "date": {
-                    "$ref": "#/$defs/__schema14"
+                    "$ref": "#/$defs/__schema6"
                   },
                   "timeAvailableMin": {
                     "description": "Minutes available today; the prescription is shortened to fit.",
@@ -461,7 +373,7 @@
                     "description": "Sports the athlete can't do today.",
                     "type": "array",
                     "items": {
-                      "$ref": "#/$defs/__schema4"
+                      "$ref": "#/$defs/__schema2"
                     }
                   },
                   "expectedAltitude": {
@@ -505,7 +417,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema7"
+                      "$ref": "#/$defs/__schema5"
                     },
                     "kind": {
                       "description": "What was reported. Known values: illness, injury. Treat unknown values as \"other\".",
@@ -515,7 +427,7 @@
                       "description": "Illness only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema17"
+                          "$ref": "#/$defs/__schema9"
                         },
                         {
                           "type": "null"
@@ -526,7 +438,7 @@
                       "description": "Injury only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema18"
+                          "$ref": "#/$defs/__schema10"
                         },
                         {
                           "type": "null"
@@ -545,17 +457,17 @@
                       ]
                     },
                     "startedOn": {
-                      "$ref": "#/$defs/__schema14"
+                      "$ref": "#/$defs/__schema6"
                     },
                     "confirmedOn": {
                       "description": "The last day the athlete said it was still going.",
-                      "$ref": "#/$defs/__schema14"
+                      "$ref": "#/$defs/__schema6"
                     },
                     "clearedOn": {
                       "description": "Null while it's still going.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema14"
+                          "$ref": "#/$defs/__schema6"
                         },
                         {
                           "type": "null"
@@ -587,7 +499,7 @@
                   "type": "object",
                   "properties": {
                     "reportId": {
-                      "$ref": "#/$defs/__schema7"
+                      "$ref": "#/$defs/__schema5"
                     },
                     "kind": {
                       "description": "What is being returned from. Known values: illness, injury. Treat unknown values as \"other\".",
@@ -596,7 +508,7 @@
                     "severity": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema17"
+                          "$ref": "#/$defs/__schema9"
                         },
                         {
                           "type": "null"
@@ -606,7 +518,7 @@
                     "region": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema18"
+                          "$ref": "#/$defs/__schema10"
                         },
                         {
                           "type": "null"
@@ -646,7 +558,7 @@
           },
           "date": {
             "description": "Today on the athlete's calendar.",
-            "$ref": "#/$defs/__schema14"
+            "$ref": "#/$defs/__schema6"
           },
           "timezone": {
             "description": "The athlete's IANA time zone.",
@@ -766,10 +678,10 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "$ref": "#/$defs/__schema7"
+                  "$ref": "#/$defs/__schema5"
                 },
                 "modality": {
-                  "$ref": "#/$defs/__schema4"
+                  "$ref": "#/$defs/__schema2"
                 },
                 "workoutType": {
                   "anyOf": [
@@ -808,25 +720,204 @@
         ],
         "$defs": {
           "__schema0": {
-            "description": "Today's main session is done; this is an optional extra.",
-            "type": "boolean"
-          },
-          "__schema1": {
-            "type": "boolean"
-          },
-          "__schema2": {
-            "type": "string",
-            "enum": [
-              "rest",
-              "recovery",
-              "easy",
-              "build",
-              "quality",
-              "strength",
-              "complete"
+            "type": "object",
+            "properties": {
+              "additional": {
+                "description": "Today's main session is done; this is an optional extra.",
+                "type": "boolean"
+              },
+              "deload": {
+                "type": "boolean"
+              },
+              "sessionClass": {
+                "type": "string",
+                "enum": [
+                  "rest",
+                  "recovery",
+                  "easy",
+                  "build",
+                  "quality",
+                  "strength",
+                  "complete"
+                ]
+              },
+              "primary": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "alternates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              "variants": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              "unavailable": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "modality": {
+                      "$ref": "#/$defs/__schema2"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "modality",
+                    "reason"
+                  ]
+                }
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rationale": {
+                "description": "Why, citing the metric behind each call — the deciding reason first.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "description": "What this reason is doing. Known values: decision, phase, context. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "headline": {
+                      "description": "The claim: metric, value, threshold. One line.",
+                      "type": "string"
+                    },
+                    "detail": {
+                      "description": "The mechanism, and any citation. Null when the headline is all of it.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "role",
+                    "headline",
+                    "detail"
+                  ]
+                }
+              },
+              "environment": {
+                "description": "Altitude and recent heat, where either applies today; null otherwise.",
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "altitude": {
+                        "description": "Set when watt targets were lowered for altitude. Heart-rate targets never are.",
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "todayAltitudeM": {
+                                "description": "The altitude today's session is expected at, metres.",
+                                "type": "number"
+                              },
+                              "basis": {
+                                "description": "Where that came from, most trustworthy first: confirmed means the athlete confirmed it for today; recent_recordings means the last two days' recordings both started there; home is the profile's home altitude. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
+                                "type": "string"
+                              },
+                              "ftpAltitudeM": {
+                                "description": "The altitude the FTP behind the watt targets was set at, metres: from rides around its date, or home.",
+                                "type": "number"
+                              },
+                              "powerFactor": {
+                                "description": "What every watt target was multiplied by: below 1, never above.",
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "todayAltitudeM",
+                              "basis",
+                              "ftpAltitudeM",
+                              "powerFactor"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "heat": {
+                        "description": "Set when a recent session was recorded in hot air. Nothing is known about today's weather; sessions and targets are unchanged.",
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "temperatureC": {
+                                "description": "Air temperature of the hottest session in the last few days, °C. Never a wrist reading.",
+                                "type": "number"
+                              },
+                              "recordedOn": {
+                                "$ref": "#/$defs/__schema6"
+                              },
+                              "daysAgo": {
+                                "type": "integer"
+                              },
+                              "hotDaysLast14": {
+                                "description": "Days in the last two weeks with a hot session of an hour or more.",
+                                "type": "integer"
+                              },
+                              "acclimatised": {
+                                "description": "Whether that is enough hot days for heat adaptation to be under way.",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "temperatureC",
+                              "recordedOn",
+                              "daysAgo",
+                              "hotDaysLast14",
+                              "acclimatised"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "altitude",
+                      "heat"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "additional",
+              "deload",
+              "sessionClass",
+              "primary",
+              "alternates",
+              "variants",
+              "unavailable",
+              "flags",
+              "rationale",
+              "environment"
             ]
           },
-          "__schema3": {
+          "__schema1": {
             "description": "One prescribed session. `kind` is the discriminator; new kinds are a breaking change.",
             "anyOf": [
               {
@@ -837,7 +928,7 @@
                     "const": "endurance"
                   },
                   "modality": {
-                    "$ref": "#/$defs/__schema4"
+                    "$ref": "#/$defs/__schema2"
                   },
                   "durationMin": {
                     "type": "number"
@@ -901,12 +992,12 @@
                           "minimum": 1
                         },
                         "work": {
-                          "$ref": "#/$defs/__schema5"
+                          "$ref": "#/$defs/__schema3"
                         },
                         "recovery": {
                           "anyOf": [
                             {
-                              "$ref": "#/$defs/__schema5"
+                              "$ref": "#/$defs/__schema3"
                             },
                             {
                               "type": "null"
@@ -952,7 +1043,7 @@
                     "type": "string"
                   },
                   "tradeoff": {
-                    "$ref": "#/$defs/__schema6"
+                    "$ref": "#/$defs/__schema4"
                   }
                 },
                 "required": [
@@ -990,7 +1081,7 @@
                       "type": "object",
                       "properties": {
                         "exerciseId": {
-                          "$ref": "#/$defs/__schema7"
+                          "$ref": "#/$defs/__schema5"
                         },
                         "name": {
                           "type": "string"
@@ -1133,7 +1224,7 @@
                     "type": "string"
                   },
                   "tradeoff": {
-                    "$ref": "#/$defs/__schema6"
+                    "$ref": "#/$defs/__schema4"
                   }
                 },
                 "required": [
@@ -1156,7 +1247,7 @@
                     "type": "string"
                   },
                   "tradeoff": {
-                    "$ref": "#/$defs/__schema6"
+                    "$ref": "#/$defs/__schema4"
                   }
                 },
                 "required": [
@@ -1167,11 +1258,11 @@
               }
             ]
           },
-          "__schema4": {
+          "__schema2": {
             "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema5": {
+          "__schema3": {
             "type": "object",
             "properties": {
               "minutes": {
@@ -1231,7 +1322,7 @@
               "powerHigh"
             ]
           },
-          "__schema6": {
+          "__schema4": {
             "description": "What choosing this instead of today's session costs or gains, one sentence. Set only on alternates; null on the prescribed session and on variants.",
             "anyOf": [
               {
@@ -1242,190 +1333,31 @@
               }
             ]
           },
-          "__schema7": {
+          "__schema5": {
             "description": "Opaque identifier.",
             "type": "string",
             "minLength": 1,
             "maxLength": 64
           },
-          "__schema8": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/__schema3"
-            }
-          },
-          "__schema9": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/__schema3"
-            }
-          },
-          "__schema10": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "modality": {
-                  "$ref": "#/$defs/__schema4"
-                },
-                "reason": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "modality",
-                "reason"
-              ]
-            }
-          },
-          "__schema11": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "__schema12": {
-            "description": "Why, citing the metric behind each call — the deciding reason first.",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "role": {
-                  "description": "What this reason is doing. Known values: decision, phase, context. Treat unknown values as \"other\".",
-                  "type": "string"
-                },
-                "headline": {
-                  "description": "The claim: metric, value, threshold. One line.",
-                  "type": "string"
-                },
-                "detail": {
-                  "description": "The mechanism, and any citation. Null when the headline is all of it.",
-                  "anyOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              },
-              "required": [
-                "role",
-                "headline",
-                "detail"
-              ]
-            }
-          },
-          "__schema13": {
-            "description": "Altitude and recent heat, where either applies today; null otherwise.",
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "altitude": {
-                    "description": "Set when watt targets were lowered for altitude. Heart-rate targets never are.",
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "todayAltitudeM": {
-                            "description": "The altitude today's session is expected at, metres.",
-                            "type": "number"
-                          },
-                          "basis": {
-                            "description": "Where that came from, most trustworthy first: confirmed means the athlete confirmed it for today; recent_recordings means the last two days' recordings both started there; home is the profile's home altitude. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
-                            "type": "string"
-                          },
-                          "ftpAltitudeM": {
-                            "description": "The altitude the FTP behind the watt targets was set at, metres: from rides around its date, or home.",
-                            "type": "number"
-                          },
-                          "powerFactor": {
-                            "description": "What every watt target was multiplied by: below 1, never above.",
-                            "type": "number"
-                          }
-                        },
-                        "required": [
-                          "todayAltitudeM",
-                          "basis",
-                          "ftpAltitudeM",
-                          "powerFactor"
-                        ]
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "heat": {
-                    "description": "Set when a recent session was recorded in hot air. Nothing is known about today's weather; sessions and targets are unchanged.",
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "temperatureC": {
-                            "description": "Air temperature of the hottest session in the last few days, °C. Never a wrist reading.",
-                            "type": "number"
-                          },
-                          "recordedOn": {
-                            "$ref": "#/$defs/__schema14"
-                          },
-                          "daysAgo": {
-                            "type": "integer"
-                          },
-                          "hotDaysLast14": {
-                            "description": "Days in the last two weeks with a hot session of an hour or more.",
-                            "type": "integer"
-                          },
-                          "acclimatised": {
-                            "description": "Whether that is enough hot days for heat adaptation to be under way.",
-                            "type": "boolean"
-                          }
-                        },
-                        "required": [
-                          "temperatureC",
-                          "recordedOn",
-                          "daysAgo",
-                          "hotDaysLast14",
-                          "acclimatised"
-                        ]
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "altitude",
-                  "heat"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "__schema14": {
+          "__schema6": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
           },
-          "__schema15": {
+          "__schema7": {
             "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
             "type": "string",
             "format": "date-time"
           },
-          "__schema16": {
+          "__schema8": {
             "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema17": {
+          "__schema9": {
             "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema18": {
+          "__schema10": {
             "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
             "type": "string"
           }
