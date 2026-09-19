@@ -17,7 +17,7 @@
     {
       "name": "get_today",
       "title": "Today's session",
-      "description": "The session Body Lab prescribes for today, with the reasons behind it (each citing the metric that drove it) and alternatives in other sports; tomorrow's session, without its options; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength lists sets, reps, weight (kg) and reps in reserve.",
+      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind each (citing the metric that drove it) and alternatives in other sports; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength lists sets, reps, weight (kg) and reps in reserve.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -42,59 +42,81 @@
             "type": "object",
             "properties": {
               "additional": {
-                "description": "Today's main session is done; this is an optional extra.",
-                "type": "boolean"
-              },
-              "deload": {
                 "$ref": "#/$defs/__schema0"
               },
-              "sessionClass": {
+              "deload": {
                 "$ref": "#/$defs/__schema1"
               },
-              "primary": {
+              "sessionClass": {
                 "$ref": "#/$defs/__schema2"
               },
+              "primary": {
+                "$ref": "#/$defs/__schema3"
+              },
               "alternates": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/__schema2"
-                }
+                "$ref": "#/$defs/__schema8"
               },
               "variants": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/__schema2"
-                }
+                "$ref": "#/$defs/__schema9"
               },
               "unavailable": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "modality": {
-                      "$ref": "#/$defs/__schema3"
-                    },
-                    "reason": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "modality",
-                    "reason"
-                  ]
-                }
+                "$ref": "#/$defs/__schema10"
               },
               "flags": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
+                "$ref": "#/$defs/__schema11"
               },
               "rationale": {
-                "$ref": "#/$defs/__schema7"
+                "$ref": "#/$defs/__schema12"
               },
               "environment": {
+                "$ref": "#/$defs/__schema13"
+              }
+            },
+            "required": [
+              "additional",
+              "deload",
+              "sessionClass",
+              "primary",
+              "alternates",
+              "variants",
+              "unavailable",
+              "flags",
+              "rationale",
+              "environment"
+            ]
+          },
+          "tomorrow": {
+            "type": "object",
+            "properties": {
+              "additional": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "deload": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "sessionClass": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "primary": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "alternates": {
                 "$ref": "#/$defs/__schema8"
+              },
+              "variants": {
+                "$ref": "#/$defs/__schema9"
+              },
+              "unavailable": {
+                "$ref": "#/$defs/__schema10"
+              },
+              "flags": {
+                "$ref": "#/$defs/__schema11"
+              },
+              "rationale": {
+                "$ref": "#/$defs/__schema12"
+              },
+              "environment": {
+                "$ref": "#/$defs/__schema13"
               }
             },
             "required": [
@@ -119,7 +141,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "durationS": {
                       "anyOf": [
@@ -144,7 +166,7 @@
                     "activityType": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema3"
+                          "$ref": "#/$defs/__schema4"
                         },
                         {
                           "type": "null"
@@ -152,7 +174,7 @@
                       ]
                     },
                     "startTime": {
-                      "$ref": "#/$defs/__schema10"
+                      "$ref": "#/$defs/__schema15"
                     }
                   },
                   "required": [
@@ -170,12 +192,12 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "activityId": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema6"
+                          "$ref": "#/$defs/__schema7"
                         },
                         {
                           "type": "null"
@@ -189,7 +211,7 @@
                       }
                     },
                     "performedAt": {
-                      "$ref": "#/$defs/__schema10"
+                      "$ref": "#/$defs/__schema15"
                     },
                     "durationS": {
                       "anyOf": [
@@ -254,13 +276,13 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "$ref": "#/$defs/__schema6"
+                  "$ref": "#/$defs/__schema7"
                 },
                 "name": {
                   "type": "string"
                 },
                 "sport": {
-                  "$ref": "#/$defs/__schema3"
+                  "$ref": "#/$defs/__schema4"
                 },
                 "priority": {
                   "type": "string",
@@ -271,7 +293,7 @@
                   ]
                 },
                 "eventDate": {
-                  "$ref": "#/$defs/__schema9"
+                  "$ref": "#/$defs/__schema14"
                 },
                 "daysUntil": {
                   "type": "integer"
@@ -341,13 +363,13 @@
                 "type": "object",
                 "properties": {
                   "eventId": {
-                    "$ref": "#/$defs/__schema6"
+                    "$ref": "#/$defs/__schema7"
                   },
                   "eventName": {
                     "type": "string"
                   },
                   "phase": {
-                    "$ref": "#/$defs/__schema11"
+                    "$ref": "#/$defs/__schema16"
                   },
                   "week": {
                     "description": "Which week of this phase today is in, from 1.",
@@ -358,17 +380,17 @@
                     "type": "integer"
                   },
                   "startsOn": {
-                    "$ref": "#/$defs/__schema9"
+                    "$ref": "#/$defs/__schema14"
                   },
                   "endsOn": {
                     "description": "Inclusive: the last day of this phase.",
-                    "$ref": "#/$defs/__schema9"
+                    "$ref": "#/$defs/__schema14"
                   },
                   "nextPhase": {
                     "description": "The phase after this one; null in the taper, whose successor is the event itself.",
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema11"
+                        "$ref": "#/$defs/__schema16"
                       },
                       {
                         "type": "null"
@@ -378,7 +400,7 @@
                   "nextStartsOn": {
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema9"
+                        "$ref": "#/$defs/__schema14"
                       },
                       {
                         "type": "null"
@@ -411,7 +433,7 @@
                 "type": "object",
                 "properties": {
                   "date": {
-                    "$ref": "#/$defs/__schema9"
+                    "$ref": "#/$defs/__schema14"
                   },
                   "timeAvailableMin": {
                     "description": "Minutes available today; the prescription is shortened to fit.",
@@ -439,7 +461,7 @@
                     "description": "Sports the athlete can't do today.",
                     "type": "array",
                     "items": {
-                      "$ref": "#/$defs/__schema3"
+                      "$ref": "#/$defs/__schema4"
                     }
                   },
                   "expectedAltitude": {
@@ -483,7 +505,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "kind": {
                       "description": "What was reported. Known values: illness, injury. Treat unknown values as \"other\".",
@@ -493,7 +515,7 @@
                       "description": "Illness only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema12"
+                          "$ref": "#/$defs/__schema17"
                         },
                         {
                           "type": "null"
@@ -504,7 +526,7 @@
                       "description": "Injury only.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema13"
+                          "$ref": "#/$defs/__schema18"
                         },
                         {
                           "type": "null"
@@ -523,17 +545,17 @@
                       ]
                     },
                     "startedOn": {
-                      "$ref": "#/$defs/__schema9"
+                      "$ref": "#/$defs/__schema14"
                     },
                     "confirmedOn": {
                       "description": "The last day the athlete said it was still going.",
-                      "$ref": "#/$defs/__schema9"
+                      "$ref": "#/$defs/__schema14"
                     },
                     "clearedOn": {
                       "description": "Null while it's still going.",
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema9"
+                          "$ref": "#/$defs/__schema14"
                         },
                         {
                           "type": "null"
@@ -565,7 +587,7 @@
                   "type": "object",
                   "properties": {
                     "reportId": {
-                      "$ref": "#/$defs/__schema6"
+                      "$ref": "#/$defs/__schema7"
                     },
                     "kind": {
                       "description": "What is being returned from. Known values: illness, injury. Treat unknown values as \"other\".",
@@ -574,7 +596,7 @@
                     "severity": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema12"
+                          "$ref": "#/$defs/__schema17"
                         },
                         {
                           "type": "null"
@@ -584,7 +606,7 @@
                     "region": {
                       "anyOf": [
                         {
-                          "$ref": "#/$defs/__schema13"
+                          "$ref": "#/$defs/__schema18"
                         },
                         {
                           "type": "null"
@@ -624,7 +646,7 @@
           },
           "date": {
             "description": "Today on the athlete's calendar.",
-            "$ref": "#/$defs/__schema9"
+            "$ref": "#/$defs/__schema14"
           },
           "timezone": {
             "description": "The athlete's IANA time zone.",
@@ -744,10 +766,10 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "$ref": "#/$defs/__schema6"
+                  "$ref": "#/$defs/__schema7"
                 },
                 "modality": {
-                  "$ref": "#/$defs/__schema3"
+                  "$ref": "#/$defs/__schema4"
                 },
                 "workoutType": {
                   "anyOf": [
@@ -766,40 +788,13 @@
                 "workoutType"
               ]
             }
-          },
-          "tomorrow": {
-            "description": "Tomorrow's session as it stands tonight. Its alternatives are one get_today call away in the morning, recomputed from how today actually went.",
-            "type": "object",
-            "properties": {
-              "sessionClass": {
-                "$ref": "#/$defs/__schema1"
-              },
-              "deload": {
-                "$ref": "#/$defs/__schema0"
-              },
-              "primary": {
-                "$ref": "#/$defs/__schema2"
-              },
-              "rationale": {
-                "$ref": "#/$defs/__schema7"
-              },
-              "environment": {
-                "$ref": "#/$defs/__schema8"
-              }
-            },
-            "required": [
-              "sessionClass",
-              "deload",
-              "primary",
-              "rationale",
-              "environment"
-            ]
           }
         },
         "required": [
           "units",
           "todayIsDone",
           "today",
+          "tomorrow",
           "completed",
           "excludedActivities",
           "events",
@@ -809,14 +804,17 @@
           "date",
           "timezone",
           "readiness",
-          "planned",
-          "tomorrow"
+          "planned"
         ],
         "$defs": {
           "__schema0": {
+            "description": "Today's main session is done; this is an optional extra.",
             "type": "boolean"
           },
           "__schema1": {
+            "type": "boolean"
+          },
+          "__schema2": {
             "type": "string",
             "enum": [
               "rest",
@@ -828,7 +826,7 @@
               "complete"
             ]
           },
-          "__schema2": {
+          "__schema3": {
             "description": "One prescribed session. `kind` is the discriminator; new kinds are a breaking change.",
             "anyOf": [
               {
@@ -839,7 +837,7 @@
                     "const": "endurance"
                   },
                   "modality": {
-                    "$ref": "#/$defs/__schema3"
+                    "$ref": "#/$defs/__schema4"
                   },
                   "durationMin": {
                     "type": "number"
@@ -903,12 +901,12 @@
                           "minimum": 1
                         },
                         "work": {
-                          "$ref": "#/$defs/__schema4"
+                          "$ref": "#/$defs/__schema5"
                         },
                         "recovery": {
                           "anyOf": [
                             {
-                              "$ref": "#/$defs/__schema4"
+                              "$ref": "#/$defs/__schema5"
                             },
                             {
                               "type": "null"
@@ -954,7 +952,7 @@
                     "type": "string"
                   },
                   "tradeoff": {
-                    "$ref": "#/$defs/__schema5"
+                    "$ref": "#/$defs/__schema6"
                   }
                 },
                 "required": [
@@ -992,7 +990,7 @@
                       "type": "object",
                       "properties": {
                         "exerciseId": {
-                          "$ref": "#/$defs/__schema6"
+                          "$ref": "#/$defs/__schema7"
                         },
                         "name": {
                           "type": "string"
@@ -1134,7 +1132,7 @@
                     "type": "string"
                   },
                   "tradeoff": {
-                    "$ref": "#/$defs/__schema5"
+                    "$ref": "#/$defs/__schema6"
                   }
                 },
                 "required": [
@@ -1157,7 +1155,7 @@
                     "type": "string"
                   },
                   "tradeoff": {
-                    "$ref": "#/$defs/__schema5"
+                    "$ref": "#/$defs/__schema6"
                   }
                 },
                 "required": [
@@ -1168,11 +1166,11 @@
               }
             ]
           },
-          "__schema3": {
+          "__schema4": {
             "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema4": {
+          "__schema5": {
             "type": "object",
             "properties": {
               "minutes": {
@@ -1232,7 +1230,7 @@
               "powerHigh"
             ]
           },
-          "__schema5": {
+          "__schema6": {
             "description": "What choosing this instead of today's session costs or gains, one sentence. Set only on alternates; null on the prescribed session and on variants.",
             "anyOf": [
               {
@@ -1243,13 +1241,49 @@
               }
             ]
           },
-          "__schema6": {
+          "__schema7": {
             "description": "Opaque identifier.",
             "type": "string",
             "minLength": 1,
             "maxLength": 64
           },
-          "__schema7": {
+          "__schema8": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema3"
+            }
+          },
+          "__schema9": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema3"
+            }
+          },
+          "__schema10": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "modality": {
+                  "$ref": "#/$defs/__schema4"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "modality",
+                "reason"
+              ]
+            }
+          },
+          "__schema11": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "__schema12": {
             "description": "Why, citing the metric behind each call — the deciding reason first.",
             "type": "array",
             "items": {
@@ -1282,7 +1316,7 @@
               ]
             }
           },
-          "__schema8": {
+          "__schema13": {
             "description": "Altitude and recent heat, where either applies today; null otherwise.",
             "anyOf": [
               {
@@ -1334,7 +1368,7 @@
                             "type": "number"
                           },
                           "recordedOn": {
-                            "$ref": "#/$defs/__schema9"
+                            "$ref": "#/$defs/__schema14"
                           },
                           "daysAgo": {
                             "type": "integer"
@@ -1372,25 +1406,25 @@
               }
             ]
           },
-          "__schema9": {
+          "__schema14": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
           },
-          "__schema10": {
+          "__schema15": {
             "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
             "type": "string",
             "format": "date-time"
           },
-          "__schema11": {
+          "__schema16": {
             "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema12": {
+          "__schema17": {
             "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
             "type": "string"
           },
-          "__schema13": {
+          "__schema18": {
             "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
             "type": "string"
           }
@@ -1403,6 +1437,7 @@
       "description": "Tells Body Lab what today actually looks like for the athlete — how many minutes they have, which strength equipment is to hand, which sports are out — and returns the session Body Lab prescribes once it knows. Use it when the athlete pushes back with a constraint, instead of shortening the session yourself: the engine re-prescribes, and its answer is the one to give them. Only the fields you pass change; anything the athlete set in Body Lab today is read first and kept. Today only, on their own calendar — it's gone tomorrow, they can change it on Body Lab's Today screen, and nothing in their training history is touched. It can't record an illness or an injury and refuses to try: deciding that someone is ill, or that a sore knee is an injury, is a health judgement, and the athlete reports that themselves in the app. Check with the athlete before calling, then read the `report` it returns back to them before today's session — that's what was recorded, not what was asked for.",
       "scope": "today:write",
       "readOnly": false,
+      "replaces": true,
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2418,6 +2453,26 @@
                     }
                   ]
                 },
+                "commitment": {
+                  "description": "Set when this day's session is one the athlete arranged themselves rather than one Body Lab chose — a club ride, a run with friends — and carrying its name. Present on an outline day too, unlike `workoutName`: the sport and a duration alone are indistinguishable from a session Body Lab invented, and a surface drawing the week should name the athlete's own arrangement so they recognise it. Null on every other day, including a day with a commitment on it that something else took over (a race on the same date, or an illness that replaced the session).",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "What the athlete called it: \"Ride with Nick and Rachael\".",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "longest": {
                   "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
                   "type": "boolean"
@@ -2526,6 +2581,7 @@
                 "modality",
                 "durationMin",
                 "workoutName",
+                "commitment",
                 "longest",
                 "strengthAfter",
                 "deload",
@@ -5153,7 +5209,7 @@
     {
       "name": "get_strength",
       "title": "Strength training",
-      "description": "The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held); the most recent logged sessions, exercise by exercise; and `trend`, the heaviest working set of each session per lift over the past year with the heaviest ever recorded. Every number in `trend` is a weight the athlete actually lifted: nothing is estimated there, and it must not be presented as a one-rep max. The template's `oneRepMaxes` are the opposite — estimates, which account for reps left in reserve and are usually higher than anything the athlete has lifted — so quote `trend` for 'what's my best squat' and never the estimate. Give `lift` to ask about one exercise. Use for 'how's my lifting going', 'is my deadlift moving', or what today's session would be.",
+      "description": "The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held); the most recent logged sessions, exercise by exercise in `exercises` (`sets` is the same sets flat, and can be ignored); and `trend`, the heaviest working set of each session per lift over the past year with the heaviest ever recorded. Every number in `trend` is a weight the athlete actually lifted: nothing is estimated there, and it must not be presented as a one-rep max. The template's `oneRepMaxes` are the opposite — estimates, which account for reps left in reserve and are usually higher than anything the athlete has lifted — so quote `trend` for 'what's my best squat' and never the estimate. Give `lift` to ask about one exercise. Use for 'how's my lifting going', 'is my deadlift moving', or what today's session would be.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -5172,7 +5228,7 @@
             "maxLength": 80
           },
           "includeWarmups": {
-            "description": "Include warm-up sets in the recent sessions. Off by default: they say nothing about what the athlete can lift.",
+            "description": "Include warm-up sets in each session's `exercises`. Off by default: they say nothing about what the athlete can lift. The flat `sets` always carries them, each marked.",
             "default": false,
             "type": "boolean"
           }
@@ -5399,6 +5455,9 @@
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "$ref": "#/$defs/__schema0"
+                },
                 "performedAt": {
                   "type": "string"
                 },
@@ -5441,6 +5500,62 @@
                       "type": "null"
                     }
                   ]
+                },
+                "sets": {
+                  "description": "Every set of that session, warm-ups included, in the order they were done. The same sets as `exercises`, flat; read `exercises`, which drops the warm-ups.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "exerciseId": {
+                        "$ref": "#/$defs/__schema0"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "setIndex": {
+                        "type": "integer"
+                      },
+                      "reps": {
+                        "description": "Reps, or seconds for a timed exercise.",
+                        "type": "integer"
+                      },
+                      "weightKg": {
+                        "description": "Negative is assistance.",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rir": {
+                        "description": "Reps in reserve.",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "isWarmup": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "exerciseId",
+                      "name",
+                      "setIndex",
+                      "reps",
+                      "weightKg",
+                      "rir",
+                      "isWarmup"
+                    ]
+                  }
                 },
                 "exercises": {
                   "description": "The exercises of that session, in the order they were first done.",
@@ -5508,11 +5623,13 @@
                 }
               },
               "required": [
+                "id",
                 "performedAt",
                 "durationS",
                 "sessionRpe",
                 "load",
                 "notes",
+                "sets",
                 "exercises"
               ]
             }
@@ -6319,7 +6436,7 @@
     {
       "name": "get_lab_results",
       "title": "Lab results",
-      "description": "The athlete's blood test results as entered from lab reports. Each marker over time: every value, the latest against the lab's range and flag and any guideline limit (naming its source and population), whether the change since the last comparable draw is beyond the marker's normal variation, and how loudly to raise it (`tier`, `message`). Pass `message` on word for word, and never call a value safe, healthy or optimal. Lab results never change the training Body Lab prescribes, and this isn't a diagnosis. Use for 'how's my ferritin' or 'what did my last blood test show' — the markers answer both. Ask for the draws only to check what's already recorded before recording more: they are the same values again as each report printed them, with the lab, the date and the conditions that decide whether two draws compare.",
+      "description": "The athlete's blood test results as entered from lab reports. Each marker over time: every value, the latest against the lab's range and flag and any guideline limit (naming its source and population), whether the change since the last comparable draw is beyond the marker's normal variation, and how loudly to raise it (`tier`, `message`). Pass `message` on word for word, and never call a value safe, healthy or optimal. Lab results never change the training Body Lab prescribes, and this isn't a diagnosis. Use for 'how's my ferritin' or 'what did my last blood test show' — the markers answer both. The draws come too: the same values again as each report printed them, with the lab, the date and the conditions that decide whether two draws compare, which is what to check before recording more. Pass include: markers to leave them out when the markers are all you need.",
       "scope": "labs:read",
       "readOnly": true,
       "inputSchema": {
@@ -6331,8 +6448,8 @@
             "maxLength": 64
           },
           "include": {
-            "description": "markers: each marker over time, which is every value the athlete has. markers_and_draws: those, plus the draws they came from.",
-            "default": "markers",
+            "description": "markers_and_draws (the default): each marker over time, plus the draws they came from. markers: the markers alone, which is still every value the athlete has, and about half the response.",
+            "default": "markers_and_draws",
             "type": "string",
             "enum": [
               "markers",
@@ -6648,7 +6765,7 @@
             }
           },
           "draws": {
-            "description": "Blood draws, newest first, each with its results as the report printed them and the conditions it was drawn under. Only when `include` asked for them.",
+            "description": "Blood draws, newest first, each with its results as the report printed them and the conditions it was drawn under. Absent only when `include` asked for the markers alone.",
             "type": "array",
             "items": {
               "type": "object",

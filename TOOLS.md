@@ -6,7 +6,7 @@ Quantities are SI with the unit in the field name (`durationS`, `distanceM`, `we
 
 ## `get_today` — Today's session
 
-The session Body Lab prescribes for today, with the reasons behind it (each citing the metric that drove it) and alternatives in other sports; tomorrow's session, without its options; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength lists sets, reps, weight (kg) and reps in reserve.
+The session Body Lab prescribes for today and tomorrow, with the reasons behind each (citing the metric that drove it) and alternatives in other sports; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength lists sets, reps, weight (kg) and reps in reserve.
 
 Scope: `training:read`. Read-only.
 
@@ -16,7 +16,7 @@ _No arguments._
 
 Tells Body Lab what today actually looks like for the athlete — how many minutes they have, which strength equipment is to hand, which sports are out — and returns the session Body Lab prescribes once it knows. Use it when the athlete pushes back with a constraint, instead of shortening the session yourself: the engine re-prescribes, and its answer is the one to give them. Only the fields you pass change; anything the athlete set in Body Lab today is read first and kept. Today only, on their own calendar — it's gone tomorrow, they can change it on Body Lab's Today screen, and nothing in their training history is touched. It can't record an illness or an injury and refuses to try: deciding that someone is ill, or that a sore knee is an injury, is a health judgement, and the athlete reports that themselves in the app. Check with the athlete before calling, then read the `report` it returns back to them before today's session — that's what was recorded, not what was asked for.
 
-Scope: `today:write`. Writes: adds data, and can't change or delete it.
+Scope: `today:write`. Writes: can change what's already set for today. It can't delete anything, and never touches your history.
 
 | Argument | Type | |
 | --- | --- | --- |
@@ -87,7 +87,7 @@ Scope: `training:read`. Read-only.
 
 ## `get_strength` — Strength training
 
-The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held); the most recent logged sessions, exercise by exercise; and `trend`, the heaviest working set of each session per lift over the past year with the heaviest ever recorded. Every number in `trend` is a weight the athlete actually lifted: nothing is estimated there, and it must not be presented as a one-rep max. The template's `oneRepMaxes` are the opposite — estimates, which account for reps left in reserve and are usually higher than anything the athlete has lifted — so quote `trend` for 'what's my best squat' and never the estimate. Give `lift` to ask about one exercise. Use for 'how's my lifting going', 'is my deadlift moving', or what today's session would be.
+The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held); the most recent logged sessions, exercise by exercise in `exercises` (`sets` is the same sets flat, and can be ignored); and `trend`, the heaviest working set of each session per lift over the past year with the heaviest ever recorded. Every number in `trend` is a weight the athlete actually lifted: nothing is estimated there, and it must not be presented as a one-rep max. The template's `oneRepMaxes` are the opposite — estimates, which account for reps left in reserve and are usually higher than anything the athlete has lifted — so quote `trend` for 'what's my best squat' and never the estimate. Give `lift` to ask about one exercise. Use for 'how's my lifting going', 'is my deadlift moving', or what today's session would be.
 
 Scope: `training:read`. Read-only.
 
@@ -95,7 +95,7 @@ Scope: `training:read`. Read-only.
 | --- | --- | --- |
 | `recentSessions` | integer (optional) | How many recent sessions to include. min 1, max 20, default 5 |
 | `lift` | string (optional) | Narrow `trend` to one exercise: its id, or a word from its name (e.g. 'squat'). Omit for the most-trained lifts. |
-| `includeWarmups` | boolean (optional) | Include warm-up sets in the recent sessions. Off by default: they say nothing about what the athlete can lift. default false |
+| `includeWarmups` | boolean (optional) | Include warm-up sets in each session's `exercises`. Off by default: they say nothing about what the athlete can lift. The flat `sets` always carries them, each marked. default false |
 
 ## `get_profile` — Athlete profile
 
@@ -128,14 +128,14 @@ Scope: `training:read`. Read-only.
 
 ## `get_lab_results` — Lab results
 
-The athlete's blood test results as entered from lab reports. Each marker over time: every value, the latest against the lab's range and flag and any guideline limit (naming its source and population), whether the change since the last comparable draw is beyond the marker's normal variation, and how loudly to raise it (`tier`, `message`). Pass `message` on word for word, and never call a value safe, healthy or optimal. Lab results never change the training Body Lab prescribes, and this isn't a diagnosis. Use for 'how's my ferritin' or 'what did my last blood test show' — the markers answer both. Ask for the draws only to check what's already recorded before recording more: they are the same values again as each report printed them, with the lab, the date and the conditions that decide whether two draws compare.
+The athlete's blood test results as entered from lab reports. Each marker over time: every value, the latest against the lab's range and flag and any guideline limit (naming its source and population), whether the change since the last comparable draw is beyond the marker's normal variation, and how loudly to raise it (`tier`, `message`). Pass `message` on word for word, and never call a value safe, healthy or optimal. Lab results never change the training Body Lab prescribes, and this isn't a diagnosis. Use for 'how's my ferritin' or 'what did my last blood test show' — the markers answer both. The draws come too: the same values again as each report printed them, with the lab, the date and the conditions that decide whether two draws compare, which is what to check before recording more. Pass include: markers to leave them out when the markers are all you need.
 
 Scope: `labs:read`. Read-only.
 
 | Argument | Type | |
 | --- | --- | --- |
 | `marker` | string (optional) | Only this marker's key (e.g. ferritin, ldl_c), and only draws that include it. Omit for everything. |
-| `include` | string (optional) | markers: each marker over time, which is every value the athlete has. markers_and_draws: those, plus the draws they came from. default "markers" |
+| `include` | string (optional) | markers_and_draws (the default): each marker over time, plus the draws they came from. markers: the markers alone, which is still every value the athlete has, and about half the response. default "markers_and_draws" |
 
 ## `record_lab_results` — Record lab results
 
