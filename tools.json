@@ -1010,6 +1010,7 @@
                           ]
                         },
                         "weightKg": {
+                          "description": "The total load, in kilograms, including the bar or both dumbbells — never the weight of one implement or one side of a bar. Negative is assistance: the part of the athlete's bodyweight a machine or band is taking off. Null when the movement carries no external load, or when there is no history to prescribe one from.",
                           "anyOf": [
                             {
                               "type": "number"
@@ -1091,7 +1092,7 @@
                           ]
                         },
                         "implementCount": {
-                          "description": "2 when the weight is per dumbbell or kettlebell.",
+                          "description": "2 when the load is split across two dumbbells or kettlebells; weightKg is still the total, so each hand holds half of it.",
                           "anyOf": [
                             {
                               "type": "number",
@@ -2139,6 +2140,7 @@
                           ]
                         },
                         "weightKg": {
+                          "description": "The total load, in kilograms, including the bar or both dumbbells — never the weight of one implement or one side of a bar. Negative is assistance: the part of the athlete's bodyweight a machine or band is taking off. Null when the movement carries no external load, or when there is no history to prescribe one from.",
                           "anyOf": [
                             {
                               "type": "number"
@@ -2220,7 +2222,7 @@
                           ]
                         },
                         "implementCount": {
-                          "description": "2 when the weight is per dumbbell or kettlebell.",
+                          "description": "2 when the load is split across two dumbbells or kettlebells; weightKg is still the total, so each hand holds half of it.",
                           "anyOf": [
                             {
                               "type": "number",
@@ -5279,6 +5281,7 @@
                           ]
                         },
                         "weightKg": {
+                          "description": "The total load, in kilograms, including the bar or both dumbbells — never the weight of one implement or one side of a bar. Negative is assistance: the part of the athlete's bodyweight a machine or band is taking off. Null when the movement carries no external load, or when there is no history to prescribe one from.",
                           "anyOf": [
                             {
                               "type": "number"
@@ -5360,7 +5363,7 @@
                           ]
                         },
                         "implementCount": {
-                          "description": "2 when the weight is per dumbbell or kettlebell.",
+                          "description": "2 when the load is split across two dumbbells or kettlebells; weightKg is still the total, so each hand holds half of it.",
                           "anyOf": [
                             {
                               "type": "number",
@@ -5441,13 +5444,30 @@
                   "metric",
                   "imperial"
                 ]
+              },
+              "barWeightKg": {
+                "description": "The barbell the athlete loads, in kilograms, with their profile's choice already resolved. Null when they said not to guess (a Smith machine or a trap bar), in which case a barbell weight should be shown as a total only. Advice about weightKg; it never changes it.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "clipWeightKg": {
+                "description": "The weight of ONE clip or collar, in kilograms; both sleeves get one, so twice this comes off the total before the rest is split between the sides. Zero unless the athlete said otherwise — gym spring clips weigh next to nothing while competition collars are 2.5 kg each, and assuming the latter would add 5 kg to every barbell lift.",
+                "type": "number"
               }
             },
             "required": [
               "session",
               "oneRepMaxes",
               "deload",
-              "units"
+              "units",
+              "barWeightKg",
+              "clipWeightKg"
             ]
           },
           "recent": {
@@ -5921,6 +5941,25 @@
                 "description": "True when the athlete has chosen to leave jumps out. When most of their training is supported (cycling, rowing, swimming), strength sessions open with a few minutes of jumps; this keeps them out of every session. False by default. Body Lab doesn't record why.",
                 "type": "boolean"
               },
+              "barKind": {
+                "description": "Which barbell the athlete loads: standard is their unit system's own standard bar (20 kg metric, 45 lb imperial — different bars, not conversions), custom reads barWeightKg, unknown is them saying don't guess, which a Smith machine or a trap bar deserves. Standard by default. Known values: standard, custom, unknown. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              "barWeightKg": {
+                "description": "The athlete's own barbell, in kilograms. Non-null exactly when barKind is custom.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "clipWeightKg": {
+                "description": "The weight of ONE clip or collar, in kilograms; both sleeves get one. Zero by default: gym spring clips weigh next to nothing, while a competition collar is 2.5 kg each and a pair would add 5 kg to every barbell lift.",
+                "type": "number"
+              },
               "onboardedAt": {
                 "description": "Null until onboarding is complete; the app gates on it.",
                 "anyOf": [
@@ -5954,6 +5993,9 @@
               "strengthEquipment",
               "trainingFocus",
               "leaveOutJumps",
+              "barKind",
+              "barWeightKg",
+              "clipWeightKg",
               "onboardedAt"
             ]
           },
