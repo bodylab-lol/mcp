@@ -269,7 +269,7 @@
             "type": "integer"
           },
           "nearestEvent": {
-            "description": "The nearest A event and its phase, for Today's countdown chip — the same summary training-status uses.",
+            "description": "The nearest A event and its phase, for Today's countdown chip — or, on the day of an event of any priority, that event, in the event_day phase. The same summary training-status uses.",
             "anyOf": [
               {
                 "type": "object",
@@ -1486,7 +1486,7 @@
                   "type": "boolean"
                 },
                 "phase": {
-                  "description": "event_day, taper and recovery come from the nearest A event; recovery_week from the training block. Null on an ordinary day.",
+                  "description": "event_day is any event on its own date, at any priority; taper and recovery come from the nearest A event; recovery_week from the training block. Null on an ordinary day.",
                   "anyOf": [
                     {
                       "description": "What shapes the day beyond its session. Known values: event_day, taper, recovery, recovery_week. Treat unknown values as \"other\".",
@@ -1621,7 +1621,7 @@
             "type": "string"
           },
           "nearestEvent": {
-            "description": "The nearest A event and its phase, for Today's countdown chip — the same summary training-status uses.",
+            "description": "The nearest A event and its phase, for Today's countdown chip — or, on the day of an event of any priority, that event, in the event_day phase. The same summary training-status uses.",
             "anyOf": [
               {
                 "type": "object",
@@ -2865,7 +2865,7 @@
             "type": "integer"
           },
           "nearestEvent": {
-            "description": "The nearest A event driving the engine's taper/recovery rules, if any.",
+            "description": "The nearest A event driving the engine's taper/recovery rules, if any — or, on the day of an event of any priority, that event.",
             "anyOf": [
               {
                 "type": "object",
