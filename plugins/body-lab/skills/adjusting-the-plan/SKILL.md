@@ -8,19 +8,23 @@ Body Lab's recommendation is built to be argued with. When the athlete wants
 something other than the primary session, reason from the same data rather
 than starting over.
 
-1. Call `get_today`. Note `today.primary`, `today.alternates` (other sports
-   at the same intent), `today.variants` (shorter or easier versions),
-   `today.unavailable` (options ruled out, with the reason), `flags`,
+1. Call `get_today`. Note `today.primary`, `today.variants` (the *same*
+   session on every other sport that could carry it today — same intensity,
+   same duration, so swapping costs the athlete nothing), `today.alternates`
+   (a *different* session, each with the trade-off taking it would make),
+   `today.unavailable` (sports ruled out, with the reason), `flags`,
    `rationale` and `readiness`.
 2. Match the constraint to what Body Lab already offers:
-   - **Less time:** a variant with a shorter `durationMin`, or the primary's
-     main blocks without the extras. Keep the intensity it asked for only if
-     the rationale allows it.
-   - **Different sport:** an alternate in that sport. If it's in
-     `unavailable`, give the reason.
+   - **Less time:** an alternate with a shorter `durationMin`, or the
+     primary's main blocks without the extras. Keep the intensity it asked
+     for only if the rationale allows it.
+   - **Different sport:** a variant in that sport — `variants` carries every
+     sport the athlete records that could hold today's session, not just the
+     handful an app has room to draw, so look there before concluding a sport
+     isn't on offer. If it's in `unavailable`, give the reason instead.
    - **Tired, sore, slept badly:** check `readiness` and
      `get_recovery`. If readiness is amber or red, or the rationale mentions
-     fatigue, an easier variant or rest agrees with Body Lab. If readiness is
+     fatigue, an easier alternate or rest agrees with Body Lab. If readiness is
      green, say that the numbers disagree with how they feel. Their call
      still stands.
    - **Harder than prescribed:** look at `form`, `acwr` and strain in

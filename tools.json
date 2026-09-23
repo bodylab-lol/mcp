@@ -751,6 +751,7 @@
                 }
               },
               "variants": {
+                "description": "The same session on every other sport that could carry it today, best first.",
                 "type": "array",
                 "items": {
                   "$ref": "#/$defs/__schema1"
@@ -1200,6 +1201,10 @@
                           "type": "integer",
                           "minimum": 0
                         },
+                        "restReason": {
+                          "description": "Why restSeconds is the length it is: a jump, lighter accessory work, one of the heaviest lifts, or nothing in particular. Stated rather than left to be inferred from the number, which an athlete's own adjustment moves off the table. Known values: jump, accessory, heavy, standard. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
                         "note": {
                           "type": "string"
                         }
@@ -1216,7 +1221,8 @@
                         "progression",
                         "perSide",
                         "implementCount",
-                        "restSeconds"
+                        "restSeconds",
+                        "restReason"
                       ]
                     }
                   },
@@ -1686,6 +1692,7 @@
                 }
               },
               "variants": {
+                "description": "The same session on every other sport that could carry it today, best first.",
                 "type": "array",
                 "items": {
                   "$ref": "#/$defs/__schema5"
@@ -2171,6 +2178,10 @@
                           "type": "integer",
                           "minimum": 0
                         },
+                        "restReason": {
+                          "description": "Why restSeconds is the length it is: a jump, lighter accessory work, one of the heaviest lifts, or nothing in particular. Stated rather than left to be inferred from the number, which an athlete's own adjustment moves off the table. Known values: jump, accessory, heavy, standard. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
                         "note": {
                           "type": "string"
                         }
@@ -2187,7 +2198,8 @@
                         "progression",
                         "perSide",
                         "implementCount",
-                        "restSeconds"
+                        "restSeconds",
+                        "restReason"
                       ]
                     }
                   },
@@ -5312,6 +5324,10 @@
                           "type": "integer",
                           "minimum": 0
                         },
+                        "restReason": {
+                          "description": "Why restSeconds is the length it is: a jump, lighter accessory work, one of the heaviest lifts, or nothing in particular. Stated rather than left to be inferred from the number, which an athlete's own adjustment moves off the table. Known values: jump, accessory, heavy, standard. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
                         "note": {
                           "type": "string"
                         }
@@ -5328,7 +5344,8 @@
                         "progression",
                         "perSide",
                         "implementCount",
-                        "restSeconds"
+                        "restSeconds",
+                        "restReason"
                       ]
                     }
                   },
