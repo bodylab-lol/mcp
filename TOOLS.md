@@ -99,7 +99,7 @@ Scope: `training:read`. Read-only.
 
 ## `get_profile` — Athlete profile
 
-The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time.
+The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight, and the athlete's most recent blood pressure in millimetres of mercury; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time. Blood pressure is two numbers from one reading, systolic over diastolic. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't name a category or a threshold, and don't compare the athlete with anyone. Body Lab can't diagnose anything, a blood pressure never changes the training it prescribes, and questions about it go to a clinician.
 
 Scope: `training:read`. Read-only.
 
