@@ -112,10 +112,17 @@ off unless you turn it on when you approve an assistant:
 | Scope | Lets the assistant |
 | --- | --- |
 | `training:read` | See your training, recovery, activities and profile |
+| `today:write` | Tell Body Lab about today: your time, equipment and sports you can't do. It can't change your training history |
+| `schedule:write` | Put sessions on your calendar, and take them off again. It can't change your training history |
+| `events:write` | Add and remove races and goals you give it. It can't make one an A race — that rebuilds months of your plan, and you do that in Body Lab |
 | `labs:read` | See your lab results |
 | `labs:write` | Add lab results you give it. It can't change or delete them |
 | `body:read` | See your body composition scans |
 | `body:write` | Add body composition scans you give it. It can't change or delete them |
+
+`schedule:write` and `events:write` have no tools behind them yet. They appear
+on the consent page because the server names every scope it has, and allowing
+either does nothing until the tools that use them ship.
 
 An assistant you connected before these existed doesn't get them
 automatically, and one you allowed for lab results doesn't get body
@@ -151,8 +158,8 @@ The server follows the MCP authorization spec (2026-07-28):
 - **Clients:** public only (`token_endpoint_auth_method: none`). Refresh
   tokens rotate. Revoke at `/oauth/revoke`.
 - **Scopes:** `training:read` (every connection), plus the optional
-  `labs:read`, `labs:write`, `body:read` and `body:write`. A 401 names all
-  five; the athlete chooses the
+  `today:write`, `schedule:write`, `events:write`, `labs:read`, `labs:write`,
+  `body:read` and `body:write`. A 401 names all eight; the athlete chooses the
   optional ones on the consent page, and the token response's `scope` says
   what was granted. `tools/list` shows only the tools the grant covers. A
   `tools/call` for a tool it doesn't cover gets `403` with

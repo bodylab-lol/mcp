@@ -8,6 +8,8 @@
   "scopes": {
     "training:read": "See your training, recovery, activities and profile",
     "today:write": "Tell Body Lab about today: your time, equipment and sports you can't do. It can't change your training history",
+    "schedule:write": "Put sessions on your calendar, and take them off again. It can't change your training history",
+    "events:write": "Add and remove races and goals you give it. It can't make one an A race — that rebuilds months of your plan, and you do that in Body Lab",
     "labs:read": "See your lab results",
     "labs:write": "Add lab results you give it. It can't change or delete them",
     "body:read": "See your body composition scans",
