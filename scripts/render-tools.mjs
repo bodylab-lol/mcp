@@ -50,12 +50,16 @@ for (const t of manifest.tools) {
   // already there, and a reader told "can't change or delete it" about that
   // one has been told the opposite of the truth. `replaces` comes from the
   // server's own manifest, so this sentence can't drift from what the tool
-  // actually does.
+  // actually does: it is set on exactly the tools whose repeat lands on the
+  // same state (today's context replaced, an identical session stored once,
+  // a withdrawn session left withdrawn), which is also what a client reads
+  // to decide whether a retry is safe. What each one changes is in its own
+  // description above; this line says only what class of write it is.
   const access =
     t.readOnly === false
       ? t.replaces
-        ? "Writes: can change what's already set for today. It can't delete anything, and never touches your history."
-        : "Writes: adds data, and can't change or delete it."
+        ? "Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history."
+        : "Writes: adds data, and can't change or delete it. The same call again adds again."
       : "Read-only.";
   out.push(`## \`${t.name}\` — ${t.title}`, "", t.description, "", `Scope: \`${t.scope}\`. ${access}`, "", params(t.inputSchema));
 }

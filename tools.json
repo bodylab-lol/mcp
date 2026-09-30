@@ -2718,6 +2718,1177 @@
       }
     },
     {
+      "name": "schedule_session",
+      "title": "Put a session on the calendar",
+      "description": "Puts a session the athlete has arranged on their calendar — a club ride, a run with a friend, a standing Tuesday group session — so Body Lab plans the week around it: the session is that day's session in its sport, and Body Lab prescribes nothing beside it. One entry per occurrence, dated on the athlete's own calendar (take today from get_today; never guess which Thursday); a weekly ride until December is one entry a week, twenty per call. Not for a race or a goal — that's schedule_event. Check the details with the athlete first, then read each entry's outcome back: an identical session already on that day is left as it is (already_scheduled, nothing written), and a refusal says why in words to pass on. Days within the coming week come back re-planned in `week`; later days are planned when they come into range, and `note` says which is which. Take one off again with withdraw_session. Nothing in the athlete's training history is touched.",
+      "scope": "schedule:write",
+      "readOnly": false,
+      "replaces": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sessions": {
+            "description": "One entry per occurrence, in the order to report them back. There is no recurrence: a weekly ride until December is one entry per week, at most 20 in a call. Each is stored on its own, so one refused entry doesn't lose the rest.",
+            "minItems": 1,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "forDate": {
+                  "description": "The day it happens, on the athlete's own calendar, as YYYY-MM-DD. Take today from get_today and count from there rather than guessing which Thursday. Up to 180 days ahead; yesterday at the earliest.",
+                  "type": "string",
+                  "format": "date"
+                },
+                "sport": {
+                  "description": "The sport, e.g. road_biking, running, lap_swimming. Body Lab prescribes nothing beside a session in the same family that day.",
+                  "type": "string"
+                },
+                "durationS": {
+                  "description": "How long the athlete expects it to take, in seconds (a two-hour ride is 7200).",
+                  "type": "integer",
+                  "minimum": 60,
+                  "maximum": 86400
+                },
+                "intensity": {
+                  "description": "How hard the athlete says it usually is. easy: steady aerobic, and the week may still put a hard day beside it. mixed: it has efforts in it. hard: it is the day's hard session. mixed and hard both make the day a hard one, which stops Body Lab prescribing a second hard day next to it.",
+                  "type": "string",
+                  "enum": [
+                    "easy",
+                    "mixed",
+                    "hard"
+                  ]
+                },
+                "name": {
+                  "description": "What the athlete calls it — \"Club ride\", \"Run with Sam\" — so they recognise it on the week. Defaults to the sport's own name.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                }
+              },
+              "required": [
+                "forDate",
+                "sport",
+                "durationS",
+                "intensity"
+              ]
+            }
+          }
+        },
+        "required": [
+          "sessions"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "sessions": {
+            "description": "One per entry sent, in the same order.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "forDate": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "sport": {
+                  "$ref": "#/$defs/__schema1"
+                },
+                "outcome": {
+                  "description": "scheduled: stored. already_scheduled: an identical session was already standing on that day, so nothing was written and `session` is the one already there — a retry, or something the athlete had entered themselves. refused: nothing stored; `reason` says why, in words to give the athlete.",
+                  "type": "string",
+                  "enum": [
+                    "scheduled",
+                    "already_scheduled",
+                    "refused"
+                  ]
+                },
+                "session": {
+                  "description": "The session as Body Lab holds it, with its id for withdraw_session. Null when refused.",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "$ref": "#/$defs/__schema2"
+                        },
+                        "forDate": {
+                          "description": "The day it happens, on the athlete's own calendar.",
+                          "$ref": "#/$defs/__schema0"
+                        },
+                        "name": {
+                          "description": "What the athlete called it.",
+                          "type": "string"
+                        },
+                        "sport": {
+                          "$ref": "#/$defs/__schema1"
+                        },
+                        "durationS": {
+                          "description": "How long the athlete expects it to take.",
+                          "type": "integer"
+                        },
+                        "intensity": {
+                          "description": "How hard the athlete says this session usually is. easy: steady aerobic, and the week may still put a hard day beside it. mixed: it has efforts in it. hard: it is the day's hard session. mixed and hard both make the day a hard one, which is what stops the engine prescribing a second hard day next to it. Known values: easy, mixed, hard. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
+                        "withdrawnAt": {
+                          "description": "When the athlete withdrew it — the ride was called off, the friend cancelled. Null for one still standing. A withdrawn commitment stays readable and stays out of every engine rule: that the athlete meant to ride and then didn't is a fact about the week, and nothing in Body Lab deletes one.",
+                          "anyOf": [
+                            {
+                              "$ref": "#/$defs/__schema3"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "createdAt": {
+                          "$ref": "#/$defs/__schema3"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "forDate",
+                        "name",
+                        "sport",
+                        "durationS",
+                        "intensity",
+                        "withdrawnAt",
+                        "createdAt"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "code": {
+                  "description": "Why it was refused: OUT_OF_HORIZON (too far ahead, or more than a day back), DATE_OCCUPIED (the day already has three), SCHEDULE_FULL (the calendar is at its ceiling; withdraw one), QUOTA_EXCEEDED (this app has scheduled a lot recently; try later), or a validation code. Null unless refused.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "description": "The refusal in a sentence written for the athlete. Null unless refused.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "forDate",
+                "sport",
+                "outcome",
+                "session",
+                "code",
+                "reason"
+              ]
+            }
+          },
+          "week": {
+            "description": "The days this call touched that fall within the coming week, each as Body Lab now plans it with the session in place — the same shape get_week returns. Empty when every day was further out.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "precision": {
+                  "description": "session: today or tomorrow, the same session as that card. outline: a later day — class, sport and an approximate duration, no targets. Known values: session, outline. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "sessionClass": {
+                  "type": "string",
+                  "enum": [
+                    "rest",
+                    "recovery",
+                    "easy",
+                    "build",
+                    "quality",
+                    "strength",
+                    "complete"
+                  ]
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "endurance",
+                    "strength",
+                    "rest"
+                  ]
+                },
+                "modality": {
+                  "description": "The sport, for an endurance session.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/__schema1"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "durationMin": {
+                  "description": "Exact on a session day, rounded to 5 minutes and approximate on an outline day; null on a rest day.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "workoutName": {
+                  "description": "The workout's name, on a session day only.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "commitment": {
+                  "description": "Set when this day's session is one the athlete arranged themselves rather than one Body Lab chose — a club ride, a run with friends — and carrying its name. Present on an outline day too, unlike `workoutName`: the sport and a duration alone are indistinguishable from a session Body Lab invented, and a surface drawing the week should name the athlete's own arrangement so they recognise it. Null on every other day, including a day with a commitment on it that something else took over (a race on the same date, or an illness that replaced the session).",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "What the athlete called it: \"Ride with Nick and Rachael\".",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "longest": {
+                  "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
+                  "type": "boolean"
+                },
+                "strengthAfter": {
+                  "description": "A strength session follows the day's endurance session: the strength floor is owed one, and it's offered once the ride or run is done.",
+                  "type": "boolean"
+                },
+                "deload": {
+                  "description": "A planned volume cut: a recovery week, a taper or post-event recovery.",
+                  "type": "boolean"
+                },
+                "phase": {
+                  "description": "event_day is any event on its own date, at any priority; taper and recovery come from the nearest A event; recovery_week from the training block. Null on an ordinary day.",
+                  "anyOf": [
+                    {
+                      "description": "What shapes the day beyond its session. Known values: event_day, taper, recovery, recovery_week. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "preparation": {
+                  "description": "The preparation phase this day falls in (see PreparationPhase), or null. Separate from `phase` above because a day can be both — Build and a recovery week — and a client that had to pick one would drop the one the athlete plans around.",
+                  "anyOf": [
+                    {
+                      "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "events": {
+                  "description": "Events on this date, any priority.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "$ref": "#/$defs/__schema2"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "priority": {
+                        "description": "What Body Lab does with the event. A: the plan is built around it — the run-up is shaped into preparation phases, volume tapers into it, the day before is short and easy, and a recovery window is protected after it. B and C: on the athlete's calendar, where they tilt which sport a nearby day picks but change no session; the two behave identically. Any event, at any priority, makes its own date an event day, when nothing is prescribed. The letters come from a coaching convention Body Lab never explains to the athlete, so say what the priority does rather than reading the letter back to them.",
+                        "type": "string",
+                        "enum": [
+                          "A",
+                          "B",
+                          "C"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "priority"
+                    ]
+                  }
+                },
+                "assumedHealth": {
+                  "description": "An illness or injury still open on this day, which the projection assumes hasn't cleared — nobody knows the day it will. Null today, and on days with none.",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "illness": {
+                          "anyOf": [
+                            {
+                              "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "injuries": {
+                          "type": "array",
+                          "items": {
+                            "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "illness",
+                        "injuries"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "precision",
+                "sessionClass",
+                "kind",
+                "modality",
+                "durationMin",
+                "workoutName",
+                "commitment",
+                "longest",
+                "strengthAfter",
+                "deload",
+                "phase",
+                "preparation",
+                "events",
+                "assumedHealth"
+              ]
+            }
+          },
+          "note": {
+            "description": "Which days came back planned and which will be planned later. Read it with the result, so a day Body Lab hasn't looked at yet isn't described as if it had.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "sessions",
+          "week",
+          "note"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema2": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema3": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "withdraw_session",
+      "title": "Take a session off the calendar",
+      "description": "Takes a session the athlete arranged off their calendar — the ride is called off, the friend cancelled — so Body Lab stops planning around it and the weekly review stops expecting it. Name the day (on the athlete's own calendar, from get_today) and, when the day holds more than one session, the sport or the id; a day with two rides is refused with both listed rather than guessed at. The session is kept and marked withdrawn, never deleted: that the athlete meant to train and then didn't is a fact about the week. Withdrawing one already withdrawn changes nothing and succeeds, and says so. Only sessions the athlete arranged can be withdrawn — never a session Body Lab prescribed, an activity, or anything in training history. Check with the athlete before calling, then give them the day as Body Lab now plans it when it comes back in `day`.",
+      "scope": "schedule:write",
+      "readOnly": false,
+      "replaces": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "forDate": {
+            "description": "The day of the session, on the athlete's own calendar (get_today says what today is there).",
+            "type": "string",
+            "format": "date"
+          },
+          "sport": {
+            "description": "Narrows to that sport, for a day holding more than one session.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The session's id, from schedule_session's result or from a refusal that listed the day's sessions. Needed only when the day and sport still name more than one.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "forDate"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "outcome": {
+            "description": "withdrawn: taken off the calendar by this call. already_withdrawn: it had been already, so nothing changed — say so rather than reporting a second cancellation.",
+            "type": "string",
+            "enum": [
+              "withdrawn",
+              "already_withdrawn"
+            ]
+          },
+          "session": {
+            "description": "The session as it now stands, `withdrawnAt` set. Kept and readable, never deleted.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "forDate": {
+                "description": "The day it happens, on the athlete's own calendar.",
+                "$ref": "#/$defs/__schema0"
+              },
+              "name": {
+                "description": "What the athlete called it.",
+                "type": "string"
+              },
+              "sport": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "durationS": {
+                "description": "How long the athlete expects it to take.",
+                "type": "integer"
+              },
+              "intensity": {
+                "description": "How hard the athlete says this session usually is. easy: steady aerobic, and the week may still put a hard day beside it. mixed: it has efforts in it. hard: it is the day's hard session. mixed and hard both make the day a hard one, which is what stops the engine prescribing a second hard day next to it. Known values: easy, mixed, hard. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              "withdrawnAt": {
+                "description": "When the athlete withdrew it — the ride was called off, the friend cancelled. Null for one still standing. A withdrawn commitment stays readable and stays out of every engine rule: that the athlete meant to ride and then didn't is a fact about the week, and nothing in Body Lab deletes one.",
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "createdAt": {
+                "$ref": "#/$defs/__schema3"
+              }
+            },
+            "required": [
+              "id",
+              "forDate",
+              "name",
+              "sport",
+              "durationS",
+              "intensity",
+              "withdrawnAt",
+              "createdAt"
+            ]
+          },
+          "day": {
+            "description": "The day as Body Lab now plans it without the session, when it falls within the coming week; null when it's further out or already past.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "precision": {
+                    "description": "session: today or tomorrow, the same session as that card. outline: a later day — class, sport and an approximate duration, no targets. Known values: session, outline. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "sessionClass": {
+                    "type": "string",
+                    "enum": [
+                      "rest",
+                      "recovery",
+                      "easy",
+                      "build",
+                      "quality",
+                      "strength",
+                      "complete"
+                    ]
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "endurance",
+                      "strength",
+                      "rest"
+                    ]
+                  },
+                  "modality": {
+                    "description": "The sport, for an endurance session.",
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema2"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "durationMin": {
+                    "description": "Exact on a session day, rounded to 5 minutes and approximate on an outline day; null on a rest day.",
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "workoutName": {
+                    "description": "The workout's name, on a session day only.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "commitment": {
+                    "description": "Set when this day's session is one the athlete arranged themselves rather than one Body Lab chose — a club ride, a run with friends — and carrying its name. Present on an outline day too, unlike `workoutName`: the sport and a duration alone are indistinguishable from a session Body Lab invented, and a surface drawing the week should name the athlete's own arrangement so they recognise it. Null on every other day, including a day with a commitment on it that something else took over (a race on the same date, or an illness that replaced the session).",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "What the athlete called it: \"Ride with Nick and Rachael\".",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "longest": {
+                    "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
+                    "type": "boolean"
+                  },
+                  "strengthAfter": {
+                    "description": "A strength session follows the day's endurance session: the strength floor is owed one, and it's offered once the ride or run is done.",
+                    "type": "boolean"
+                  },
+                  "deload": {
+                    "description": "A planned volume cut: a recovery week, a taper or post-event recovery.",
+                    "type": "boolean"
+                  },
+                  "phase": {
+                    "description": "event_day is any event on its own date, at any priority; taper and recovery come from the nearest A event; recovery_week from the training block. Null on an ordinary day.",
+                    "anyOf": [
+                      {
+                        "description": "What shapes the day beyond its session. Known values: event_day, taper, recovery, recovery_week. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "preparation": {
+                    "description": "The preparation phase this day falls in (see PreparationPhase), or null. Separate from `phase` above because a day can be both — Build and a recovery week — and a client that had to pick one would drop the one the athlete plans around.",
+                    "anyOf": [
+                      {
+                        "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "events": {
+                    "description": "Events on this date, any priority.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "$ref": "#/$defs/__schema1"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "priority": {
+                          "description": "What Body Lab does with the event. A: the plan is built around it — the run-up is shaped into preparation phases, volume tapers into it, the day before is short and easy, and a recovery window is protected after it. B and C: on the athlete's calendar, where they tilt which sport a nearby day picks but change no session; the two behave identically. Any event, at any priority, makes its own date an event day, when nothing is prescribed. The letters come from a coaching convention Body Lab never explains to the athlete, so say what the priority does rather than reading the letter back to them.",
+                          "type": "string",
+                          "enum": [
+                            "A",
+                            "B",
+                            "C"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "priority"
+                      ]
+                    }
+                  },
+                  "assumedHealth": {
+                    "description": "An illness or injury still open on this day, which the projection assumes hasn't cleared — nobody knows the day it will. Null today, and on days with none.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "illness": {
+                            "anyOf": [
+                              {
+                                "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "injuries": {
+                            "type": "array",
+                            "items": {
+                              "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "illness",
+                          "injuries"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "date",
+                  "precision",
+                  "sessionClass",
+                  "kind",
+                  "modality",
+                  "durationMin",
+                  "workoutName",
+                  "commitment",
+                  "longest",
+                  "strengthAfter",
+                  "deload",
+                  "phase",
+                  "preparation",
+                  "events",
+                  "assumedHealth"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "description": "Whether the day came back planned. Read it with the result.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "outcome",
+          "session",
+          "day",
+          "note"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema2": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema3": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "schedule_event",
+      "title": "Add a race or goal",
+      "description": "Adds a race or a goal the athlete has entered — a marathon in April, a gran fondo — at priority B or C, so it sits on their calendar, its date becomes an event day, and nearby days lean toward its sport. It can't add an A event and refuses to: an A event is the one the plan is built around — preparation phases, volume tapering in, a protected recovery window after — which is months of training restructured, so the athlete promotes an event to A themselves in Body Lab, where the screen shows what changes. Always tell them that's where to do it. Not for a session they've arranged: a weekly club ride entered as events would keep Body Lab leaning toward that sport for good — that's schedule_session. Check get_today's `events` first and read the name, date and sport back to the athlete before calling: calling twice adds two, and only the athlete can edit or remove one, in Body Lab.",
+      "scope": "events:write",
+      "readOnly": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "The event's name as the athlete knows it: \"Boulder Marathon\".",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "eventDate": {
+            "description": "The day of the event, on the athlete's own calendar, as YYYY-MM-DD. Up to 800 days ahead; yesterday at the earliest.",
+            "type": "string",
+            "format": "date"
+          },
+          "sport": {
+            "description": "The event's sport, e.g. running, road_biking, triathlon. Nearby days lean toward it.",
+            "type": "string"
+          },
+          "priority": {
+            "description": "B or C, which behave identically: the event sits on the calendar, its date is an event day, and nearby days tilt toward its sport. A is refused — an A event rebuilds months of the plan, and the athlete promotes an event to A themselves in Body Lab.",
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C"
+            ]
+          },
+          "distanceM": {
+            "description": "The distance in metres, if the athlete gave one (a marathon is 42195).",
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "durationS": {
+            "description": "The expected duration in seconds, if the athlete gave one.",
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "description": "Anything the athlete said about it worth keeping with the entry.",
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "name",
+          "eventDate",
+          "sport",
+          "priority"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "event": {
+            "description": "The event as Body Lab stored it.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "name": {
+                "type": "string"
+              },
+              "eventDate": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "sport": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "priority": {
+                "description": "What Body Lab does with the event. A: the plan is built around it — preparation phases in the run-up, volume tapering into it, and a protected recovery window after. B and C move no volume, and the two behave identically. Any event, at any priority, makes its own date an event day, when nothing is prescribed, and an upcoming one tilts which sport a nearby day picks. Known values: A, B, C. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              "distanceM": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "durationS": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "notes": {
+                "type": "string"
+              },
+              "daysUntil": {
+                "description": "Negative once the event has passed. Computed server-side from the athlete's own time zone, never the server's.",
+                "type": "integer"
+              },
+              "createdAt": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "updatedAt": {
+                "$ref": "#/$defs/__schema3"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "eventDate",
+              "sport",
+              "priority",
+              "distanceM",
+              "durationS",
+              "notes",
+              "daysUntil",
+              "createdAt",
+              "updatedAt"
+            ]
+          },
+          "day": {
+            "description": "The event's day as Body Lab now plans it, when it falls within the coming week; null when it's further out, which for a race is nearly always.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "precision": {
+                    "description": "session: today or tomorrow, the same session as that card. outline: a later day — class, sport and an approximate duration, no targets. Known values: session, outline. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "sessionClass": {
+                    "type": "string",
+                    "enum": [
+                      "rest",
+                      "recovery",
+                      "easy",
+                      "build",
+                      "quality",
+                      "strength",
+                      "complete"
+                    ]
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "endurance",
+                      "strength",
+                      "rest"
+                    ]
+                  },
+                  "modality": {
+                    "description": "The sport, for an endurance session.",
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema2"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "durationMin": {
+                    "description": "Exact on a session day, rounded to 5 minutes and approximate on an outline day; null on a rest day.",
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "workoutName": {
+                    "description": "The workout's name, on a session day only.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "commitment": {
+                    "description": "Set when this day's session is one the athlete arranged themselves rather than one Body Lab chose — a club ride, a run with friends — and carrying its name. Present on an outline day too, unlike `workoutName`: the sport and a duration alone are indistinguishable from a session Body Lab invented, and a surface drawing the week should name the athlete's own arrangement so they recognise it. Null on every other day, including a day with a commitment on it that something else took over (a race on the same date, or an illness that replaced the session).",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "What the athlete called it: \"Ride with Nick and Rachael\".",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "longest": {
+                    "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
+                    "type": "boolean"
+                  },
+                  "strengthAfter": {
+                    "description": "A strength session follows the day's endurance session: the strength floor is owed one, and it's offered once the ride or run is done.",
+                    "type": "boolean"
+                  },
+                  "deload": {
+                    "description": "A planned volume cut: a recovery week, a taper or post-event recovery.",
+                    "type": "boolean"
+                  },
+                  "phase": {
+                    "description": "event_day is any event on its own date, at any priority; taper and recovery come from the nearest A event; recovery_week from the training block. Null on an ordinary day.",
+                    "anyOf": [
+                      {
+                        "description": "What shapes the day beyond its session. Known values: event_day, taper, recovery, recovery_week. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "preparation": {
+                    "description": "The preparation phase this day falls in (see PreparationPhase), or null. Separate from `phase` above because a day can be both — Build and a recovery week — and a client that had to pick one would drop the one the athlete plans around.",
+                    "anyOf": [
+                      {
+                        "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "events": {
+                    "description": "Events on this date, any priority.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "$ref": "#/$defs/__schema1"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "priority": {
+                          "description": "What Body Lab does with the event. A: the plan is built around it — the run-up is shaped into preparation phases, volume tapers into it, the day before is short and easy, and a recovery window is protected after it. B and C: on the athlete's calendar, where they tilt which sport a nearby day picks but change no session; the two behave identically. Any event, at any priority, makes its own date an event day, when nothing is prescribed. The letters come from a coaching convention Body Lab never explains to the athlete, so say what the priority does rather than reading the letter back to them.",
+                          "type": "string",
+                          "enum": [
+                            "A",
+                            "B",
+                            "C"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "priority"
+                      ]
+                    }
+                  },
+                  "assumedHealth": {
+                    "description": "An illness or injury still open on this day, which the projection assumes hasn't cleared — nobody knows the day it will. Null today, and on days with none.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "illness": {
+                            "anyOf": [
+                              {
+                                "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "injuries": {
+                            "type": "array",
+                            "items": {
+                              "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "illness",
+                          "injuries"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "date",
+                  "precision",
+                  "sessionClass",
+                  "kind",
+                  "modality",
+                  "durationMin",
+                  "workoutName",
+                  "commitment",
+                  "longest",
+                  "strengthAfter",
+                  "deload",
+                  "phase",
+                  "preparation",
+                  "events",
+                  "assumedHealth"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "description": "Whether the day came back planned. Read it with the result.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "event",
+          "day",
+          "note"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema2": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema3": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
       "name": "get_weekly_review",
       "title": "How the week went",
       "description": "A review of one finished week (Monday to Sunday on the athlete's calendar; only complete weeks). The sessions the athlete committed to (planned, exported or sent to a device) against what was done: as prescribed, differently (fewer intervals, less work at target, another sport), skipped, done without a recording, or no_data (nothing could reach Body Lab that day, so never a skip), judged in the metric each workout targeted, with any illness, injury or short day that explains it. Where the acute:chronic ratio and chronic load sat and moved; the strength floor with the count; what the athlete reported. For the most recent week, also what changes in the next seven days and why, as a projection, and what the training so far supports for an A event in the next eight weeks, from rules Body Lab already applies, not a prediction. Omit `week` for the most recent week. Use for 'how did my week go', 'did I do what was planned' or 'am I on track for my race'. Pass the sentences on as written; they cite their numbers.",

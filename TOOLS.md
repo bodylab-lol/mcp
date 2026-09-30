@@ -16,7 +16,7 @@ _No arguments._
 
 Tells Body Lab what today actually looks like for the athlete — how many minutes they have, which strength equipment is to hand, which sports are out — and returns the session Body Lab prescribes once it knows. Use it when the athlete pushes back with a constraint, instead of shortening the session yourself: the engine re-prescribes, and its answer is the one to give them. Only the fields you pass change; anything the athlete set in Body Lab today is read first and kept. Today only, on their own calendar — it's gone tomorrow, they can change it on Body Lab's Today screen, and nothing in their training history is touched. It can't record an illness or an injury and refuses to try: deciding that someone is ill, or that a sore knee is an injury, is a health judgement, and the athlete reports that themselves in the app. Check with the athlete before calling, then read the `report` it returns back to them before today's session — that's what was recorded, not what was asked for.
 
-Scope: `today:write`. Writes: can change what's already set for today. It can't delete anything, and never touches your history.
+Scope: `today:write`. Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history.
 
 | Argument | Type | |
 | --- | --- | --- |
@@ -31,6 +31,49 @@ A projection of the next seven days, today first: for each day the kind of sessi
 Scope: `training:read`. Read-only.
 
 _No arguments._
+
+## `schedule_session` — Put a session on the calendar
+
+Puts a session the athlete has arranged on their calendar — a club ride, a run with a friend, a standing Tuesday group session — so Body Lab plans the week around it: the session is that day's session in its sport, and Body Lab prescribes nothing beside it. One entry per occurrence, dated on the athlete's own calendar (take today from get_today; never guess which Thursday); a weekly ride until December is one entry a week, twenty per call. Not for a race or a goal — that's schedule_event. Check the details with the athlete first, then read each entry's outcome back: an identical session already on that day is left as it is (already_scheduled, nothing written), and a refusal says why in words to pass on. Days within the coming week come back re-planned in `week`; later days are planned when they come into range, and `note` says which is which. Take one off again with withdraw_session. Nothing in the athlete's training history is touched.
+
+Scope: `schedule:write`. Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `sessions` | array | One entry per occurrence, in the order to report them back. There is no recurrence: a weekly ride until December is one entry per week, at most 20 in a call. Each is stored on its own, so one refused entry doesn't lose the rest. at least 1, at most 20 |
+| `sessions[].forDate` | string | The day it happens, on the athlete's own calendar, as YYYY-MM-DD. Take today from get_today and count from there rather than guessing which Thursday. Up to 180 days ahead; yesterday at the earliest. |
+| `sessions[].sport` | string | The sport, e.g. road_biking, running, lap_swimming. Body Lab prescribes nothing beside a session in the same family that day. |
+| `sessions[].durationS` | integer | How long the athlete expects it to take, in seconds (a two-hour ride is 7200). min 60, max 86400 |
+| `sessions[].intensity` | string | How hard the athlete says it usually is. easy: steady aerobic, and the week may still put a hard day beside it. mixed: it has efforts in it. hard: it is the day's hard session. mixed and hard both make the day a hard one, which stops Body Lab prescribing a second hard day next to it. |
+| `sessions[].name` | string (optional) | What the athlete calls it — "Club ride", "Run with Sam" — so they recognise it on the week. Defaults to the sport's own name. |
+
+## `withdraw_session` — Take a session off the calendar
+
+Takes a session the athlete arranged off their calendar — the ride is called off, the friend cancelled — so Body Lab stops planning around it and the weekly review stops expecting it. Name the day (on the athlete's own calendar, from get_today) and, when the day holds more than one session, the sport or the id; a day with two rides is refused with both listed rather than guessed at. The session is kept and marked withdrawn, never deleted: that the athlete meant to train and then didn't is a fact about the week. Withdrawing one already withdrawn changes nothing and succeeds, and says so. Only sessions the athlete arranged can be withdrawn — never a session Body Lab prescribed, an activity, or anything in training history. Check with the athlete before calling, then give them the day as Body Lab now plans it when it comes back in `day`.
+
+Scope: `schedule:write`. Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `forDate` | string | The day of the session, on the athlete's own calendar (get_today says what today is there). |
+| `sport` | string (optional) | Narrows to that sport, for a day holding more than one session. |
+| `id` | string (optional) | The session's id, from schedule_session's result or from a refusal that listed the day's sessions. Needed only when the day and sport still name more than one. |
+
+## `schedule_event` — Add a race or goal
+
+Adds a race or a goal the athlete has entered — a marathon in April, a gran fondo — at priority B or C, so it sits on their calendar, its date becomes an event day, and nearby days lean toward its sport. It can't add an A event and refuses to: an A event is the one the plan is built around — preparation phases, volume tapering in, a protected recovery window after — which is months of training restructured, so the athlete promotes an event to A themselves in Body Lab, where the screen shows what changes. Always tell them that's where to do it. Not for a session they've arranged: a weekly club ride entered as events would keep Body Lab leaning toward that sport for good — that's schedule_session. Check get_today's `events` first and read the name, date and sport back to the athlete before calling: calling twice adds two, and only the athlete can edit or remove one, in Body Lab.
+
+Scope: `events:write`. Writes: adds data, and can't change or delete it. The same call again adds again.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `name` | string | The event's name as the athlete knows it: "Boulder Marathon". |
+| `eventDate` | string | The day of the event, on the athlete's own calendar, as YYYY-MM-DD. Up to 800 days ahead; yesterday at the earliest. |
+| `sport` | string | The event's sport, e.g. running, road_biking, triathlon. Nearby days lean toward it. |
+| `priority` | string | B or C, which behave identically: the event sits on the calendar, its date is an event day, and nearby days tilt toward its sport. A is refused — an A event rebuilds months of the plan, and the athlete promotes an event to A themselves in Body Lab. |
+| `distanceM` | number or null (optional) | The distance in metres, if the athlete gave one (a marathon is 42195). |
+| `durationS` | integer or null (optional) | The expected duration in seconds, if the athlete gave one. |
+| `notes` | string (optional) | Anything the athlete said about it worth keeping with the entry. |
 
 ## `get_weekly_review` — How the week went
 
@@ -141,7 +184,7 @@ Scope: `labs:read`. Read-only.
 
 Records one blood draw and its results from a lab report the athlete gives you (a PDF, a photo, or values they type), exactly as printed. Before calling, read every marker, value, unit and range back to the athlete and get their yes: this can't edit or delete anything afterwards; only the athlete can, in Body Lab on the web. One call per draw date. Use `marker` keys from the list in its description; for a marker not listed, leave `marker` out and give `name` as printed. It's all or nothing: if any result is refused (an unknown key, a unit Body Lab doesn't recognise for that marker, a marker already recorded for a draw on that date, a range whose ends are reversed) nothing is saved, and the error lists each problem so you can fix it and call again. Returns the draw as saved.
 
-Scope: `labs:write`. Writes: adds data, and can't change or delete it.
+Scope: `labs:write`. Writes: adds data, and can't change or delete it. The same call again adds again.
 
 | Argument | Type | |
 | --- | --- | --- |
@@ -182,7 +225,7 @@ _No arguments._
 
 Records one body composition scan (DEXA) from a report the athlete gives you — structured data from their scanning service, a PDF, a photo, or values they read out — exactly as printed. Prefer structured data over a photo where you have both. Before calling, read every value back to the athlete with its unit and get their yes: this can't edit or delete anything afterwards, and nothing else can edit a scan either; only the athlete can remove one, in Body Lab on the web. Masses are kilograms, density g/cm², volume cm³: convert from pounds yourself and say so in the read-back. Call get_body_composition first to see what's already recorded; one call per scan. It's all or nothing — if anything is refused (a scan already recorded for that date and provider, a region Body Lab doesn't know, fat plus lean plus bone not adding up to the total) nothing is saved, and the error lists each problem. Body Lab can't diagnose anything, and a scan never changes the training it prescribes.
 
-Scope: `body:write`. Writes: adds data, and can't change or delete it.
+Scope: `body:write`. Writes: adds data, and can't change or delete it. The same call again adds again.
 
 | Argument | Type | |
 | --- | --- | --- |

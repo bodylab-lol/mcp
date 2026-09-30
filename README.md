@@ -75,15 +75,22 @@ JSON:
 
 ## What it can do
 
-An assistant can see your training. With your permission it can also see
-your lab results and add new ones, for example from a PDF or photo of a lab
-report, and do the same with body composition scans such as DEXA. It can't
-change or delete anything.
+An assistant can see your training. With your permission it can also tell
+Body Lab about today, put sessions you've arranged on your calendar and take
+them off again, add races and goals at priority B or C, see your lab results
+and add new ones, for example from a PDF or photo of a lab report, and do the
+same with body composition scans such as DEXA. It can't change your training
+history, delete anything, or make an event the A race your plan is built
+around — that's yours to do in Body Lab.
 
 | Tool | For |
 | --- | --- |
 | `get_today` | Today's (and tomorrow's) prescribed session, the reasons behind it, alternatives, readiness |
+| `set_today_context` | Tells Body Lab how long you have today, what equipment is to hand and which sports are out, and returns the re-prescribed session. Today only. Needs `today:write` |
 | `get_week` | The next seven days as the engine projects them: detailed through tomorrow, summarised after, and shifting each morning |
+| `schedule_session` | Puts a session you've arranged — a club ride, a run with a friend — on your calendar, one entry per occurrence, so Body Lab plans the week around it. The same session twice is stored once. Needs `schedule:write` |
+| `withdraw_session` | Takes a session you arranged off the calendar again. It's kept and marked withdrawn, never deleted; Body Lab's own sessions can't be touched. Needs `schedule:write` |
+| `schedule_event` | Adds a race or goal at priority B or C. It refuses to add an A event and can't edit or remove one: both are yours to do in Body Lab. Needs `events:write` |
 | `get_weekly_review` | How a complete week went against what was prescribed, load against the band, the strength floor, and whether training so far supports an upcoming event |
 | `get_training_status` | Fitness, fatigue, form, workload ratio, strain, intensity balance, week by week |
 | `list_activities`, `get_activity` | Your activities, and one in detail with load, zones, power bests and plan adherence |
@@ -120,15 +127,20 @@ off unless you turn it on when you approve an assistant:
 | `body:read` | See your body composition scans |
 | `body:write` | Add body composition scans you give it. It can't change or delete them |
 
-`schedule:write` and `events:write` have no tools behind them yet. They appear
-on the consent page because the server names every scope it has, and allowing
-either does nothing until the tools that use them ship.
+`schedule:write` covers sessions you've arranged and nothing Body Lab
+prescribed: a withdrawn session stays on record, marked withdrawn. `events:write`
+adds races and goals at B or C only; making one your A race, editing it, or
+removing it stays in Body Lab, so an assistant can't restructure months of your
+plan or delete a race by mistake. Every session or event an assistant adds is
+recorded as that assistant's, and each assistant is held to a rolling limit on
+how much it can schedule.
 
 An assistant you connected before these existed doesn't get them
 automatically, and one you allowed for lab results doesn't get body
-composition. To allow either, connect it again (in Claude, disconnect and
+composition. To allow any of them, connect it again (in Claude, disconnect and
 reconnect Body Lab) and tick those boxes when Body Lab asks. To correct or
-delete a lab result, or to remove a scan, use Body Lab on the web.
+delete a lab result, to remove a scan, or to change or remove a race, use Body
+Lab on the web.
 
 Body composition scans, including bone density, are measurements you
 recorded. Body Lab shows them back to you and nothing more: they are not a
