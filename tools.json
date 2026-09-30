@@ -2850,6 +2850,17 @@
                             }
                           ]
                         },
+                        "scheduledBy": {
+                          "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "createdAt": {
                           "$ref": "#/$defs/__schema3"
                         }
@@ -2862,6 +2873,7 @@
                         "durationS",
                         "intensity",
                         "withdrawnAt",
+                        "scheduledBy",
                         "createdAt"
                       ]
                     },
@@ -3231,6 +3243,17 @@
                   }
                 ]
               },
+              "scheduledBy": {
+                "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
               "createdAt": {
                 "$ref": "#/$defs/__schema3"
               }
@@ -3243,6 +3266,7 @@
               "durationS",
               "intensity",
               "withdrawnAt",
+              "scheduledBy",
               "createdAt"
             ]
           },
@@ -3621,6 +3645,17 @@
                 "description": "Negative once the event has passed. Computed server-side from the athlete's own time zone, never the server's.",
                 "type": "integer"
               },
+              "scheduledBy": {
+                "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
               "createdAt": {
                 "$ref": "#/$defs/__schema3"
               },
@@ -3638,6 +3673,7 @@
               "durationS",
               "notes",
               "daysUntil",
+              "scheduledBy",
               "createdAt",
               "updatedAt"
             ]
@@ -3881,6 +3917,139 @@
             "type": "string"
           },
           "__schema3": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "remove_event",
+      "title": "Take a race off the calendar",
+      "description": "Removes a race or goal this assistant added — the athlete isn't doing it after all. It can only remove what it added itself: a race the athlete entered in Body Lab is theirs, and it says so rather than removing it. It can't remove an A race at all, even one it added that the athlete has since promoted, because the plan is built around that date — preparation, a taper into it, a protected week after — and only the athlete can take that decision back, in Body Lab. Removing is permanent and there is no undo, so read the race's name and date back to the athlete and get a yes before calling. Use get_today's `events` for the id.",
+      "scope": "events:write",
+      "readOnly": false,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "description": "The event to remove, from get_today's `events` or the id schedule_event returned.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventId"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "removed": {
+            "description": "The event that was removed, as it was before it went.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "Opaque identifier.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "name": {
+                "type": "string"
+              },
+              "eventDate": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "sport": {
+                "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              "priority": {
+                "description": "What Body Lab does with the event. A: the plan is built around it — preparation phases in the run-up, volume tapering into it, and a protected recovery window after. B and C move no volume, and the two behave identically. Any event, at any priority, makes its own date an event day, when nothing is prescribed, and an upcoming one tilts which sport a nearby day picks. Known values: A, B, C. Treat unknown values as \"other\".",
+                "type": "string"
+              },
+              "distanceM": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "durationS": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "notes": {
+                "type": "string"
+              },
+              "daysUntil": {
+                "description": "Negative once the event has passed. Computed server-side from the athlete's own time zone, never the server's.",
+                "type": "integer"
+              },
+              "scheduledBy": {
+                "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "createdAt": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "updatedAt": {
+                "$ref": "#/$defs/__schema1"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "eventDate",
+              "sport",
+              "priority",
+              "distanceM",
+              "durationS",
+              "notes",
+              "daysUntil",
+              "scheduledBy",
+              "createdAt",
+              "updatedAt"
+            ]
+          },
+          "note": {
+            "description": "Read it with the result.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "removed",
+          "note"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
             "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
             "type": "string",
             "format": "date-time"

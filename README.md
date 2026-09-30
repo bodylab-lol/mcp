@@ -90,7 +90,8 @@ around — that's yours to do in Body Lab.
 | `get_week` | The next seven days as the engine projects them: detailed through tomorrow, summarised after, and shifting each morning |
 | `schedule_session` | Puts a session you've arranged — a club ride, a run with a friend — on your calendar, one entry per occurrence, so Body Lab plans the week around it. The same session twice is stored once. Needs `schedule:write` |
 | `withdraw_session` | Takes a session you arranged off the calendar again. It's kept and marked withdrawn, never deleted; Body Lab's own sessions can't be touched. Needs `schedule:write` |
-| `schedule_event` | Adds a race or goal at priority B or C. It refuses to add an A event and can't edit or remove one: both are yours to do in Body Lab. Needs `events:write` |
+| `schedule_event` | Adds a race or goal at priority B or C. It refuses to add an A event, and can't edit one: both are yours to do in Body Lab. Needs `events:write` |
+| `remove_event` | Takes off a race it added itself, after reading it back to you. It can't remove one you entered, and can't remove an A race even if it added it — promoting a race to A is your decision, so taking it back is too. Removing is permanent. Needs `events:write` |
 | `get_weekly_review` | How a complete week went against what was prescribed, load against the band, the strength floor, and whether training so far supports an upcoming event |
 | `get_training_status` | Fitness, fatigue, form, workload ratio, strain, intensity balance, week by week |
 | `list_activities`, `get_activity` | Your activities, and one in detail with load, zones, power bests and plan adherence |

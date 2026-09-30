@@ -75,6 +75,16 @@ Scope: `events:write`. Writes: adds data, and can't change or delete it. The sam
 | `durationS` | integer or null (optional) | The expected duration in seconds, if the athlete gave one. |
 | `notes` | string (optional) | Anything the athlete said about it worth keeping with the entry. |
 
+## `remove_event` — Take a race off the calendar
+
+Removes a race or goal this assistant added — the athlete isn't doing it after all. It can only remove what it added itself: a race the athlete entered in Body Lab is theirs, and it says so rather than removing it. It can't remove an A race at all, even one it added that the athlete has since promoted, because the plan is built around that date — preparation, a taper into it, a protected week after — and only the athlete can take that decision back, in Body Lab. Removing is permanent and there is no undo, so read the race's name and date back to the athlete and get a yes before calling. Use get_today's `events` for the id.
+
+Scope: `events:write`. Writes: adds data, and can't change or delete it. The same call again adds again.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `eventId` | string | The event to remove, from get_today's `events` or the id schedule_event returned. |
+
 ## `get_weekly_review` — How the week went
 
 A review of one finished week (Monday to Sunday on the athlete's calendar; only complete weeks). The sessions the athlete committed to (planned, exported or sent to a device) against what was done: as prescribed, differently (fewer intervals, less work at target, another sport), skipped, done without a recording, or no_data (nothing could reach Body Lab that day, so never a skip), judged in the metric each workout targeted, with any illness, injury or short day that explains it. Where the acute:chronic ratio and chronic load sat and moved; the strength floor with the count; what the athlete reported. For the most recent week, also what changes in the next seven days and why, as a projection, and what the training so far supports for an A event in the next eight weeks, from rules Body Lab already applies, not a prediction. Omit `week` for the most recent week. Use for 'how did my week go', 'did I do what was planned' or 'am I on track for my race'. Pass the sentences on as written; they cite their numbers.
