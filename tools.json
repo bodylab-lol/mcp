@@ -402,6 +402,17 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "woundDown": {
+                    "description": "Whether the athlete was off screens by their chosen wind-down hour the night before today. Null is a night they didn't answer, which is a night not measured rather than a night failed. It changes nothing about the prescription — Body Lab records it so the athlete can see it beside their sleep, and asserts no link between the two.",
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -409,7 +420,8 @@
                   "timeAvailableMin",
                   "equipment",
                   "unavailableSports",
-                  "expectedAltitude"
+                  "expectedAltitude",
+                  "woundDown"
                 ]
               },
               "active": {
@@ -1505,6 +1517,17 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "woundDown": {
+                    "description": "Whether the athlete was off screens by their chosen wind-down hour the night before today. Null is a night they didn't answer, which is a night not measured rather than a night failed. It changes nothing about the prescription — Body Lab records it so the athlete can see it beside their sleep, and asserts no link between the two.",
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -1512,7 +1535,8 @@
                   "timeAvailableMin",
                   "equipment",
                   "unavailableSports",
-                  "expectedAltitude"
+                  "expectedAltitude",
+                  "woundDown"
                 ]
               },
               "active": {
@@ -4774,6 +4798,100 @@
       }
     },
     {
+      "name": "get_progress",
+      "title": "What got better",
+      "description": "What has improved lately and what has changed, across everything Body Lab records: FTP, mean-maximal power, VO₂max, threshold speed, chronic load, every lift's heaviest set, longest and farthest session per sport, body mass and composition, blood pressure, resting heart rate, HRV, and every blood marker. Lifts are weights actually lifted, never an estimated one-rep max. Each note had to clear a floor for its metric, so measurement noise is never reported as a result. Use for 'what's improved?' or 'any PRs lately?'. The `improvement` flag decides your tone: where it is true the athlete trained for that number to move and you may say so. Where it is false Body Lab asserts no better direction — that covers body mass, body composition, blood pressure, resting heart rate, HRV, threshold heart rate and every blood marker — so report the change and add no praise, no concern and no health reading. A smaller body mass or a lower blood marker is a change, not good news. Pass the sentences on as written.",
+      "scope": "training:read",
+      "readOnly": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sinceDays": {
+            "description": "How far back a reading still counts as news. Defaults to 90 days, which is short enough to be current and long enough to contain a blood draw or a scan.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 400
+          },
+          "limit": {
+            "description": "How many notes at most. Defaults to 24, best first.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "description": "The oldest measurement date reported. Older readings set the standing bests but are not news, which is what stops a newly connected provider's history arriving as dozens of records.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "description": "`best` is a new extreme in something training is meant to move. `change` is a move beyond that metric's normal variation, with no claim about whether it is welcome. `first` is a first recording.",
+                  "type": "string",
+                  "enum": [
+                    "best",
+                    "change",
+                    "first"
+                  ]
+                },
+                "metric": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "on": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "improvement": {
+                  "description": "Whether Body Lab asserts this direction is an improvement. Say so only where this is true. Where it is false, report the change and stop: do not congratulate, do not call it progress, and do not say what it means for the athlete's health.",
+                  "type": "boolean"
+                },
+                "text": {
+                  "description": "The sentence to pass on as written. It cites the numbers it rests on.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "metric",
+                "label",
+                "on",
+                "improvement",
+                "text"
+              ]
+            }
+          },
+          "waitingOn": {
+            "description": "Metrics with one reading so far, so there is nothing to compare yet. Useful for telling the athlete what they could have by next month.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "since",
+          "notes",
+          "waitingOn"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    {
       "name": "get_training_status",
       "title": "Training status",
       "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the event the plan is built around, if one is set — its name, days until, and whether the day sits in its taper or the recovery window after it, or is the day of an event at any priority — and the preparation phase the run-up to it is in (Base, Build, Specific — often called Peak — or Taper), which is an emphasis worked out daily from the event's date rather than a plan — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
@@ -7242,6 +7360,17 @@
                   }
                 ]
               },
+              "windDownFromHour": {
+                "description": "The hour on the athlete's own clock they chose to be off screens by, 18-23 or 0-2, or null for not set. A convention the athlete picked, never a target Body Lab derived: no published study supports a particular cutoff, and the one popularly quoted was tested as a behaviour and did not hold up. Nothing is measured against it but what the athlete reports, and nothing about it reaches a prescription.",
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
               "strengthEquipment": {
                 "description": "What the athlete lifts with. Strength sessions name only exercises this allows: gym is a barbell and rack (the default), dumbbells is dumbbells or kettlebells, bodyweight is no weights. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
                 "type": "string"
@@ -7305,6 +7434,7 @@
               "sports",
               "homeAltitudeM",
               "homeAltitudeSource",
+              "windDownFromHour",
               "strengthEquipment",
               "trainingFocus",
               "leaveOutJumps",

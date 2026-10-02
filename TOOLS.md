@@ -95,6 +95,17 @@ Scope: `training:read`. Read-only.
 | --- | --- | --- |
 | `week` | string (optional) | Any day in the week to review, e.g. from previousWeek. Omit for the most recent complete week. |
 
+## `get_progress` — What got better
+
+What has improved lately and what has changed, across everything Body Lab records: FTP, mean-maximal power, VO₂max, threshold speed, chronic load, every lift's heaviest set, longest and farthest session per sport, body mass and composition, blood pressure, resting heart rate, HRV, and every blood marker. Lifts are weights actually lifted, never an estimated one-rep max. Each note had to clear a floor for its metric, so measurement noise is never reported as a result. Use for 'what's improved?' or 'any PRs lately?'. The `improvement` flag decides your tone: where it is true the athlete trained for that number to move and you may say so. Where it is false Body Lab asserts no better direction — that covers body mass, body composition, blood pressure, resting heart rate, HRV, threshold heart rate and every blood marker — so report the change and add no praise, no concern and no health reading. A smaller body mass or a lower blood marker is a change, not good news. Pass the sentences on as written.
+
+Scope: `training:read`. Read-only.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `sinceDays` | integer (optional) | How far back a reading still counts as news. Defaults to 90 days, which is short enough to be current and long enough to contain a blood draw or a scan. min 1, max 400 |
+| `limit` | integer (optional) | How many notes at most. Defaults to 24, best first. min 1, max 100 |
+
 ## `get_training_status` — Training status
 
 Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the event the plan is built around, if one is set — its name, days until, and whether the day sits in its taper or the recovery window after it, or is the day of an event at any priority — and the preparation phase the run-up to it is in (Base, Build, Specific — often called Peak — or Taper), which is an emphasis worked out daily from the event's date rather than a plan — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.
