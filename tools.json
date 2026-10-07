@@ -8,7 +8,8 @@
   "scopes": {
     "training:read": "See your training, recovery, activities and profile",
     "today:write": "Tell Body Lab about today: your time, equipment and sports you can't do. It can't change your training history",
-    "schedule:write": "Put sessions on your calendar, and take them off again. It can't change your training history",
+    "equipment:write": "Switch which of your places your sessions are written for — your garage, a hotel gym — and add one just for today. It can't name or delete a place, or change your training history",
+    "schedule:write": "Put sessions and strength routines on your calendar — a routine's exercises, sets, reps and weights included — and take them off again. It can't change your training history",
     "events:write": "Add and remove races and goals you give it. It can't make one an A race — that rebuilds months of your plan, and you do that in Body Lab",
     "labs:read": "See your lab results",
     "labs:write": "Add lab results you give it. It can't change or delete them",
@@ -363,7 +364,7 @@
                   "equipment": {
                     "anyOf": [
                       {
-                        "description": "Today's strength equipment when it isn't the profile's. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
+                        "description": "Today's strength equipment when it differs from the place the athlete's sessions are written for. A rung named here wins outright for today, rather than narrowing what they own. Null hands today back to whichever place is in force. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
                         "type": "string"
                       },
                       {
@@ -917,6 +918,73 @@
                     "type": "null"
                   }
                 ]
+              },
+              "equipmentNote": {
+                "description": "What to say beside the targets about the kit this was written for — a place that isn't home, or a pattern the kit can't fill. Null when there's nothing to say.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "placeName": {
+                        "description": "The equipment place this session was written for, when it isn't the athlete's home one; null when it is.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "justForToday": {
+                        "description": "Whether that kit is the one-off the athlete set for today, which expires on its own tonight. It has no name, so placeName is null and this says which kind of null it is — a client still draws the line, because the line is how the athlete changes it.",
+                        "default": false,
+                        "type": "boolean"
+                      },
+                      "gaps": {
+                        "description": "Patterns the athlete's kit could not fill, in reading order. Empty when the session is whole, in which case placeName is what the note is for.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "pattern": {
+                              "description": "A movement pattern the session has none of, in the athlete's words: \"vertical pull\".",
+                              "type": "string"
+                            },
+                            "wouldAdd": {
+                              "description": "Items that would each restore the pattern, best first. Never empty.",
+                              "type": "array",
+                              "items": {
+                                "description": "An item that would, on its own, put the pattern back — best first. Known values: barbell, rack, bench, dumbbells, kettlebells, pull_up_bar, low_bar, bands, step, machines. Treat unknown values as \"other\".",
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "pattern",
+                            "wouldAdd"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "placeName",
+                      "justForToday",
+                      "gaps"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "alsoCommitted": {
+                "description": "Other sessions the athlete (or an app they connected) put on this date, beside `primary`: a strength routine after a club ride, a second ride, a morning and an evening routine. Each is done as well as `primary`, not instead of it, and none is cut by a taper or a recovery week. Absent when the date holds one committed session or none.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
               }
             },
             "required": [
@@ -929,7 +997,8 @@
               "unavailable",
               "flags",
               "rationale",
-              "environment"
+              "environment",
+              "equipmentNote"
             ]
           },
           "__schema1": {
@@ -1221,6 +1290,18 @@
                         },
                         "note": {
                           "type": "string"
+                        },
+                        "cue": {
+                          "description": "The routine's own cue for this exercise, as whoever scheduled it wrote it (`routine.scheduledBy`). Show it attributed to them, never as Body Lab's words, and apart from `note`, which is Body Lab's. Absent when there is none.",
+                          "type": "string"
+                        },
+                        "supersetGroup": {
+                          "description": "The routine's superset letter: exercises sharing one are done alternately, in the order listed. Absent when the exercise stands alone.",
+                          "type": "string"
+                        },
+                        "weightCheck": {
+                          "description": "A sentence to show where this exercise's sets are recorded, when the routine stated a weight more than 10% above the athlete's estimated one-rep max for it — the shape of pounds read as kilograms. It names the lift and the likely slip. Advice about the number only: `weightKg` is still the routine's, and logging is never blocked. Absent otherwise, including whenever there is no estimate to compare with.",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -1245,6 +1326,43 @@
                   },
                   "tradeoff": {
                     "$ref": "#/$defs/__schema4"
+                  },
+                  "routine": {
+                    "description": "The routine this session is. Absent or null for one of Body Lab's own; `template` is \"routine\" when it's set.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "The routine, as `GET /strength-routines` lists it and `POST /strength-sessions` takes it as `routineId`.",
+                            "$ref": "#/$defs/__schema5"
+                          },
+                          "name": {
+                            "description": "What the routine was called: \"Upper day\".",
+                            "type": "string"
+                          },
+                          "scheduledBy": {
+                            "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "scheduledBy"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -1408,7 +1526,7 @@
             ]
           },
           "equipment": {
-            "description": "The strength equipment to hand today, when it isn't the athlete's usual. It decides which exercises a strength session can name. Null goes back to their profile's; leave it out to keep what Body Lab already has.",
+            "description": "The strength equipment to hand today, when it isn't the athlete's usual. It decides which exercises a strength session can name: a rung named for today wins outright over the place the athlete is at, because \"dumbbells only today\" is the whole truth about today rather than their garage minus some things. Null hands today back to whichever place is in force; leave it out to keep what Body Lab already has. For a stay rather than a day, set_equipment_place is the tool — this is gone tomorrow.",
             "anyOf": [
               {
                 "type": "string",
@@ -1478,7 +1596,7 @@
                   "equipment": {
                     "anyOf": [
                       {
-                        "description": "Today's strength equipment when it isn't the profile's. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
+                        "description": "Today's strength equipment when it differs from the place the athlete's sessions are written for. A rung named here wins outright for today, rather than narrowing what they own. Null hands today back to whichever place is in force. Known values: gym, dumbbells, bodyweight. Treat unknown values as \"other\".",
                         "type": "string"
                       },
                       {
@@ -1870,6 +1988,73 @@
                     "type": "null"
                   }
                 ]
+              },
+              "equipmentNote": {
+                "description": "What to say beside the targets about the kit this was written for — a place that isn't home, or a pattern the kit can't fill. Null when there's nothing to say.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "placeName": {
+                        "description": "The equipment place this session was written for, when it isn't the athlete's home one; null when it is.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "justForToday": {
+                        "description": "Whether that kit is the one-off the athlete set for today, which expires on its own tonight. It has no name, so placeName is null and this says which kind of null it is — a client still draws the line, because the line is how the athlete changes it.",
+                        "default": false,
+                        "type": "boolean"
+                      },
+                      "gaps": {
+                        "description": "Patterns the athlete's kit could not fill, in reading order. Empty when the session is whole, in which case placeName is what the note is for.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "pattern": {
+                              "description": "A movement pattern the session has none of, in the athlete's words: \"vertical pull\".",
+                              "type": "string"
+                            },
+                            "wouldAdd": {
+                              "description": "Items that would each restore the pattern, best first. Never empty.",
+                              "type": "array",
+                              "items": {
+                                "description": "An item that would, on its own, put the pattern back — best first. Known values: barbell, rack, bench, dumbbells, kettlebells, pull_up_bar, low_bar, bands, step, machines. Treat unknown values as \"other\".",
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "pattern",
+                            "wouldAdd"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "placeName",
+                      "justForToday",
+                      "gaps"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "alsoCommitted": {
+                "description": "Other sessions the athlete (or an app they connected) put on this date, beside `primary`: a strength routine after a club ride, a second ride, a morning and an evening routine. Each is done as well as `primary`, not instead of it, and none is cut by a taper or a recovery week. Absent when the date holds one committed session or none.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema5"
+                }
               }
             },
             "required": [
@@ -1882,7 +2067,8 @@
               "unavailable",
               "flags",
               "rationale",
-              "environment"
+              "environment",
+              "equipmentNote"
             ]
           },
           "todayIsDone": {
@@ -2210,6 +2396,18 @@
                         },
                         "note": {
                           "type": "string"
+                        },
+                        "cue": {
+                          "description": "The routine's own cue for this exercise, as whoever scheduled it wrote it (`routine.scheduledBy`). Show it attributed to them, never as Body Lab's words, and apart from `note`, which is Body Lab's. Absent when there is none.",
+                          "type": "string"
+                        },
+                        "supersetGroup": {
+                          "description": "The routine's superset letter: exercises sharing one are done alternately, in the order listed. Absent when the exercise stands alone.",
+                          "type": "string"
+                        },
+                        "weightCheck": {
+                          "description": "A sentence to show where this exercise's sets are recorded, when the routine stated a weight more than 10% above the athlete's estimated one-rep max for it — the shape of pounds read as kilograms. It names the lift and the likely slip. Advice about the number only: `weightKg` is still the routine's, and logging is never blocked. Absent otherwise, including whenever there is no estimate to compare with.",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -2234,6 +2432,43 @@
                   },
                   "tradeoff": {
                     "$ref": "#/$defs/__schema7"
+                  },
+                  "routine": {
+                    "description": "The routine this session is. Absent or null for one of Body Lab's own; `template` is \"routine\" when it's set.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "The routine, as `GET /strength-routines` lists it and `POST /strength-sessions` takes it as `routineId`.",
+                            "$ref": "#/$defs/__schema2"
+                          },
+                          "name": {
+                            "description": "What the routine was called: \"Upper day\".",
+                            "type": "string"
+                          },
+                          "scheduledBy": {
+                            "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "scheduledBy"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -2342,6 +2577,943 @@
       }
     },
     {
+      "name": "set_equipment_place",
+      "title": "Where the athlete is training",
+      "description": "Says where the athlete is training, and gives back the session Body Lab prescribes once it knows. `place` switches to one of the places they named in Body Lab — their garage, a hotel gym — and holds until they switch again. `items` says they are somewhere different just for today: it reverts to their home place tomorrow and is never added to their list, so for somewhere they'll go back to, ask them to add it in Body Lab and switch to it by name after that. Use it for \"I'm at a hotel this week, dumbbells up to 20 kg\". Every session from now on is written from that kit, and it replaces anything set_today_context said about today's equipment, so check with the athlete first and read back the place and the session it returns — that is what was recorded. It can't name, rename or delete a place; they do that in Body Lab, with the list in front of them. Nothing in their training history changes, and calling it twice lands in one place rather than leaving two.",
+      "scope": "equipment:write",
+      "readOnly": false,
+      "replaces": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "place": {
+            "description": "The name of a place the athlete already has (or its id) to switch to — get_today's `today.equipmentNote.placeName` says which one today was written for, and this tool's result lists them all. The switch holds until they switch again, so use it for a stay, not a one-off. Leave it out when giving `items`.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "items": {
+            "description": "Somewhere different just for today, and only today: what is there, each item mapping to the heaviest single one of it in kilograms, or null for \"enough\" (a rack needs no number). Leave an item out and it isn't there; `{}` is a real answer — a hotel room with nothing in it. It reverts to the athlete's home place tomorrow and is never added to their list, so for somewhere they will go back to, ask them to add it in Body Lab and switch to it by name afterwards. Leave it out when giving `place`.",
+            "type": "object",
+            "propertyNames": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "barbell",
+                    "rack",
+                    "bench",
+                    "dumbbells",
+                    "kettlebells",
+                    "pull_up_bar",
+                    "low_bar",
+                    "bands",
+                    "step",
+                    "machines"
+                  ]
+                },
+                {
+                  "not": {}
+                }
+              ]
+            },
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 500
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "additionalProperties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Today on the athlete's calendar: the day a one-off applies to.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "units": {
+            "description": "How to display quantities; the API always speaks SI.",
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ]
+          },
+          "place": {
+            "description": "The place now in force — every session is written from its kit until the athlete switches. Read it back to them: it is what was recorded, not what was asked for.",
+            "$ref": "#/$defs/__schema1"
+          },
+          "places": {
+            "description": "The places the athlete named, in their own order, so you can offer to switch back. A one-off for today is never in here — it is `place` while it applies, and gone tomorrow.",
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema1"
+            }
+          },
+          "today": {
+            "description": "Today's session, re-prescribed from that place's kit. This is Body Lab's answer to being somewhere else — give it to the athlete rather than a session of your own.",
+            "type": "object",
+            "properties": {
+              "additional": {
+                "description": "Today's main session is done; this is an optional extra.",
+                "type": "boolean"
+              },
+              "deload": {
+                "type": "boolean"
+              },
+              "sessionClass": {
+                "type": "string",
+                "enum": [
+                  "rest",
+                  "recovery",
+                  "easy",
+                  "build",
+                  "quality",
+                  "strength",
+                  "complete"
+                ]
+              },
+              "primary": {
+                "$ref": "#/$defs/__schema3"
+              },
+              "alternates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema3"
+                }
+              },
+              "variants": {
+                "description": "The same session on every other sport that could carry it today, best first.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema3"
+                }
+              },
+              "unavailable": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "modality": {
+                      "$ref": "#/$defs/__schema4"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "modality",
+                    "reason"
+                  ]
+                }
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rationale": {
+                "description": "Why, citing the metric behind each call — the deciding reason first.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "description": "What this reason is doing. Known values: decision, phase, context. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    "headline": {
+                      "description": "The claim: metric, value, threshold. One line.",
+                      "type": "string"
+                    },
+                    "detail": {
+                      "description": "The mechanism, and any citation. Null when the headline is all of it.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "role",
+                    "headline",
+                    "detail"
+                  ]
+                }
+              },
+              "environment": {
+                "description": "Altitude and recent heat, where either applies today; null otherwise.",
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "altitude": {
+                        "description": "Set when watt targets were lowered for altitude. Heart-rate targets never are.",
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "todayAltitudeM": {
+                                "description": "The altitude today's session is expected at, metres.",
+                                "type": "number"
+                              },
+                              "basis": {
+                                "description": "Where that came from, most trustworthy first: confirmed means the athlete confirmed it for today; recent_recordings means the last two days' recordings both started there; home is the profile's home altitude. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
+                                "type": "string"
+                              },
+                              "ftpAltitudeM": {
+                                "description": "The altitude the FTP behind the watt targets was set at, metres: from rides around its date, or home.",
+                                "type": "number"
+                              },
+                              "powerFactor": {
+                                "description": "What every watt target was multiplied by: below 1, never above.",
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "todayAltitudeM",
+                              "basis",
+                              "ftpAltitudeM",
+                              "powerFactor"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "heat": {
+                        "description": "Set when a recent session was recorded in hot air. Nothing is known about today's weather; sessions and targets are unchanged.",
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "temperatureC": {
+                                "description": "Air temperature of the hottest session in the last few days, °C. Never a wrist reading.",
+                                "type": "number"
+                              },
+                              "recordedOn": {
+                                "$ref": "#/$defs/__schema0"
+                              },
+                              "daysAgo": {
+                                "type": "integer"
+                              },
+                              "hotDaysLast14": {
+                                "description": "Days in the last two weeks with a hot session of an hour or more.",
+                                "type": "integer"
+                              },
+                              "acclimatised": {
+                                "description": "Whether that is enough hot days for heat adaptation to be under way.",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "temperatureC",
+                              "recordedOn",
+                              "daysAgo",
+                              "hotDaysLast14",
+                              "acclimatised"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "altitude",
+                      "heat"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "equipmentNote": {
+                "description": "What to say beside the targets about the kit this was written for — a place that isn't home, or a pattern the kit can't fill. Null when there's nothing to say.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "placeName": {
+                        "description": "The equipment place this session was written for, when it isn't the athlete's home one; null when it is.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "justForToday": {
+                        "description": "Whether that kit is the one-off the athlete set for today, which expires on its own tonight. It has no name, so placeName is null and this says which kind of null it is — a client still draws the line, because the line is how the athlete changes it.",
+                        "default": false,
+                        "type": "boolean"
+                      },
+                      "gaps": {
+                        "description": "Patterns the athlete's kit could not fill, in reading order. Empty when the session is whole, in which case placeName is what the note is for.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "pattern": {
+                              "description": "A movement pattern the session has none of, in the athlete's words: \"vertical pull\".",
+                              "type": "string"
+                            },
+                            "wouldAdd": {
+                              "description": "Items that would each restore the pattern, best first. Never empty.",
+                              "type": "array",
+                              "items": {
+                                "description": "An item that would, on its own, put the pattern back — best first. Known values: barbell, rack, bench, dumbbells, kettlebells, pull_up_bar, low_bar, bands, step, machines. Treat unknown values as \"other\".",
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "pattern",
+                            "wouldAdd"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "placeName",
+                      "justForToday",
+                      "gaps"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "alsoCommitted": {
+                "description": "Other sessions the athlete (or an app they connected) put on this date, beside `primary`: a strength routine after a club ride, a second ride, a morning and an evening routine. Each is done as well as `primary`, not instead of it, and none is cut by a taper or a recovery week. Absent when the date holds one committed session or none.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema3"
+                }
+              }
+            },
+            "required": [
+              "additional",
+              "deload",
+              "sessionClass",
+              "primary",
+              "alternates",
+              "variants",
+              "unavailable",
+              "flags",
+              "rationale",
+              "environment",
+              "equipmentNote"
+            ]
+          },
+          "todayIsDone": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "units",
+          "place",
+          "places",
+          "today",
+          "todayIsDone"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/__schema2"
+              },
+              "name": {
+                "description": "What the athlete called it. Null for the unnamed one-off in force today (see justForToday): it has no name because it is never listed and never chosen again.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "items": {
+                "description": "What is at this place, each item mapping to the heaviest single implement of it in kilograms, or null for \"enough\" (a rack needs no number). Absent keys are not there. An empty object is a real place — a hotel room with nothing in it — and not a place with no answer.",
+                "type": "object",
+                "propertyNames": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "barbell",
+                        "rack",
+                        "bench",
+                        "dumbbells",
+                        "kettlebells",
+                        "pull_up_bar",
+                        "low_bar",
+                        "bands",
+                        "step",
+                        "machines"
+                      ]
+                    },
+                    {
+                      "not": {}
+                    }
+                  ]
+                },
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 500
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "isHome": {
+                "description": "The place everything reverts to: exactly one of the athlete's places is home. It can't be deleted while another place exists — make another one home first.",
+                "type": "boolean"
+              },
+              "isActive": {
+                "description": "True for the one place every prescription is currently written from. Exactly one place is active, and it stays active until the athlete switches.",
+                "type": "boolean"
+              },
+              "forDate": {
+                "description": "The one local day this place applies to, for a one-off; null for a place that holds until the athlete switches. Only the unnamed one-off carries a date, and it reverts to home on its own the next day.",
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "items",
+              "isHome",
+              "isActive",
+              "forDate"
+            ]
+          },
+          "__schema2": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema3": {
+            "description": "One prescribed session. `kind` is the discriminator; new kinds are a breaking change.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "endurance"
+                  },
+                  "modality": {
+                    "$ref": "#/$defs/__schema4"
+                  },
+                  "durationMin": {
+                    "type": "number"
+                  },
+                  "intendedDurationMin": {
+                    "type": "number"
+                  },
+                  "zone": {
+                    "type": "integer"
+                  },
+                  "hrLow": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "hrHigh": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "powerLow": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "powerHigh": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "repeat": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "work": {
+                          "$ref": "#/$defs/__schema5"
+                        },
+                        "recovery": {
+                          "anyOf": [
+                            {
+                              "$ref": "#/$defs/__schema5"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "repeat",
+                        "work",
+                        "recovery"
+                      ]
+                    }
+                  },
+                  "workoutType": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "stimulus": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "stimulus"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "tradeoff": {
+                    "$ref": "#/$defs/__schema6"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "modality",
+                  "durationMin",
+                  "intendedDurationMin",
+                  "zone",
+                  "hrLow",
+                  "hrHigh",
+                  "powerLow",
+                  "powerHigh",
+                  "blocks",
+                  "workoutType",
+                  "note",
+                  "tradeoff"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "strength"
+                  },
+                  "template": {
+                    "type": "string"
+                  },
+                  "durationMin": {
+                    "type": "number"
+                  },
+                  "exercises": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "exerciseId": {
+                          "$ref": "#/$defs/__schema2"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "sets": {
+                          "type": "integer"
+                        },
+                        "reps": {
+                          "description": "Reps, or seconds when unit is seconds.",
+                          "type": "integer"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": [
+                            "reps",
+                            "seconds"
+                          ]
+                        },
+                        "weightKg": {
+                          "description": "The total load, in kilograms, including the bar or both dumbbells — never the weight of one implement or one side of a bar. Negative is assistance: the part of the athlete's bodyweight a machine or band is taking off. Null when the movement carries no external load, or when there is no history to prescribe one from.",
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "rir": {
+                          "description": "Reps in reserve to stop at.",
+                          "type": "number"
+                        },
+                        "intensity": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "progression": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "axis": {
+                                  "type": "string",
+                                  "enum": [
+                                    "reps",
+                                    "load"
+                                  ]
+                                },
+                                "direction": {
+                                  "type": "string",
+                                  "enum": [
+                                    "up",
+                                    "hold"
+                                  ]
+                                },
+                                "previous": {
+                                  "type": "number"
+                                },
+                                "daysAgo": {
+                                  "type": "number"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "axis",
+                                "direction",
+                                "previous",
+                                "daysAgo",
+                                "reason"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "perSide": {
+                          "description": "Reps are per leg or per side.",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "leg",
+                                "side"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "implementCount": {
+                          "description": "2 when the load is split across two dumbbells or kettlebells; weightKg is still the total, so each hand holds half of it.",
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 1
+                            },
+                            {
+                              "type": "number",
+                              "const": 2
+                            }
+                          ]
+                        },
+                        "restSeconds": {
+                          "description": "Suggested rest between this exercise's sets, in seconds: shorter for jumps and accessories, longer for the heaviest lifts.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "restReason": {
+                          "description": "Why restSeconds is the length it is: a jump, lighter accessory work, one of the heaviest lifts, or nothing in particular. Stated rather than left to be inferred from the number, which an athlete's own adjustment moves off the table. Known values: jump, accessory, heavy, standard. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
+                        "note": {
+                          "type": "string"
+                        },
+                        "cue": {
+                          "description": "The routine's own cue for this exercise, as whoever scheduled it wrote it (`routine.scheduledBy`). Show it attributed to them, never as Body Lab's words, and apart from `note`, which is Body Lab's. Absent when there is none.",
+                          "type": "string"
+                        },
+                        "supersetGroup": {
+                          "description": "The routine's superset letter: exercises sharing one are done alternately, in the order listed. Absent when the exercise stands alone.",
+                          "type": "string"
+                        },
+                        "weightCheck": {
+                          "description": "A sentence to show where this exercise's sets are recorded, when the routine stated a weight more than 10% above the athlete's estimated one-rep max for it — the shape of pounds read as kilograms. It names the lift and the likely slip. Advice about the number only: `weightKg` is still the routine's, and logging is never blocked. Absent otherwise, including whenever there is no estimate to compare with.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "exerciseId",
+                        "name",
+                        "sets",
+                        "reps",
+                        "unit",
+                        "weightKg",
+                        "rir",
+                        "intensity",
+                        "progression",
+                        "perSide",
+                        "implementCount",
+                        "restSeconds",
+                        "restReason"
+                      ]
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "tradeoff": {
+                    "$ref": "#/$defs/__schema6"
+                  },
+                  "routine": {
+                    "description": "The routine this session is. Absent or null for one of Body Lab's own; `template` is \"routine\" when it's set.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "The routine, as `GET /strength-routines` lists it and `POST /strength-sessions` takes it as `routineId`.",
+                            "$ref": "#/$defs/__schema2"
+                          },
+                          "name": {
+                            "description": "What the routine was called: \"Upper day\".",
+                            "type": "string"
+                          },
+                          "scheduledBy": {
+                            "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "scheduledBy"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "template",
+                  "durationMin",
+                  "exercises",
+                  "note",
+                  "tradeoff"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "rest"
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "tradeoff": {
+                    "$ref": "#/$defs/__schema6"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "note",
+                  "tradeoff"
+                ]
+              }
+            ]
+          },
+          "__schema4": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema5": {
+            "type": "object",
+            "properties": {
+              "minutes": {
+                "type": "number"
+              },
+              "zone": {
+                "description": "Heart-rate zone, 1–5.",
+                "type": "integer"
+              },
+              "hrLow": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hrHigh": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "powerLow": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "powerHigh": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "minutes",
+              "zone",
+              "hrLow",
+              "hrHigh",
+              "powerLow",
+              "powerHigh"
+            ]
+          },
+          "__schema6": {
+            "description": "What choosing this instead of today's session costs or gains, one sentence. Set only on alternates; null on the prescribed session and on variants.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
       "name": "get_week",
       "title": "The week ahead",
       "description": "A projection of the next seven days, today first: for each day the kind of session (rest, easy, long/build, quality, strength), the sport and roughly how long, which day is the long one, when strength follows a session, planned volume cuts, and whether a taper, event day, post-event recovery or recovery week shapes it, with any illness or injury it assumes is still active. Each day carries its preparation phase too (Base, Build, Specific — often called Peak — or Taper): an emphasis recomputed each morning from the A event's date, not a plan. Today and tomorrow match get_today; later days are outlines with no targets. It is not a plan: each day is decided that morning from how training and recovery actually went, so always pass on the `note` and the assumptions. Use for 'what does my week look like', 'when's my long day', or planning around rest days and a race.",
@@ -2395,8 +3567,7 @@
                   "description": "The sport, for an endurance session.",
                   "anyOf": [
                     {
-                      "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
-                      "type": "string"
+                      "$ref": "#/$defs/__schema1"
                     },
                     {
                       "type": "null"
@@ -2445,6 +3616,47 @@
                     }
                   ]
                 },
+                "alsoCommitted": {
+                  "description": "The other sessions arranged on this date, beside the one the day is drawn as — the routine after a club ride, a second ride. A strength session here after an endurance day also sets `strengthAfter`. Absent when the date holds one committed session or none.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "What the athlete or the app called it.",
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "endurance",
+                          "strength"
+                        ]
+                      },
+                      "modality": {
+                        "description": "The sport, for an endurance session; null for a strength session.",
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/__schema1"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "durationMin": {
+                        "description": "At the day's precision, like `durationMin`: exact on a session day, rounded to 5 minutes on an outline day.",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "kind",
+                      "modality",
+                      "durationMin"
+                    ]
+                  }
+                },
                 "longest": {
                   "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
                   "type": "boolean"
@@ -2473,7 +3685,7 @@
                   "description": "The preparation phase this day falls in (see PreparationPhase), or null. Separate from `phase` above because a day can be both — Build and a recovery week — and a client that had to pick one would drop the one the athlete plans around.",
                   "anyOf": [
                     {
-                      "$ref": "#/$defs/__schema1"
+                      "$ref": "#/$defs/__schema2"
                     },
                     {
                       "type": "null"
@@ -2487,7 +3699,7 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "$ref": "#/$defs/__schema2"
+                        "$ref": "#/$defs/__schema3"
                       },
                       "name": {
                         "type": "string"
@@ -2648,13 +3860,13 @@
                 "type": "object",
                 "properties": {
                   "eventId": {
-                    "$ref": "#/$defs/__schema2"
+                    "$ref": "#/$defs/__schema3"
                   },
                   "eventName": {
                     "type": "string"
                   },
                   "phase": {
-                    "$ref": "#/$defs/__schema1"
+                    "$ref": "#/$defs/__schema2"
                   },
                   "week": {
                     "description": "Which week of this phase today is in, from 1.",
@@ -2675,7 +3887,7 @@
                     "description": "The phase after this one; null in the taper, whose successor is the event itself.",
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema1"
+                        "$ref": "#/$defs/__schema2"
                       },
                       {
                         "type": "null"
@@ -2729,10 +3941,14 @@
             "format": "date"
           },
           "__schema1": {
-            "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
             "type": "string"
           },
           "__schema2": {
+            "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+            "type": "string"
+          },
+          "__schema3": {
             "description": "Opaque identifier.",
             "type": "string",
             "minLength": 1,
@@ -2844,6 +4060,10 @@
                         "id": {
                           "$ref": "#/$defs/__schema2"
                         },
+                        "kind": {
+                          "description": "session: a session described by its sport, duration and intensity. strength_routine: a strength routine, whose exercises `GET /strength-routines` returns. Withdrawn the same way, either kind. Known values: session, strength_routine. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
                         "forDate": {
                           "description": "The day it happens, on the athlete's own calendar.",
                           "$ref": "#/$defs/__schema0"
@@ -2891,6 +4111,7 @@
                       },
                       "required": [
                         "id",
+                        "kind",
                         "forDate",
                         "name",
                         "sport",
@@ -3024,6 +4245,47 @@
                       "type": "null"
                     }
                   ]
+                },
+                "alsoCommitted": {
+                  "description": "The other sessions arranged on this date, beside the one the day is drawn as — the routine after a club ride, a second ride. A strength session here after an endurance day also sets `strengthAfter`. Absent when the date holds one committed session or none.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "What the athlete or the app called it.",
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "endurance",
+                          "strength"
+                        ]
+                      },
+                      "modality": {
+                        "description": "The sport, for an endurance session; null for a strength session.",
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/__schema1"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "durationMin": {
+                        "description": "At the day's precision, like `durationMin`: exact on a session day, rounded to 5 minutes on an outline day.",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "kind",
+                      "modality",
+                      "durationMin"
+                    ]
+                  }
                 },
                 "longest": {
                   "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
@@ -3184,7 +4446,7 @@
     {
       "name": "withdraw_session",
       "title": "Take a session off the calendar",
-      "description": "Takes a session the athlete arranged off their calendar — the ride is called off, the friend cancelled — so Body Lab stops planning around it and the weekly review stops expecting it. Name the day (on the athlete's own calendar, from get_today) and, when the day holds more than one session, the sport or the id; a day with two rides is refused with both listed rather than guessed at. The session is kept and marked withdrawn, never deleted: that the athlete meant to train and then didn't is a fact about the week. Withdrawing one already withdrawn changes nothing and succeeds, and says so. Only sessions the athlete arranged can be withdrawn — never a session Body Lab prescribed, an activity, or anything in training history. Check with the athlete before calling, then give them the day as Body Lab now plans it when it comes back in `day`.",
+      "description": "Takes a session the athlete arranged off their calendar — the ride is called off, the friend cancelled — so Body Lab stops planning around it and the weekly review stops expecting it. Name the day (on the athlete's own calendar, from get_today) and, when the day holds more than one session, the sport or the id; a day with two rides is refused with both listed rather than guessed at. The session is kept and marked withdrawn, never deleted: that the athlete meant to train and then didn't is a fact about the week. Withdrawing one already withdrawn changes nothing and succeeds, and says so. It takes a strength routine off too: its day and sport strength_training. Only sessions the athlete arranged can be withdrawn — never a session Body Lab prescribed, an activity, or anything in training history. Check with the athlete before calling, then give them the day as Body Lab now plans it when it comes back in `day`.",
       "scope": "schedule:write",
       "readOnly": false,
       "replaces": true,
@@ -3237,6 +4499,10 @@
               "id": {
                 "$ref": "#/$defs/__schema1"
               },
+              "kind": {
+                "description": "session: a session described by its sport, duration and intensity. strength_routine: a strength routine, whose exercises `GET /strength-routines` returns. Withdrawn the same way, either kind. Known values: session, strength_routine. Treat unknown values as \"other\".",
+                "type": "string"
+              },
               "forDate": {
                 "description": "The day it happens, on the athlete's own calendar.",
                 "$ref": "#/$defs/__schema0"
@@ -3284,6 +4550,7 @@
             },
             "required": [
               "id",
+              "kind",
               "forDate",
               "name",
               "sport",
@@ -3379,6 +4646,47 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "alsoCommitted": {
+                    "description": "The other sessions arranged on this date, beside the one the day is drawn as — the routine after a club ride, a second ride. A strength session here after an endurance day also sets `strengthAfter`. Absent when the date holds one committed session or none.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "What the athlete or the app called it.",
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "endurance",
+                            "strength"
+                          ]
+                        },
+                        "modality": {
+                          "description": "The sport, for an endurance session; null for a strength session.",
+                          "anyOf": [
+                            {
+                              "$ref": "#/$defs/__schema2"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "durationMin": {
+                          "description": "At the day's precision, like `durationMin`: exact on a session day, rounded to 5 minutes on an outline day.",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "kind",
+                        "modality",
+                        "durationMin"
+                      ]
+                    }
                   },
                   "longest": {
                     "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
@@ -3534,6 +4842,1226 @@
             "type": "string"
           },
           "__schema3": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "schedule_strength_routine",
+      "title": "Put a strength routine on the calendar",
+      "description": "Puts strength routines the athlete has chosen — a program's upper and lower days, a session a coach wrote — on their calendar, run and logged in Body Lab's strength runner. Call find_exercises first and use its ids. Write each routine once in `routines` and date it in `occurrences`, one per day, twenty per call (take today from get_today). Read each routine back to the athlete before calling. weightKg is kilograms of total load, the bar or both dumbbells included; leave it out and Body Lab fills it on the day from the athlete's own lifting. A stated weight is stored as given, and one far above what they've logged is flagged to them in the app. A routine alone is that day's session; for a lift plus a ride or run on one date, add those with schedule_session. Each occurrence comes back scheduled, already_scheduled (identical, nothing written) or refused with a reason to pass on — an unknown exercise with suggestions to ask about. Take one off with withdraw_session.",
+      "scope": "schedule:write",
+      "readOnly": false,
+      "replaces": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "routines": {
+            "description": "Each routine once, by name: up to 6. Weeks 1–4 at 3×8 and weeks 5–8 at 4×6 are two routines.",
+            "minItems": 1,
+            "maxItems": 6,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "What the athlete calls the session — \"Upper A\", \"Week 3, day 2\" — so they recognise it on the week. Unique within the call: occurrences name it.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "durationS": {
+                  "description": "How long it takes, in seconds (an hour is 3600). Left out, Body Lab estimates it from the sets, reps and rests.",
+                  "type": "integer",
+                  "minimum": 600,
+                  "maximum": 14400
+                },
+                "exercises": {
+                  "description": "In the order they're done. Each exerciseId comes from find_exercises. weightKg is kilograms of total load (the bar, or both dumbbells, included); leave it out to have Body Lab fill it on the day from the athlete's own lifting, from percentOfMax or rir. At most 60 sets in a routine.",
+                  "minItems": 1,
+                  "maxItems": 20,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "exerciseId": {
+                        "description": "A catalogue id from `GET /exercises`. Nothing is created from a name: an id the catalogue doesn't hold refuses the routine with UNKNOWN_EXERCISE and suggestions to choose from.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      "name": {
+                        "description": "What the program calls the exercise, as free text. Used only to suggest catalogue ids when `exerciseId` is unknown, and kept with that refusal so Body Lab can see which exercises people are missing. Never stored with the routine and never shown as its name.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "sets": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
+                      },
+                      "reps": {
+                        "description": "Reps (1–100), or seconds (1–600) for an exercise counted in seconds. Per side for a unilateral exercise.",
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 600
+                      },
+                      "unit": {
+                        "description": "Defaults to the exercise's own `defaultUnit`, and must match it when given (UNIT_MISMATCH): a plank is held for seconds and a squat counted in reps.",
+                        "type": "string",
+                        "enum": [
+                          "reps",
+                          "seconds"
+                        ]
+                      },
+                      "weightKg": {
+                        "description": "The total load in kilograms, including the bar or both dumbbells — never one implement or one side of the bar, and never pounds. Negative is assistance, only for an exercise that allows it. Leave it out to let Body Lab fill a weight on the day from the athlete's own lifting (`percentOfMax`, or `rir` alone). Not with `percentOfMax`.",
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": -200,
+                            "maximum": 1000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "percentOfMax": {
+                        "description": "A share of the athlete's estimated one-rep max, 0.3–1.0, turned into a weight on the day. Not with `weightKg`.",
+                        "type": "number",
+                        "minimum": 0.3,
+                        "maximum": 1
+                      },
+                      "rir": {
+                        "description": "Reps in reserve to stop at. RPE 8 is rir 2.",
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 5
+                      },
+                      "restS": {
+                        "description": "Rest between this exercise's sets. Left out, Body Lab rests it as it rests its own sessions.",
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 600
+                      },
+                      "supersetGroup": {
+                        "description": "Exercises sharing a letter alternate, in array order.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2
+                      },
+                      "cue": {
+                        "description": "A short coaching cue, shown as written and attributed to whoever scheduled the routine, never as Body Lab's own words.",
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 140
+                      }
+                    },
+                    "required": [
+                      "exerciseId",
+                      "sets",
+                      "reps"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "exercises"
+              ]
+            }
+          },
+          "occurrences": {
+            "description": "One entry per day a routine is done, in the order to report them back, at most 20 in a call. There is no recurrence: Monday and Thursday for eight weeks is sixteen entries. Each is stored on its own, so one refused date doesn't lose the rest.",
+            "minItems": 1,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "forDate": {
+                  "description": "The day, on the athlete's own calendar, as YYYY-MM-DD. Take today from get_today and count from there rather than guessing which Monday. Up to 180 days ahead; yesterday at the earliest.",
+                  "type": "string",
+                  "format": "date"
+                },
+                "routine": {
+                  "description": "The name of one of `routines`.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                }
+              },
+              "required": [
+                "forDate",
+                "routine"
+              ]
+            }
+          }
+        },
+        "required": [
+          "routines",
+          "occurrences"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "occurrences": {
+            "description": "One per occurrence sent, in the same order.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "forDate": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "routine": {
+                  "description": "The routine's name, as sent.",
+                  "type": "string"
+                },
+                "outcome": {
+                  "description": "scheduled: stored. already_scheduled: the identical routine — same name, duration and exercises in the same order — was already standing on that day, so nothing was written. refused: nothing stored; `reason` says why, in words to give the athlete.",
+                  "type": "string",
+                  "enum": [
+                    "scheduled",
+                    "already_scheduled",
+                    "refused"
+                  ]
+                },
+                "id": {
+                  "description": "The stored routine's id, for withdraw_session when a day holds more than one strength session. Null when refused.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/__schema1"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "code": {
+                  "description": "Why it was refused: UNKNOWN_EXERCISE (an id Body Lab doesn't have — see `unknownExercises`), UNIT_MISMATCH (reps for an exercise held for seconds, or the reverse), ASSISTANCE_NOT_POSSIBLE (a negative weight on an exercise that can't take weight off), OUT_OF_HORIZON, DATE_OCCUPIED (the day already has three sessions), SCHEDULE_FULL, QUOTA_EXCEEDED, or a validation code. Null unless refused.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "description": "The refusal in a sentence written for the athlete. Null unless refused.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unknownExercises": {
+                  "description": "For UNKNOWN_EXERCISE, each exercise Body Lab doesn't have, with what it probably meant: ask the athlete which, and send the routine again with real ids. Null otherwise.",
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "exerciseId": {
+                            "description": "The id as it was sent.",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "The name sent beside it, if any.",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "suggestions": {
+                            "description": "Catalogue exercises it probably meant, best first, at most five. Empty when nothing shares a word with it — find_exercises searches the rest.",
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "$ref": "#/$defs/__schema1"
+                                },
+                                "name": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "exerciseId",
+                          "name",
+                          "suggestions"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "forDate",
+                "routine",
+                "outcome",
+                "id",
+                "code",
+                "reason",
+                "unknownExercises"
+              ]
+            }
+          },
+          "routines": {
+            "description": "Each routine that is now on the calendar, read back once as stored however many days it's on. Read it to the athlete: it is what the runner will show.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "durationS": {
+                  "description": "As stored: the one sent, or Body Lab's estimate.",
+                  "type": "integer"
+                },
+                "exercises": {
+                  "description": "As Body Lab holds them, in order, with the catalogue's names and whether reps are per leg or per side. A weight is the one stated; null means Body Lab fills it on the day.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "exerciseId": {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      "name": {
+                        "description": "The catalogue's name for it.",
+                        "type": "string"
+                      },
+                      "movementPattern": {
+                        "description": "Movement pattern. Known values: squat, hinge, lunge, horizontal_push, vertical_push, horizontal_pull, vertical_pull, carry, core, calf, isolation, jump, olympic, conditioning. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      "perSide": {
+                        "description": "Reps are per leg or per side.",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "leg",
+                              "side"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sets": {
+                        "type": "integer"
+                      },
+                      "reps": {
+                        "description": "Reps, or seconds when unit is seconds.",
+                        "type": "integer"
+                      },
+                      "unit": {
+                        "type": "string",
+                        "enum": [
+                          "reps",
+                          "seconds"
+                        ]
+                      },
+                      "weightKg": {
+                        "description": "As stated: total load in kilograms, negative for assistance. Null when the routine left the weight to Body Lab.",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "percentOfMax": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rir": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "restS": {
+                        "description": "As stated, or null for Body Lab's own rest for that kind of exercise.",
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "supersetGroup": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "cue": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "exerciseId",
+                      "name",
+                      "movementPattern",
+                      "perSide",
+                      "sets",
+                      "reps",
+                      "unit",
+                      "weightKg",
+                      "percentOfMax",
+                      "rir",
+                      "restS",
+                      "supersetGroup",
+                      "cue"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "durationS",
+                "exercises"
+              ]
+            }
+          },
+          "week": {
+            "description": "The days this call touched that fall within the coming week, each as Body Lab now plans it with the routine in place — the same shape get_week returns. Empty when every day was further out.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "precision": {
+                  "description": "session: today or tomorrow, the same session as that card. outline: a later day — class, sport and an approximate duration, no targets. Known values: session, outline. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "sessionClass": {
+                  "type": "string",
+                  "enum": [
+                    "rest",
+                    "recovery",
+                    "easy",
+                    "build",
+                    "quality",
+                    "strength",
+                    "complete"
+                  ]
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "endurance",
+                    "strength",
+                    "rest"
+                  ]
+                },
+                "modality": {
+                  "description": "The sport, for an endurance session.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/__schema2"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "durationMin": {
+                  "description": "Exact on a session day, rounded to 5 minutes and approximate on an outline day; null on a rest day.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "workoutName": {
+                  "description": "The workout's name, on a session day only.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "commitment": {
+                  "description": "Set when this day's session is one the athlete arranged themselves rather than one Body Lab chose — a club ride, a run with friends — and carrying its name. Present on an outline day too, unlike `workoutName`: the sport and a duration alone are indistinguishable from a session Body Lab invented, and a surface drawing the week should name the athlete's own arrangement so they recognise it. Null on every other day, including a day with a commitment on it that something else took over (a race on the same date, or an illness that replaced the session).",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "What the athlete called it: \"Ride with Nick and Rachael\".",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "alsoCommitted": {
+                  "description": "The other sessions arranged on this date, beside the one the day is drawn as — the routine after a club ride, a second ride. A strength session here after an endurance day also sets `strengthAfter`. Absent when the date holds one committed session or none.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "What the athlete or the app called it.",
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "endurance",
+                          "strength"
+                        ]
+                      },
+                      "modality": {
+                        "description": "The sport, for an endurance session; null for a strength session.",
+                        "anyOf": [
+                          {
+                            "$ref": "#/$defs/__schema2"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "durationMin": {
+                        "description": "At the day's precision, like `durationMin`: exact on a session day, rounded to 5 minutes on an outline day.",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "kind",
+                      "modality",
+                      "durationMin"
+                    ]
+                  }
+                },
+                "longest": {
+                  "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
+                  "type": "boolean"
+                },
+                "strengthAfter": {
+                  "description": "A strength session follows the day's endurance session: the strength floor is owed one, and it's offered once the ride or run is done.",
+                  "type": "boolean"
+                },
+                "deload": {
+                  "description": "A planned volume cut: a recovery week, a taper or post-event recovery.",
+                  "type": "boolean"
+                },
+                "phase": {
+                  "description": "event_day is any event on its own date, at any priority; taper and recovery come from the nearest A event; recovery_week from the training block. Null on an ordinary day.",
+                  "anyOf": [
+                    {
+                      "description": "What shapes the day beyond its session. Known values: event_day, taper, recovery, recovery_week. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "preparation": {
+                  "description": "The preparation phase this day falls in (see PreparationPhase), or null. Separate from `phase` above because a day can be both — Build and a recovery week — and a client that had to pick one would drop the one the athlete plans around.",
+                  "anyOf": [
+                    {
+                      "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "events": {
+                  "description": "Events on this date, any priority.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "priority": {
+                        "description": "What Body Lab does with the event. A: the plan is built around it — the run-up is shaped into preparation phases, volume tapers into it, the day before is short and easy, and a recovery window is protected after it. B and C: on the athlete's calendar, where they tilt which sport a nearby day picks but change no session; the two behave identically. Any event, at any priority, makes its own date an event day, when nothing is prescribed. The letters come from a coaching convention Body Lab never explains to the athlete, so say what the priority does rather than reading the letter back to them.",
+                        "type": "string",
+                        "enum": [
+                          "A",
+                          "B",
+                          "C"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "priority"
+                    ]
+                  }
+                },
+                "assumedHealth": {
+                  "description": "An illness or injury still open on this day, which the projection assumes hasn't cleared — nobody knows the day it will. Null today, and on days with none.",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "illness": {
+                          "anyOf": [
+                            {
+                              "description": "mild: symptoms above the neck only (runny or blocked nose, sneezing, sore throat). systemic: fever, chest symptoms, body aches or feeling generally unwell. The split is a widely used convention, not an evidence-based threshold. Known values: mild, systemic. Treat unknown values as \"other\".",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "injuries": {
+                          "type": "array",
+                          "items": {
+                            "description": "Where it hurts, coarsely: foot_ankle (foot or ankle), lower_leg (shin, calf or Achilles), knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand (elbow, wrist or hand). Known values: foot_ankle, lower_leg, knee, hip_thigh, lower_back, neck_upper_back, shoulder, arm_hand. Treat unknown values as \"other\".",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "illness",
+                        "injuries"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "precision",
+                "sessionClass",
+                "kind",
+                "modality",
+                "durationMin",
+                "workoutName",
+                "commitment",
+                "longest",
+                "strengthAfter",
+                "deload",
+                "phase",
+                "preparation",
+                "events",
+                "assumedHealth"
+              ]
+            }
+          },
+          "todaySession": {
+            "description": "When a routine landed on today: the session as Body Lab now draws it, with the weights it filled from the athlete's lifting and any note on a stated weight. Null otherwise.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "strength"
+                  },
+                  "template": {
+                    "type": "string"
+                  },
+                  "durationMin": {
+                    "type": "number"
+                  },
+                  "exercises": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "exerciseId": {
+                          "$ref": "#/$defs/__schema1"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "sets": {
+                          "type": "integer"
+                        },
+                        "reps": {
+                          "description": "Reps, or seconds when unit is seconds.",
+                          "type": "integer"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": [
+                            "reps",
+                            "seconds"
+                          ]
+                        },
+                        "weightKg": {
+                          "description": "The total load, in kilograms, including the bar or both dumbbells — never the weight of one implement or one side of a bar. Negative is assistance: the part of the athlete's bodyweight a machine or band is taking off. Null when the movement carries no external load, or when there is no history to prescribe one from.",
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "rir": {
+                          "description": "Reps in reserve to stop at.",
+                          "type": "number"
+                        },
+                        "intensity": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "progression": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "axis": {
+                                  "type": "string",
+                                  "enum": [
+                                    "reps",
+                                    "load"
+                                  ]
+                                },
+                                "direction": {
+                                  "type": "string",
+                                  "enum": [
+                                    "up",
+                                    "hold"
+                                  ]
+                                },
+                                "previous": {
+                                  "type": "number"
+                                },
+                                "daysAgo": {
+                                  "type": "number"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "axis",
+                                "direction",
+                                "previous",
+                                "daysAgo",
+                                "reason"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "perSide": {
+                          "description": "Reps are per leg or per side.",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "leg",
+                                "side"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "implementCount": {
+                          "description": "2 when the load is split across two dumbbells or kettlebells; weightKg is still the total, so each hand holds half of it.",
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 1
+                            },
+                            {
+                              "type": "number",
+                              "const": 2
+                            }
+                          ]
+                        },
+                        "restSeconds": {
+                          "description": "Suggested rest between this exercise's sets, in seconds: shorter for jumps and accessories, longer for the heaviest lifts.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "restReason": {
+                          "description": "Why restSeconds is the length it is: a jump, lighter accessory work, one of the heaviest lifts, or nothing in particular. Stated rather than left to be inferred from the number, which an athlete's own adjustment moves off the table. Known values: jump, accessory, heavy, standard. Treat unknown values as \"other\".",
+                          "type": "string"
+                        },
+                        "note": {
+                          "type": "string"
+                        },
+                        "cue": {
+                          "description": "The routine's own cue for this exercise, as whoever scheduled it wrote it (`routine.scheduledBy`). Show it attributed to them, never as Body Lab's words, and apart from `note`, which is Body Lab's. Absent when there is none.",
+                          "type": "string"
+                        },
+                        "supersetGroup": {
+                          "description": "The routine's superset letter: exercises sharing one are done alternately, in the order listed. Absent when the exercise stands alone.",
+                          "type": "string"
+                        },
+                        "weightCheck": {
+                          "description": "A sentence to show where this exercise's sets are recorded, when the routine stated a weight more than 10% above the athlete's estimated one-rep max for it — the shape of pounds read as kilograms. It names the lift and the likely slip. Advice about the number only: `weightKg` is still the routine's, and logging is never blocked. Absent otherwise, including whenever there is no estimate to compare with.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "exerciseId",
+                        "name",
+                        "sets",
+                        "reps",
+                        "unit",
+                        "weightKg",
+                        "rir",
+                        "intensity",
+                        "progression",
+                        "perSide",
+                        "implementCount",
+                        "restSeconds",
+                        "restReason"
+                      ]
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "tradeoff": {
+                    "description": "What choosing this instead of today's session costs or gains, one sentence. Set only on alternates; null on the prescribed session and on variants.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "routine": {
+                    "description": "The routine this session is. Absent or null for one of Body Lab's own; `template` is \"routine\" when it's set.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "The routine, as `GET /strength-routines` lists it and `POST /strength-sessions` takes it as `routineId`.",
+                            "$ref": "#/$defs/__schema1"
+                          },
+                          "name": {
+                            "description": "What the routine was called: \"Upper day\".",
+                            "type": "string"
+                          },
+                          "scheduledBy": {
+                            "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "scheduledBy"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "template",
+                  "durationMin",
+                  "exercises",
+                  "note",
+                  "tradeoff"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "description": "Which days came back planned and which will be planned later. Read it with the result, so a day Body Lab hasn't looked at yet isn't described as if it had.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "occurrences",
+          "routines",
+          "week",
+          "todaySession",
+          "note"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema2": {
+            "description": "Sport, from the engine's vocabulary (packages/engine/src/sports.ts), e.g. road_biking, running, hiking, strength_training. Known values: road_biking, running, hiking, strength_training, other. Treat unknown values as \"other\".",
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "list_strength_routines",
+      "title": "Strength routines on the calendar",
+      "description": "The strength routines on the athlete's calendar over up to 60 days (by default the next four weeks from today), each with its exercises in order — sets, reps (per leg or side where marked), rest, cues and weights as stated. A weight left to Body Lab is null here and filled on the day from the athlete's own lifting; get_today shows today's with the weight filled. Lists routines the athlete added and any app added (`scheduledBy`). Use for \"what's in Thursday's gym session\" or to check a program before changing it. get_week shows the coming seven days as Body Lab plans them.",
+      "scope": "training:read",
+      "readOnly": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "description": "The first day, on the athlete's calendar. Defaults to today.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "to": {
+            "description": "The last day, at most 60 days in all. Defaults to four weeks from `from`.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "includeWithdrawn": {
+            "description": "Also list routines taken off the calendar, each with `withdrawnAt` set.",
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "Today on the athlete's calendar.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "timezone": {
+            "description": "The athlete's IANA time zone.",
+            "type": "string"
+          },
+          "from": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "to": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "routines": {
+            "description": "Earliest first.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/__schema1"
+                },
+                "forDate": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "durationS": {
+                  "type": "integer"
+                },
+                "withdrawnAt": {
+                  "description": "When it was withdrawn, or null for one still standing.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/__schema2"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "scheduledBy": {
+                  "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "$ref": "#/$defs/__schema2"
+                },
+                "exercises": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "exerciseId": {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      "name": {
+                        "description": "The catalogue's name for it.",
+                        "type": "string"
+                      },
+                      "movementPattern": {
+                        "description": "Movement pattern. Known values: squat, hinge, lunge, horizontal_push, vertical_push, horizontal_pull, vertical_pull, carry, core, calf, isolation, jump, olympic, conditioning. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      "perSide": {
+                        "description": "Reps are per leg or per side.",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "leg",
+                              "side"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sets": {
+                        "type": "integer"
+                      },
+                      "reps": {
+                        "description": "Reps, or seconds when unit is seconds.",
+                        "type": "integer"
+                      },
+                      "unit": {
+                        "type": "string",
+                        "enum": [
+                          "reps",
+                          "seconds"
+                        ]
+                      },
+                      "weightKg": {
+                        "description": "As stated: total load in kilograms, negative for assistance. Null when the routine left the weight to Body Lab.",
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "percentOfMax": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rir": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "restS": {
+                        "description": "As stated, or null for Body Lab's own rest for that kind of exercise.",
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "supersetGroup": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "cue": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "exerciseId",
+                      "name",
+                      "movementPattern",
+                      "perSide",
+                      "sets",
+                      "reps",
+                      "unit",
+                      "weightKg",
+                      "percentOfMax",
+                      "rir",
+                      "restS",
+                      "supersetGroup",
+                      "cue"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "forDate",
+                "name",
+                "durationS",
+                "withdrawnAt",
+                "scheduledBy",
+                "createdAt",
+                "exercises"
+              ]
+            }
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "from",
+          "to",
+          "routines"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema2": {
             "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
             "type": "string",
             "format": "date-time"
@@ -3787,6 +6315,47 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "alsoCommitted": {
+                    "description": "The other sessions arranged on this date, beside the one the day is drawn as — the routine after a club ride, a second ride. A strength session here after an endurance day also sets `strengthAfter`. Absent when the date holds one committed session or none.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "What the athlete or the app called it.",
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "endurance",
+                            "strength"
+                          ]
+                        },
+                        "modality": {
+                          "description": "The sport, for an endurance session; null for a strength session.",
+                          "anyOf": [
+                            {
+                              "$ref": "#/$defs/__schema2"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "durationMin": {
+                          "description": "At the day's precision, like `durationMin`: exact on a session day, rounded to 5 minutes on an outline day.",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "kind",
+                        "modality",
+                        "durationMin"
+                      ]
+                    }
                   },
                   "longest": {
                     "description": "The week's long session: its longest endurance day, when that's 90 minutes or more.",
@@ -6790,6 +9359,18 @@
                         },
                         "note": {
                           "type": "string"
+                        },
+                        "cue": {
+                          "description": "The routine's own cue for this exercise, as whoever scheduled it wrote it (`routine.scheduledBy`). Show it attributed to them, never as Body Lab's words, and apart from `note`, which is Body Lab's. Absent when there is none.",
+                          "type": "string"
+                        },
+                        "supersetGroup": {
+                          "description": "The routine's superset letter: exercises sharing one are done alternately, in the order listed. Absent when the exercise stands alone.",
+                          "type": "string"
+                        },
+                        "weightCheck": {
+                          "description": "A sentence to show where this exercise's sets are recorded, when the routine stated a weight more than 10% above the athlete's estimated one-rep max for it — the shape of pounds read as kilograms. It names the lift and the likely slip. Advice about the number only: `weightKg` is still the routine's, and logging is never blocked. Absent otherwise, including whenever there is no estimate to compare with.",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -6822,6 +9403,17 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "routine": {
+                    "description": "The routine this session is. Absent or null for one of Body Lab's own; `template` is \"routine\" when it's set.",
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -6831,6 +9423,17 @@
                   "exercises",
                   "note",
                   "tradeoff"
+                ]
+              },
+              "routine": {
+                "description": "The routine on the calendar for today that this session is, or null when it is Body Lab's own. A runner names it in its header and sends its id as `routineId` when the session is logged.",
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/__schema1"
+                  },
+                  {
+                    "type": "null"
+                  }
                 ]
               },
               "oneRepMaxes": {
@@ -6872,6 +9475,7 @@
             },
             "required": [
               "session",
+              "routine",
               "oneRepMaxes",
               "deload",
               "units",
@@ -7086,7 +9690,7 @@
                     "type": "object",
                     "properties": {
                       "date": {
-                        "$ref": "#/$defs/__schema1"
+                        "$ref": "#/$defs/__schema2"
                       },
                       "weightKg": {
                         "description": "The heaviest weight recorded on a working set that session. Warm-ups, assisted and unweighted sets are not candidates.",
@@ -7124,7 +9728,7 @@
                     },
                     "setOn": {
                       "description": "The day it was first lifted, which may be older than the oldest point returned.",
-                      "$ref": "#/$defs/__schema1"
+                      "$ref": "#/$defs/__schema2"
                     }
                   },
                   "required": [
@@ -7161,6 +9765,35 @@
             "maxLength": 64
           },
           "__schema1": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "The routine, as `GET /strength-routines` lists it and `POST /strength-sessions` takes it as `routineId`.",
+                "$ref": "#/$defs/__schema0"
+              },
+              "name": {
+                "description": "What the routine was called: \"Upper day\".",
+                "type": "string"
+              },
+              "scheduledBy": {
+                "description": "The connected app that put this on the calendar, as its OAuth client id — the `clientId` that `GET /schedule/apps` names and `POST /schedule/apps/withdraw` takes. Null when the athlete entered it themselves, in any of their own apps.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "scheduledBy"
+            ]
+          },
+          "__schema2": {
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
@@ -7360,6 +9993,44 @@
                   }
                 ]
               },
+              "strengthEquipmentItems": {
+                "description": "The kit the athlete's sessions are currently written for — whichever of their places is active, which is their home one unless they have switched. Each item maps to the heaviest single implement of it in kilograms, or null for \"enough\" (a rack needs no number). Absent keys are not owned. This is what strength sessions are written for; `strengthEquipment` above is the nearest of three old rungs, derived from this, and kept so a client that hasn't learned the set still gets a sensible answer. A ceiling is the heaviest *one* of a pair: an exercise taking two implements can load twice it.",
+                "type": "object",
+                "propertyNames": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "barbell",
+                        "rack",
+                        "bench",
+                        "dumbbells",
+                        "kettlebells",
+                        "pull_up_bar",
+                        "low_bar",
+                        "bands",
+                        "step",
+                        "machines"
+                      ]
+                    },
+                    {
+                      "not": {}
+                    }
+                  ]
+                },
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 500
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
               "windDownFromHour": {
                 "description": "The hour on the athlete's own clock they chose to be off screens by, 18-23 or 0-2, or null for not set. A convention the athlete picked, never a target Body Lab derived: no published study supports a particular cutoff, and the one popularly quoted was tested as a behaviour and did not hold up. Nothing is measured against it but what the athlete reports, and nothing about it reaches a prescription.",
                 "anyOf": [
@@ -7434,6 +10105,7 @@
               "sports",
               "homeAltitudeM",
               "homeAltitudeSource",
+              "strengthEquipmentItems",
               "windDownFromHour",
               "strengthEquipment",
               "trainingFocus",
@@ -7631,18 +10303,23 @@
     {
       "name": "find_exercises",
       "title": "Exercise catalogue",
-      "description": "Body Lab's strength exercise catalogue, optionally filtered by a word in the name or by movement pattern (squat, hinge, lunge, horizontal_push, vertical_pull…).",
+      "description": "Body Lab's strength exercise catalogue: each exercise's id, name and other names (\"OHP\", \"RDL\"), movement pattern, the muscles it's chosen for, what equipment it needs and what can load it, whether reps are per side, and whether it's counted in reps or seconds. Filter by words matched against names and other names, by movement pattern (squat, hinge, lunge, horizontal_push, vertical_pull…) or by muscle. Use it before schedule_strength_routine: a routine names exercises by these ids, and nothing is created from a name.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
-            "description": "A word to match in the exercise name, e.g. 'squat'.",
+            "description": "Words matched against each exercise's name and other names — 'squat', 'rdl', 'skull crusher', 'pushup'. Every word must match, whole or as the start of a word ('sq', 'dumbb'); plurals find singulars. Exact names rank first, then whole words, then prefixes.",
             "type": "string",
             "maxLength": 80
           },
           "movementPattern": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "muscle": {
+            "description": "Only exercises chosen for this muscle group: biceps, triceps, delts, chest, lats, upper_back, quads, hamstrings, glutes, adductors, calves, trunk.",
             "type": "string",
             "maxLength": 40
           }
@@ -7676,7 +10353,7 @@
                   ]
                 },
                 "movementPattern": {
-                  "description": "Movement pattern. Known values: squat, hinge, lunge, horizontal_push, vertical_push, horizontal_pull, vertical_pull, carry, core, calf, isolation, jump. Treat unknown values as \"other\".",
+                  "description": "Movement pattern. Known values: squat, hinge, lunge, horizontal_push, vertical_push, horizontal_pull, vertical_pull, carry, core, calf, isolation, jump, olympic, conditioning. Treat unknown values as \"other\".",
                   "type": "string"
                 },
                 "loadType": {
@@ -7709,6 +10386,42 @@
                       "type": "null"
                     }
                   ]
+                },
+                "aliases": {
+                  "description": "Other names the movement goes by — \"OHP\", \"RDL\", \"skull crusher\". No alias names two exercises, so one that matches is an answer rather than a guess.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "primaryMuscles": {
+                  "description": "What the movement is chosen for. calves covers the whole lower leg.",
+                  "type": "array",
+                  "items": {
+                    "description": "A muscle group, deliberately coarse. Known values: biceps, triceps, delts, chest, lats, upper_back, quads, hamstrings, glutes, adductors, calves, trunk. Treat unknown values as \"other\".",
+                    "type": "string"
+                  }
+                },
+                "requires": {
+                  "description": "What has to exist to do it at all: every inner list must be met, each by any one of its items. [[\"barbell\"],[\"rack\"]] is a barbell and a rack; [[\"dumbbells\",\"kettlebells\"]] is either. [] needs nothing. When `offered` is false this is only the nearest statement the equipment list can make, not a complete one.",
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema0"
+                    }
+                  }
+                },
+                "loadableBy": {
+                  "description": "What can add load to it. Empty when nothing can: the movement is done for reps or time, never with a weight.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/__schema0"
+                  }
+                },
+                "offered": {
+                  "description": "Whether Body Lab ever offers it, in a swap or a prescription. False for a movement whose equipment isn't on the list an athlete can say they own — parallel bars, a sled, an incline bench — so it may be scheduled and logged, but Body Lab won't hand it to someone who may not have the thing.",
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -7721,14 +10434,25 @@
                 "implementCount",
                 "allowsAssistance",
                 "defaultUnit",
-                "howToUrl"
+                "howToUrl",
+                "aliases",
+                "primaryMuscles",
+                "requires",
+                "loadableBy",
+                "offered"
               ]
             }
           }
         },
         "required": [
           "exercises"
-        ]
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "An item of equipment, as on the athlete's profile. Known values: barbell, rack, bench, dumbbells, kettlebells, pull_up_bar, low_bar, bands, step, machines. Treat unknown values as \"other\".",
+            "type": "string"
+          }
+        }
       }
     },
     {

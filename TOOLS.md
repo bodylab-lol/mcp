@@ -21,8 +21,19 @@ Scope: `today:write`. Writes: can change or take back something already there, a
 | Argument | Type | |
 | --- | --- | --- |
 | `timeAvailableMin` | integer or null (optional) | Minutes the athlete has for training today, 10 to 600. The session is shortened to fit. Null clears it; leave it out to keep what Body Lab already has. |
-| `equipment` | string or null (optional) | The strength equipment to hand today, when it isn't the athlete's usual. It decides which exercises a strength session can name. Null goes back to their profile's; leave it out to keep what Body Lab already has. |
+| `equipment` | string or null (optional) | The strength equipment to hand today, when it isn't the athlete's usual. It decides which exercises a strength session can name: a rung named for today wins outright over the place the athlete is at, because "dumbbells only today" is the whole truth about today rather than their garage minus some things. Null hands today back to whichever place is in force; leave it out to keep what Body Lab already has. For a stay rather than a day, set_equipment_place is the tool — this is gone tomorrow. |
 | `unavailableSports` | array (optional) | Sports the athlete can't do today — the pool is shut, the bike is in the shop. Body Lab prescribes around them. An empty array clears the list; leave it out to keep what Body Lab already has. at most 20 |
+
+## `set_equipment_place` — Where the athlete is training
+
+Says where the athlete is training, and gives back the session Body Lab prescribes once it knows. `place` switches to one of the places they named in Body Lab — their garage, a hotel gym — and holds until they switch again. `items` says they are somewhere different just for today: it reverts to their home place tomorrow and is never added to their list, so for somewhere they'll go back to, ask them to add it in Body Lab and switch to it by name after that. Use it for "I'm at a hotel this week, dumbbells up to 20 kg". Every session from now on is written from that kit, and it replaces anything set_today_context said about today's equipment, so check with the athlete first and read back the place and the session it returns — that is what was recorded. It can't name, rename or delete a place; they do that in Body Lab, with the list in front of them. Nothing in their training history changes, and calling it twice lands in one place rather than leaving two.
+
+Scope: `equipment:write`. Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `place` | string (optional) | The name of a place the athlete already has (or its id) to switch to — get_today's `today.equipmentNote.placeName` says which one today was written for, and this tool's result lists them all. The switch holds until they switch again, so use it for a stay, not a one-off. Leave it out when giving `items`. |
+| `items` | object (optional) | Somewhere different just for today, and only today: what is there, each item mapping to the heaviest single one of it in kilograms, or null for "enough" (a rack needs no number). Leave an item out and it isn't there; `{}` is a real answer — a hotel room with nothing in it. It reverts to the athlete's home place tomorrow and is never added to their list, so for somewhere they will go back to, ask them to add it in Body Lab and switch to it by name afterwards. Leave it out when giving `place`. |
 
 ## `get_week` — The week ahead
 
@@ -49,7 +60,7 @@ Scope: `schedule:write`. Writes: can change or take back something already there
 
 ## `withdraw_session` — Take a session off the calendar
 
-Takes a session the athlete arranged off their calendar — the ride is called off, the friend cancelled — so Body Lab stops planning around it and the weekly review stops expecting it. Name the day (on the athlete's own calendar, from get_today) and, when the day holds more than one session, the sport or the id; a day with two rides is refused with both listed rather than guessed at. The session is kept and marked withdrawn, never deleted: that the athlete meant to train and then didn't is a fact about the week. Withdrawing one already withdrawn changes nothing and succeeds, and says so. Only sessions the athlete arranged can be withdrawn — never a session Body Lab prescribed, an activity, or anything in training history. Check with the athlete before calling, then give them the day as Body Lab now plans it when it comes back in `day`.
+Takes a session the athlete arranged off their calendar — the ride is called off, the friend cancelled — so Body Lab stops planning around it and the weekly review stops expecting it. Name the day (on the athlete's own calendar, from get_today) and, when the day holds more than one session, the sport or the id; a day with two rides is refused with both listed rather than guessed at. The session is kept and marked withdrawn, never deleted: that the athlete meant to train and then didn't is a fact about the week. Withdrawing one already withdrawn changes nothing and succeeds, and says so. It takes a strength routine off too: its day and sport strength_training. Only sessions the athlete arranged can be withdrawn — never a session Body Lab prescribed, an activity, or anything in training history. Check with the athlete before calling, then give them the day as Body Lab now plans it when it comes back in `day`.
 
 Scope: `schedule:write`. Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history.
 
@@ -58,6 +69,45 @@ Scope: `schedule:write`. Writes: can change or take back something already there
 | `forDate` | string | The day of the session, on the athlete's own calendar (get_today says what today is there). |
 | `sport` | string (optional) | Narrows to that sport, for a day holding more than one session. |
 | `id` | string (optional) | The session's id, from schedule_session's result or from a refusal that listed the day's sessions. Needed only when the day and sport still name more than one. |
+
+## `schedule_strength_routine` — Put a strength routine on the calendar
+
+Puts strength routines the athlete has chosen — a program's upper and lower days, a session a coach wrote — on their calendar, run and logged in Body Lab's strength runner. Call find_exercises first and use its ids. Write each routine once in `routines` and date it in `occurrences`, one per day, twenty per call (take today from get_today). Read each routine back to the athlete before calling. weightKg is kilograms of total load, the bar or both dumbbells included; leave it out and Body Lab fills it on the day from the athlete's own lifting. A stated weight is stored as given, and one far above what they've logged is flagged to them in the app. A routine alone is that day's session; for a lift plus a ride or run on one date, add those with schedule_session. Each occurrence comes back scheduled, already_scheduled (identical, nothing written) or refused with a reason to pass on — an unknown exercise with suggestions to ask about. Take one off with withdraw_session.
+
+Scope: `schedule:write`. Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `routines` | array | Each routine once, by name: up to 6. Weeks 1–4 at 3×8 and weeks 5–8 at 4×6 are two routines. at least 1, at most 6 |
+| `routines[].name` | string | What the athlete calls the session — "Upper A", "Week 3, day 2" — so they recognise it on the week. Unique within the call: occurrences name it. |
+| `routines[].durationS` | integer (optional) | How long it takes, in seconds (an hour is 3600). Left out, Body Lab estimates it from the sets, reps and rests. min 600, max 14400 |
+| `routines[].exercises` | array | In the order they're done. Each exerciseId comes from find_exercises. weightKg is kilograms of total load (the bar, or both dumbbells, included); leave it out to have Body Lab fill it on the day from the athlete's own lifting, from percentOfMax or rir. At most 60 sets in a routine. at least 1, at most 20 |
+| `routines[].exercises[].exerciseId` | string | A catalogue id from `GET /exercises`. Nothing is created from a name: an id the catalogue doesn't hold refuses the routine with UNKNOWN_EXERCISE and suggestions to choose from. |
+| `routines[].exercises[].name` | string (optional) | What the program calls the exercise, as free text. Used only to suggest catalogue ids when `exerciseId` is unknown, and kept with that refusal so Body Lab can see which exercises people are missing. Never stored with the routine and never shown as its name. |
+| `routines[].exercises[].sets` | integer | min 1, max 10 |
+| `routines[].exercises[].reps` | integer | Reps (1–100), or seconds (1–600) for an exercise counted in seconds. Per side for a unilateral exercise. min 1, max 600 |
+| `routines[].exercises[].unit` | string (optional) | Defaults to the exercise's own `defaultUnit`, and must match it when given (UNIT_MISMATCH): a plank is held for seconds and a squat counted in reps. |
+| `routines[].exercises[].weightKg` | number or null (optional) | The total load in kilograms, including the bar or both dumbbells — never one implement or one side of the bar, and never pounds. Negative is assistance, only for an exercise that allows it. Leave it out to let Body Lab fill a weight on the day from the athlete's own lifting (`percentOfMax`, or `rir` alone). Not with `percentOfMax`. |
+| `routines[].exercises[].percentOfMax` | number (optional) | A share of the athlete's estimated one-rep max, 0.3–1.0, turned into a weight on the day. Not with `weightKg`. min 0.3, max 1 |
+| `routines[].exercises[].rir` | number (optional) | Reps in reserve to stop at. RPE 8 is rir 2. min 0, max 5 |
+| `routines[].exercises[].restS` | integer (optional) | Rest between this exercise's sets. Left out, Body Lab rests it as it rests its own sessions. min 0, max 600 |
+| `routines[].exercises[].supersetGroup` | string (optional) | Exercises sharing a letter alternate, in array order. |
+| `routines[].exercises[].cue` | string (optional) | A short coaching cue, shown as written and attributed to whoever scheduled the routine, never as Body Lab's own words. |
+| `occurrences` | array | One entry per day a routine is done, in the order to report them back, at most 20 in a call. There is no recurrence: Monday and Thursday for eight weeks is sixteen entries. Each is stored on its own, so one refused date doesn't lose the rest. at least 1, at most 20 |
+| `occurrences[].forDate` | string | The day, on the athlete's own calendar, as YYYY-MM-DD. Take today from get_today and count from there rather than guessing which Monday. Up to 180 days ahead; yesterday at the earliest. |
+| `occurrences[].routine` | string | The name of one of `routines`. |
+
+## `list_strength_routines` — Strength routines on the calendar
+
+The strength routines on the athlete's calendar over up to 60 days (by default the next four weeks from today), each with its exercises in order — sets, reps (per leg or side where marked), rest, cues and weights as stated. A weight left to Body Lab is null here and filled on the day from the athlete's own lifting; get_today shows today's with the weight filled. Lists routines the athlete added and any app added (`scheduledBy`). Use for "what's in Thursday's gym session" or to check a program before changing it. get_week shows the coming seven days as Body Lab plans them.
+
+Scope: `training:read`. Read-only.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `from` |  (optional) | The first day, on the athlete's calendar. Defaults to today. |
+| `to` |  (optional) | The last day, at most 60 days in all. Defaults to four weeks from `from`. |
+| `includeWithdrawn` | boolean (optional) | Also list routines taken off the calendar, each with `withdrawnAt` set. default false |
 
 ## `schedule_event` — Add a race or goal
 
@@ -171,14 +221,15 @@ _No arguments._
 
 ## `find_exercises` — Exercise catalogue
 
-Body Lab's strength exercise catalogue, optionally filtered by a word in the name or by movement pattern (squat, hinge, lunge, horizontal_push, vertical_pull…).
+Body Lab's strength exercise catalogue: each exercise's id, name and other names ("OHP", "RDL"), movement pattern, the muscles it's chosen for, what equipment it needs and what can load it, whether reps are per side, and whether it's counted in reps or seconds. Filter by words matched against names and other names, by movement pattern (squat, hinge, lunge, horizontal_push, vertical_pull…) or by muscle. Use it before schedule_strength_routine: a routine names exercises by these ids, and nothing is created from a name.
 
 Scope: `training:read`. Read-only.
 
 | Argument | Type | |
 | --- | --- | --- |
-| `query` | string (optional) | A word to match in the exercise name, e.g. 'squat'. |
+| `query` | string (optional) | Words matched against each exercise's name and other names — 'squat', 'rdl', 'skull crusher', 'pushup'. Every word must match, whole or as the start of a word ('sq', 'dumbb'); plurals find singulars. Exact names rank first, then whole words, then prefixes. |
 | `movementPattern` | string (optional) |  |
+| `muscle` | string (optional) | Only exercises chosen for this muscle group: biceps, triceps, delts, chest, lats, upper_back, quads, hamstrings, glutes, adductors, calves, trunk. |
 
 ## `suggest_routes` — Routes for today
 

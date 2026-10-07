@@ -76,12 +76,13 @@ JSON:
 ## What it can do
 
 An assistant can see your training. With your permission it can also tell
-Body Lab about today, put sessions you've arranged on your calendar and take
-them off again, add races and goals at priority B or C, see your lab results
-and add new ones, for example from a PDF or photo of a lab report, and do the
-same with body composition scans such as DEXA. It can't change your training
-history, delete anything, or make an event the A race your plan is built
-around — that's yours to do in Body Lab.
+Body Lab about today, put sessions you've arranged and strength routines
+you've chosen on your calendar and take them off again, add races and goals
+at priority B or C, see your lab results and add new ones, for example from a
+PDF or photo of a lab report, and do the same with body composition scans
+such as DEXA. It can't change your training history, delete anything, or make
+an event the A race your plan is built around — that's yours to do in Body
+Lab.
 
 | Tool | For |
 | --- | --- |
@@ -89,7 +90,9 @@ around — that's yours to do in Body Lab.
 | `set_today_context` | Tells Body Lab how long you have today, what equipment is to hand and which sports are out, and returns the re-prescribed session. Today only. Needs `today:write` |
 | `get_week` | The next seven days as the engine projects them: detailed through tomorrow, summarised after, and shifting each morning |
 | `schedule_session` | Puts a session you've arranged — a club ride, a run with a friend — on your calendar, one entry per occurrence, so Body Lab plans the week around it. The same session twice is stored once. Needs `schedule:write` |
-| `withdraw_session` | Takes a session you arranged off the calendar again. It's kept and marked withdrawn, never deleted; Body Lab's own sessions can't be touched. Needs `schedule:write` |
+| `schedule_strength_routine` | Puts strength routines you've chosen — a program's days, a session a coach wrote — on your calendar: named exercises from Body Lab's catalogue with sets, reps, rest and a weight, a share of your max or reps in reserve. Leave a weight out and Body Lab fills it on the day from your own lifting; a weight you state is kept as given. A routine on its own is that day's session, and you run and log it in Body Lab's strength runner. The same routine twice on a day is stored once; an exercise Body Lab doesn't have is refused with suggestions. Needs `schedule:write` |
+| `list_strength_routines` | The strength routines on your calendar over up to 60 days, each with its exercises, sets, reps and weights as written |
+| `withdraw_session` | Takes a session you arranged, or a strength routine, off the calendar again. It's kept and marked withdrawn, never deleted; Body Lab's own sessions can't be touched. Needs `schedule:write` |
 | `schedule_event` | Adds a race or goal at priority B or C. It refuses to add an A event, and can't edit one: both are yours to do in Body Lab. Needs `events:write` |
 | `remove_event` | Takes off a race it added itself, after reading it back to you. It can't remove one you entered, and can't remove an A race even if it added it — promoting a race to A is your decision, so taking it back is too. Removing is permanent. Needs `events:write` |
 | `get_weekly_review` | How a complete week went against what was prescribed, load against the band, the strength floor, and whether training so far supports an upcoming event |
@@ -98,7 +101,7 @@ around — that's yours to do in Body Lab.
 | `get_recovery` | Morning resting HR, HRV, sleep and energy scores |
 | `get_strength` | The strength session Body Lab would prescribe now, estimated maxes, recent sessions |
 | `get_profile` | Heart-rate anchors, FTP, weight, most recent blood pressure, strength equipment, test results, power curve |
-| `find_exercises` | The strength exercise catalogue |
+| `find_exercises` | The strength exercise catalogue, searched by name or by the other names an exercise goes by ("RDL", "skull crusher"), by movement pattern or by muscle, with the equipment each one needs |
 | `suggest_routes` | Routes you've done before that fit today's session |
 | `get_lab_results` | Your blood test results: each marker over time against the lab's range and guideline limits, and whether a change is beyond normal variation. Needs `labs:read` |
 | `record_lab_results` | Adds a blood draw and its results as the report prints them, after the assistant checks the values with you. It can't edit or delete results. Needs `labs:write` |
@@ -121,23 +124,29 @@ off unless you turn it on when you approve an assistant:
 | --- | --- |
 | `training:read` | See your training, recovery, activities and profile |
 | `today:write` | Tell Body Lab about today: your time, equipment and sports you can't do. It can't change your training history |
-| `schedule:write` | Put sessions on your calendar, and take them off again. It can't change your training history |
+| `schedule:write` | Put sessions and strength routines on your calendar — a routine's exercises, sets, reps and weights included — and take them off again. It can't change your training history |
 | `events:write` | Add and remove races and goals you give it. It can't make one an A race — that rebuilds months of your plan, and you do that in Body Lab |
 | `labs:read` | See your lab results |
 | `labs:write` | Add lab results you give it. It can't change or delete them |
 | `body:read` | See your body composition scans |
 | `body:write` | Add body composition scans you give it. It can't change or delete them |
 
-`schedule:write` covers sessions you've arranged and nothing Body Lab
-prescribed: a withdrawn session stays on record, marked withdrawn. `events:write`
-adds races and goals at B or C only; making one your A race, editing it, or
-removing it stays in Body Lab, so an assistant can't restructure months of your
-plan or delete a race by mistake. Every session or event an assistant adds is
-recorded as that assistant's, and each assistant is held to a rolling limit on
-how much it can schedule.
+`schedule:write` covers sessions you've arranged and strength routines you've
+chosen, and nothing Body Lab prescribed: a withdrawn session stays on record,
+marked withdrawn. A routine names exercises from Body Lab's catalogue only, so
+an assistant can't add an exercise of its own, and any weight it states is
+shown to you in the strength runner before you lift, with a note when it's
+well above what you've logged. `events:write` adds races and goals at B or C
+only; making one your A race, editing it, or removing it stays in Body Lab, so
+an assistant can't restructure months of your plan or delete a race by
+mistake. Every session or event an assistant adds is recorded as that
+assistant's, and each assistant is held to a rolling limit on how much it can
+schedule.
 
-An assistant you connected before these existed doesn't get them
-automatically, and one you allowed for lab results doesn't get body
+An assistant you already allowed to schedule sessions can put strength
+routines on your calendar too, without reconnecting: they come under the same
+permission. Otherwise, an assistant you connected before these existed doesn't
+get them automatically, and one you allowed for lab results doesn't get body
 composition. To allow any of them, connect it again (in Claude, disconnect and
 reconnect Body Lab) and tick those boxes when Body Lab asks. To correct or
 delete a lab result, to remove a scan, or to change or remove a race, use Body
