@@ -715,6 +715,104 @@
                 "workoutType"
               ]
             }
+          },
+          "notes": {
+            "description": "What Body Lab's timeline is calling out today — a pattern in sleep or recovery readings, a new best, a structural note about the plan, or missing data — exactly as the athlete sees it in the app, less any they've hidden. Empty most days. Never name a condition, diagnose, or add advice beyond the note.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "description": "The rule that raised it, e.g. `sleep.short_fortnight`, `heart.rhr_up`, `strength.floor`.",
+                  "type": "string"
+                },
+                "kind": {
+                  "description": "insight: a pattern with something the athlete can do about it. observation: a change today's plan already accounts for — nothing to act on twice. milestone: a new best or a first. gap: missing data that makes today's plan generic.",
+                  "type": "string",
+                  "enum": [
+                    "insight",
+                    "observation",
+                    "milestone",
+                    "gap"
+                  ]
+                },
+                "family": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "text": {
+                  "description": "Pass on as written; it states its own numbers and, for a guideline, the population it applies to.",
+                  "type": "string"
+                },
+                "detail": {
+                  "description": "Caveats, and for sleep the one sentence about raising it with a doctor. Include it when you discuss the note.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "basis": {
+                  "description": "guideline: a published recommendation. own_baseline: the athlete's own history. convention: a threshold Body Lab chose. engine: the plan's own rule, word for word.",
+                  "type": "string",
+                  "enum": [
+                    "guideline",
+                    "own_baseline",
+                    "convention",
+                    "engine"
+                  ]
+                },
+                "source": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "citation": {
+                          "type": "string"
+                        },
+                        "population": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "citation",
+                        "population"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "improvement": {
+                  "description": "True only for a new best. Where false, report it and stop: don't congratulate, don't call it progress, and don't say what it means for the athlete's health.",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "key",
+                "kind",
+                "family",
+                "headline",
+                "text",
+                "detail",
+                "basis",
+                "source",
+                "improvement"
+              ]
+            }
           }
         },
         "required": [
@@ -731,7 +829,8 @@
           "date",
           "timezone",
           "readiness",
-          "planned"
+          "planned",
+          "notes"
         ],
         "$defs": {
           "__schema0": {
@@ -794,6 +893,36 @@
                 "type": "array",
                 "items": {
                   "type": "string"
+                }
+              },
+              "flagItems": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "description": "Stable for the condition, e.g. `strength.floor`, `load.ramp`, `plan.recovery_week_next`.",
+                      "type": "string"
+                    },
+                    "urgency": {
+                      "description": "timely: changes today. ahead: about a coming day or next week. standing: a slow structural note.",
+                      "type": "string",
+                      "enum": [
+                        "timely",
+                        "ahead",
+                        "standing"
+                      ]
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "urgency",
+                    "text"
+                  ]
                 }
               },
               "rationale": {
@@ -996,6 +1125,7 @@
               "variants",
               "unavailable",
               "flags",
+              "flagItems",
               "rationale",
               "environment",
               "equipmentNote"
@@ -1866,6 +1996,36 @@
                   "type": "string"
                 }
               },
+              "flagItems": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "description": "Stable for the condition, e.g. `strength.floor`, `load.ramp`, `plan.recovery_week_next`.",
+                      "type": "string"
+                    },
+                    "urgency": {
+                      "description": "timely: changes today. ahead: about a coming day or next week. standing: a slow structural note.",
+                      "type": "string",
+                      "enum": [
+                        "timely",
+                        "ahead",
+                        "standing"
+                      ]
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "urgency",
+                    "text"
+                  ]
+                }
+              },
               "rationale": {
                 "description": "Why, citing the metric behind each call — the deciding reason first.",
                 "type": "array",
@@ -2066,6 +2226,7 @@
               "variants",
               "unavailable",
               "flags",
+              "flagItems",
               "rationale",
               "environment",
               "equipmentNote"
@@ -2726,6 +2887,36 @@
                   "type": "string"
                 }
               },
+              "flagItems": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "description": "Stable for the condition, e.g. `strength.floor`, `load.ramp`, `plan.recovery_week_next`.",
+                      "type": "string"
+                    },
+                    "urgency": {
+                      "description": "timely: changes today. ahead: about a coming day or next week. standing: a slow structural note.",
+                      "type": "string",
+                      "enum": [
+                        "timely",
+                        "ahead",
+                        "standing"
+                      ]
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "urgency",
+                    "text"
+                  ]
+                }
+              },
               "rationale": {
                 "description": "Why, citing the metric behind each call — the deciding reason first.",
                 "type": "array",
@@ -2926,6 +3117,7 @@
               "variants",
               "unavailable",
               "flags",
+              "flagItems",
               "rationale",
               "environment",
               "equipmentNote"

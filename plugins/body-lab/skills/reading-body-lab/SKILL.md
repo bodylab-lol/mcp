@@ -18,6 +18,7 @@ lab results (`record_lab_results`); nothing can be changed or deleted.
 | How long until my race? Why is today easier before it? | `get_today`'s `nearestEvent` (also in `get_training_status`) |
 | What did I do? How did a particular session go? | `list_activities`, then `get_activity` with its `id` |
 | Sleep, HRV, resting heart rate, "am I recovered" | `get_recovery` (and `get_today`'s `readiness`) |
+| Anything I should know today? Is my sleep OK? | `get_today`'s `notes` |
 | Lifting: what weights next, recent sessions, estimated maxes | `get_strength` |
 | Blood tests: how's my ferritin, what did my last panel show | `get_lab_results` (needs the athlete to have allowed lab results) |
 | Record this lab report | `record_lab_results`, after reading every value back to the athlete and getting their yes |
@@ -27,6 +28,25 @@ lab results (`record_lab_results`); nothing can be changed or deleted.
 
 Call `get_today` first when the date, time zone or display units matter: it
 returns the athlete's local `date`, `timezone` and `units`.
+
+## Today's notes
+
+`get_today`'s `notes` are what Body Lab's timeline calls out, exactly as the
+athlete sees them in the app, less any they've hidden. Most days there are
+none.
+
+- Pass a note on in its own words. Its `text` states the numbers and, for a
+  guideline, who the guideline is for.
+- `kind` says what to do with it:
+  - `insight`: something the athlete can act on.
+  - `observation`: today's plan already accounts for it, so don't tell them
+    to act on it a second time.
+  - `milestone`: a new best or a first.
+  - `gap`: missing data that makes today's plan generic.
+- Congratulate only where `improvement` is true.
+- Don't name a condition, diagnose, or advise beyond the note. When you
+  discuss a sleep note, include its `detail`: that's where the one sentence
+  about raising it with a doctor lives.
 
 ## Reading the numbers
 
