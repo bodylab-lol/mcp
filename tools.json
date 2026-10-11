@@ -707,12 +707,17 @@
                       "type": "null"
                     }
                   ]
+                },
+                "done": {
+                  "description": "A completed activity has been matched to this session.",
+                  "type": "boolean"
                 }
               },
               "required": [
                 "id",
                 "modality",
-                "workoutType"
+                "workoutType",
+                "done"
               ]
             }
           },
