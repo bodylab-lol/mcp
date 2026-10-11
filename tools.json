@@ -804,6 +804,10 @@
                 "improvement": {
                   "description": "True only for a new best. Where false, report it and stop: don't congratulate, don't call it progress, and don't say what it means for the athlete's health.",
                   "type": "boolean"
+                },
+                "tone": {
+                  "description": "positive (good news), caution (something to take care with), info (news, neither good nor bad) or neutral (missing data). Match your tone to it: never cheer a caution.",
+                  "type": "string"
                 }
               },
               "required": [
@@ -815,7 +819,8 @@
                 "detail",
                 "basis",
                 "source",
-                "improvement"
+                "improvement",
+                "tone"
               ]
             }
           }
