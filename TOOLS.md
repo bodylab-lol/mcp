@@ -199,6 +199,16 @@ Scope: `training:read`. Read-only.
 | --- | --- | --- |
 | `days` | integer (optional) | How many days back from today. min 7, max 365, default 28 |
 
+## `get_daily_steps` — Daily steps
+
+Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count runs wake to wake and is dated by the cycle's start. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.
+
+Scope: `training:read`. Read-only.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `days` | integer (optional) | How many days back from today. min 7, max 365, default 30 |
+
 ## `get_strength` — Strength training
 
 The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held); the most recent logged sessions, exercise by exercise in `exercises` (`sets` is the same sets flat, and can be ignored); and `trend`, the heaviest working set of each session per lift over the past year with the heaviest ever recorded. Every number in `trend` is a weight the athlete actually lifted: nothing is estimated there, and it must not be presented as a one-rep max. The template's `oneRepMaxes` are the opposite — estimates, which account for reps left in reserve and are usually higher than anything the athlete has lifted — so quote `trend` for 'what's my best squat' and never the estimate. Give `lift` to ask about one exercise. Use for 'how's my lifting going', 'is my deadlift moving', or what today's session would be.

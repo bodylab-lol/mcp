@@ -99,6 +99,7 @@ Lab.
 | `get_training_status` | Fitness, fatigue, form, workload ratio, strain, intensity balance, week by week |
 | `list_activities`, `get_activity` | Your activities, and one in detail with load, zones, power bests and plan adherence |
 | `get_recovery` | Morning resting HR, HRV, sleep and energy scores |
+| `get_daily_steps` | Steps counted each day, with the source each count came from and the mean of the last seven complete days. Each day is one source's count, never several devices added together; today's is marked as so far |
 | `get_strength` | The strength session Body Lab would prescribe now, estimated maxes, recent sessions |
 | `get_profile` | Heart-rate anchors, FTP, weight, most recent blood pressure, strength equipment, test results, power curve |
 | `find_exercises` | The strength exercise catalogue, searched by name or by the other names an exercise goes by ("RDL", "skull crusher"), by movement pattern or by muscle, with the equipment each one needs |

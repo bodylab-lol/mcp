@@ -9374,6 +9374,97 @@
       }
     },
     {
+      "name": "get_daily_steps",
+      "title": "Daily steps",
+      "description": "Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count runs wake to wake and is dated by the cycle's start. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.",
+      "scope": "training:read",
+      "readOnly": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "description": "How many days back from today.",
+            "default": 30,
+            "type": "integer",
+            "minimum": 7,
+            "maximum": 365
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "description": "Today on the athlete's calendar, in their time zone.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "days": {
+            "description": "Days with a count, newest first; days without are absent. A day the preferred source has no count for is absent even if another device counted, so the series stays one device's.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "description": "The athlete's local day the count belongs to, as its source dated it. A whoop count is a physiological cycle (wake to wake) dated by the cycle's start, not a midnight-to-midnight day.",
+                  "$ref": "#/$defs/__schema0"
+                },
+                "steps": {
+                  "description": "Steps counted that day. A count, so no unit suffix. Days with no count, or a count of 0 (the device wasn't worn), are absent rather than 0.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300000
+                },
+                "source": {
+                  "description": "The connected service or device the count came from (e.g. apple_health). Always one source for the whole series: the athlete's preferred one for steps, by default the one with the most counts. Steps are never typed in, so there is no \"manual\".",
+                  "type": "string"
+                },
+                "partial": {
+                  "description": "True while the day isn't over in the athlete's time zone (today): the count is so far, and should be left out of any average.",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "date",
+                "steps",
+                "source",
+                "partial"
+              ]
+            }
+          },
+          "mean7": {
+            "description": "Mean steps over the complete days among the seven before today that have a count; today is never in it. Null when none of them has one.",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mean7Days": {
+            "description": "How many days `mean7` averages, so a mean of two days isn't quoted as a week's.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          }
+        },
+        "required": [
+          "today",
+          "days",
+          "mean7",
+          "mean7Days"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    {
       "name": "get_strength",
       "title": "Strength training",
       "description": "The strength session Body Lab would prescribe now (exercises, sets, reps, weights in kg, reps in reserve, and why each weight moved or held); the most recent logged sessions, exercise by exercise in `exercises` (`sets` is the same sets flat, and can be ignored); and `trend`, the heaviest working set of each session per lift over the past year with the heaviest ever recorded. Every number in `trend` is a weight the athlete actually lifted: nothing is estimated there, and it must not be presented as a one-rep max. The template's `oneRepMaxes` are the opposite — estimates, which account for reps left in reserve and are usually higher than anything the athlete has lifted — so quote `trend` for 'what's my best squat' and never the estimate. Give `lift` to ask about one exercise. Use for 'how's my lifting going', 'is my deadlift moving', or what today's session would be.",

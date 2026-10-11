@@ -18,6 +18,7 @@ lab results (`record_lab_results`); nothing can be changed or deleted.
 | How long until my race? Why is today easier before it? | `get_today`'s `nearestEvent` (also in `get_training_status`) |
 | What did I do? How did a particular session go? | `list_activities`, then `get_activity` with its `id` |
 | Sleep, HRV, resting heart rate, "am I recovered" | `get_recovery` (and `get_today`'s `readiness`) |
+| How much have I moved outside training? Steps lately | `get_daily_steps` |
 | Anything I should know today? Is my sleep OK? | `get_today`'s `notes` |
 | Lifting: what weights next, recent sessions, estimated maxes | `get_strength` |
 | Blood tests: how's my ferritin, what did my last panel show | `get_lab_results` (needs the athlete to have allowed lab results) |
@@ -68,6 +69,12 @@ none.
   that morning, awake time excluded; say it as hours and minutes. It's a
   separate reading from `sleepScore`, the device's 0–100 score. Readiness
   uses the score, not the minutes. One night can have either or both.
+- In `get_daily_steps`, each day is one device's count, never several added
+  together, and a day without a count is absent, not zero. A `partial` day
+  (today) is a count so far: say "so far", and don't compare it with whole
+  days. Quote `mean7` with `mean7Days`, the number of days it covers. A
+  `whoop` count runs wake to wake. Steps include recorded sessions, and
+  nothing in the prescription reads them, so don't explain a session by them.
 - `nearestEvent` is the athlete's nearest A event: its `name`, `daysUntil`
   (negative once it has passed) and `phase`: `build`, `taper`, `event_day`
   or `recovery`. In `taper` and `recovery`, `totalDays` is the window's
