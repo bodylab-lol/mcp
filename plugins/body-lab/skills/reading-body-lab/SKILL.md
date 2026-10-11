@@ -73,8 +73,12 @@ none.
   together, and a day without a count is absent, not zero. A `partial` day
   (today) is a count so far: say "so far", and don't compare it with whole
   days. Quote `mean7` with `mean7Days`, the number of days it covers. A
-  `whoop` count runs wake to wake. Steps include recorded sessions, and
-  nothing in the prescription reads them, so don't explain a session by them.
+  `whoop` count is a WHOOP cycle, which runs from one sleep to the next, dated
+  by the morning that sleep ended. `seriesSource` is the device every day's
+  count comes from: the athlete's choice (`chosenSource`), or while they
+  haven't made one, the one with the most counts. Steps include recorded
+  sessions, and nothing in the prescription reads them, so don't explain a
+  session by them.
 - `nearestEvent` is the athlete's nearest A event: its `name`, `daysUntil`
   (negative once it has passed) and `phase`: `build`, `taper`, `event_day`
   or `recovery`. In `taper` and `recovery`, `totalDays` is the window's

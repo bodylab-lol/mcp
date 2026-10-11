@@ -9376,7 +9376,7 @@
     {
       "name": "get_daily_steps",
       "title": "Daily steps",
-      "description": "Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count runs wake to wake and is dated by the cycle's start. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.",
+      "description": "Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count is a cycle, which runs from one sleep to the next, dated by the morning that sleep ended. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -9394,18 +9394,62 @@
       "outputSchema": {
         "type": "object",
         "properties": {
+          "seriesSource": {
+            "description": "The source every day's count comes from now: chosenSource when set, otherwise the source with the most counts (the earliest to report on a tie). Null before any count.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "chosenSource": {
+            "description": "The source the athlete chose for steps (PUT /wellness/steps/source), or null while Body Lab picks the one with the most counts.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sources": {
+            "description": "Every source with a count on record, most days first: what the athlete can choose between. Choosing matters only when there are two or more.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "description": "A connected service or device that has counted steps (e.g. garmin, apple_health).",
+                  "type": "string"
+                },
+                "days": {
+                  "description": "Days it has a count for, across everything on record, not only the days returned.",
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "source",
+                "days"
+              ]
+            }
+          },
           "today": {
             "description": "Today on the athlete's calendar, in their time zone.",
             "$ref": "#/$defs/__schema0"
           },
           "days": {
-            "description": "Days with a count, newest first; days without are absent. A day the preferred source has no count for is absent even if another device counted, so the series stays one device's.",
+            "description": "Days with a count, newest first; days without are absent. A day the series' source has no count for is absent even if another device counted, so the series stays one device's.",
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
                 "date": {
-                  "description": "The athlete's local day the count belongs to, as its source dated it. A whoop count is a physiological cycle (wake to wake) dated by the cycle's start, not a midnight-to-midnight day.",
+                  "description": "The athlete's local day the count belongs to, as its source dated it. A whoop count is a physiological cycle, which runs from one sleep to the next, dated by the end of the sleep that starts it (the wake), not a midnight-to-midnight day.",
                   "$ref": "#/$defs/__schema0"
                 },
                 "steps": {
@@ -9415,7 +9459,7 @@
                   "maximum": 300000
                 },
                 "source": {
-                  "description": "The connected service or device the count came from (e.g. apple_health). Always one source for the whole series: the athlete's preferred one for steps, by default the one with the most counts. Steps are never typed in, so there is no \"manual\".",
+                  "description": "The connected service or device the count came from (e.g. apple_health). One source for the whole series, `seriesSource`: the one the athlete chose, or while they haven't, the one with the most counts, worked out again as counts arrive. Steps are never typed in, so there is no \"manual\".",
                   "type": "string"
                 },
                 "partial": {
@@ -9450,6 +9494,9 @@
           }
         },
         "required": [
+          "seriesSource",
+          "chosenSource",
+          "sources",
           "today",
           "days",
           "mean7",

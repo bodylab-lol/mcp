@@ -201,7 +201,7 @@ Scope: `training:read`. Read-only.
 
 ## `get_daily_steps` — Daily steps
 
-Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count runs wake to wake and is dated by the cycle's start. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.
+Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count is a cycle, which runs from one sleep to the next, dated by the morning that sleep ended. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.
 
 Scope: `training:read`. Read-only.
 
