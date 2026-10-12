@@ -6,7 +6,7 @@ Quantities are SI with the unit in the field name (`durationS`, `distanceM`, `we
 
 ## `get_today` — Today's session
 
-The session Body Lab prescribes for today and tomorrow, with the reasons behind each (citing the metric that drove it) and alternatives in other sports; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength lists sets, reps, weight (kg) and reps in reserve.
+The session Body Lab prescribes for today and tomorrow, with the reasons behind each (citing the metric that drove it) and alternatives in other sports; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm), power (W) and, on runs, pace (m/s) ranges; strength lists sets, reps, weight (kg) and reps in reserve.
 
 Scope: `training:read`. Read-only.
 
@@ -351,7 +351,7 @@ Scope: `body:write`. Writes: adds data, and can't change or delete it. The same 
 # Server instructions
 
 ```
-Body Lab is the athlete's training app: it reads their training load and morning recovery signals and prescribes one session a day (endurance with heart-rate and power targets, or strength with sets, reps and weights), citing the metric behind each call.
+Body Lab is the athlete's training app: it reads their training load and morning recovery signals and prescribes one session a day (endurance with heart-rate, power and, on runs, pace targets, or strength with sets, reps and weights), citing the metric behind each call.
 
 - Body Lab's prescription and rationale are the source of truth for what the athlete should do; explain them rather than substituting your own plan, and say so when you disagree.
 - Quantities are SI with the unit in the field name (durationS seconds, distanceM metres, weightKg, avgPowerW). Convert to the athlete's display units (`units`: metric or imperial) when talking to them.

@@ -86,7 +86,7 @@ Lab.
 
 | Tool | For |
 | --- | --- |
-| `get_today` | Today's (and tomorrow's) prescribed session, the reasons behind it, alternatives, readiness, and what Body Lab is calling out today: a pattern in sleep or recovery readings, a new best, a note about the plan, or missing data |
+| `get_today` | Today's (and tomorrow's) prescribed session, with heart-rate and power targets and, on runs once your critical speed is known, a pace; the reasons behind it, alternatives, readiness, and what Body Lab is calling out today: a pattern in sleep or recovery readings, a new best, a note about the plan, or missing data |
 | `set_today_context` | Tells Body Lab how long you have today, what equipment is to hand and which sports are out, and returns the re-prescribed session. Today only. Needs `today:write` |
 | `get_week` | The next seven days as the engine projects them: detailed through tomorrow, summarised after, and shifting each morning |
 | `schedule_session` | Puts a session you've arranged — a club ride, a run with a friend — on your calendar, one entry per occurrence, so Body Lab plans the week around it. The same session twice is stored once. Needs `schedule:write` |

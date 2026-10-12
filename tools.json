@@ -3,7 +3,7 @@
     "name": "body-lab",
     "version": "1.0.0",
     "url": "https://bodylab.lol/mcp",
-    "instructions": "Body Lab is the athlete's training app: it reads their training load and morning recovery signals and prescribes one session a day (endurance with heart-rate and power targets, or strength with sets, reps and weights), citing the metric behind each call.\n\n- Body Lab's prescription and rationale are the source of truth for what the athlete should do; explain them rather than substituting your own plan, and say so when you disagree.\n- Quantities are SI with the unit in the field name (durationS seconds, distanceM metres, weightKg, avgPowerW). Convert to the athlete's display units (`units`: metric or imperial) when talking to them.\n- Dates like 2026-09-13 are days on the athlete's own calendar; instants are ISO-8601 UTC. get_today returns today's date and the athlete's time zone.\n- Training load is on Body Lab's calibrated scale; CTL is fitness, ATL fatigue, form = CTL − ATL, ACWR the acute:chronic ratio.\n- This is training guidance, not medical advice."
+    "instructions": "Body Lab is the athlete's training app: it reads their training load and morning recovery signals and prescribes one session a day (endurance with heart-rate, power and, on runs, pace targets, or strength with sets, reps and weights), citing the metric behind each call.\n\n- Body Lab's prescription and rationale are the source of truth for what the athlete should do; explain them rather than substituting your own plan, and say so when you disagree.\n- Quantities are SI with the unit in the field name (durationS seconds, distanceM metres, weightKg, avgPowerW). Convert to the athlete's display units (`units`: metric or imperial) when talking to them.\n- Dates like 2026-09-13 are days on the athlete's own calendar; instants are ISO-8601 UTC. get_today returns today's date and the athlete's time zone.\n- Training load is on Body Lab's calibrated scale; CTL is fitness, ATL fatigue, form = CTL − ATL, ACWR the acute:chronic ratio.\n- This is training guidance, not medical advice."
   },
   "scopes": {
     "training:read": "See your training, recovery, activities and profile",
@@ -20,7 +20,7 @@
     {
       "name": "get_today",
       "title": "Today's session",
-      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind each (citing the metric that drove it) and alternatives in other sports; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm) and power (watts) ranges; strength lists sets, reps, weight (kg) and reps in reserve.",
+      "description": "The session Body Lab prescribes for today and tomorrow, with the reasons behind each (citing the metric that drove it) and alternatives in other sports; what's already been done today, sessions the athlete committed to, this morning's readiness; the races and goals still to come, the event the plan is built around or today's event at any priority, and the preparation phase the run-up is in — Base, Build, Specific (often called Peak) or Taper, an emphasis recomputed each morning, not a plan; and anything the athlete told Body Lab about today — being ill, sore or injured, short on time, away from their equipment or sports, or today's altitude — which the session already respects, plus any return window after a cleared one. Start here when the athlete asks what to do, whether to train or rest, why the plan says what it does, or how a race affects it. Endurance targets are heart-rate (bpm), power (W) and, on runs, pace (m/s) ranges; strength lists sets, reps, weight (kg) and reps in reserve.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -1046,11 +1046,48 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "pace": {
+                        "description": "Set when today's pace targets differ for altitude from what the runs behind them showed, by enough to say. The size is an estimate, not a measurement of the athlete. Heart-rate targets are unchanged.",
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "todayAltitudeM": {
+                                "description": "The altitude today's session is expected at, metres.",
+                                "type": "number"
+                              },
+                              "basis": {
+                                "description": "Where that came from, as in `altitude.basis`. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
+                                "type": "string"
+                              },
+                              "effortsAltitudeM": {
+                                "description": "The median altitude of the runs the critical speed behind today's paces was worked out from, metres.",
+                                "type": "number"
+                              },
+                              "speedFactor": {
+                                "description": "Today's paces as a fraction of the paces at the runs' altitude, as speed: below 1 is slower (higher today), above 1 faster.",
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "todayAltitudeM",
+                              "basis",
+                              "effortsAltitudeM",
+                              "speedFactor"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
                     },
                     "required": [
                       "altitude",
-                      "heat"
+                      "heat",
+                      "pace"
                     ]
                   },
                   {
@@ -1203,6 +1240,30 @@
                       }
                     ]
                   },
+                  "speedLowMs": {
+                    "description": "The slow end of the pace the session is about (its hardest block's, as with hrLow and powerLow), as a speed in metres per second. Null with speedHighMs set means a ceiling only (\"no faster than\"); null with both null means no pace. Show it as pace in the athlete's units; each edge already sits on a whole five seconds of pace.",
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "speedHighMs": {
+                    "description": "The fast end of the pace the session is about (its hardest block's, as with hrLow and powerLow), metres per second, or null for no pace. Pace comes from the athlete's critical speed and only on road, track and treadmill runs; heart rate stays the limit.",
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "blocks": {
                     "type": "array",
                     "items": {
@@ -1280,6 +1341,8 @@
                   "hrHigh",
                   "powerLow",
                   "powerHigh",
+                  "speedLowMs",
+                  "speedHighMs",
                   "blocks",
                   "workoutType",
                   "note",
@@ -1589,6 +1652,30 @@
                     "type": "null"
                   }
                 ]
+              },
+              "speedLowMs": {
+                "description": "The slow end of this block's pace, as a speed in metres per second. Null with speedHighMs set means a ceiling only (\"no faster than\"); null with both null means no pace. Show it as pace in the athlete's units; each edge already sits on a whole five seconds of pace.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "speedHighMs": {
+                "description": "The fast end of this block's pace, metres per second, or null for no pace. Pace comes from the athlete's critical speed and only on road, track and treadmill runs; heart rate stays the limit.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             },
             "required": [
@@ -1597,7 +1684,9 @@
               "hrLow",
               "hrHigh",
               "powerLow",
-              "powerHigh"
+              "powerHigh",
+              "speedLowMs",
+              "speedHighMs"
             ]
           },
           "__schema4": {
@@ -2147,11 +2236,48 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "pace": {
+                        "description": "Set when today's pace targets differ for altitude from what the runs behind them showed, by enough to say. The size is an estimate, not a measurement of the athlete. Heart-rate targets are unchanged.",
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "todayAltitudeM": {
+                                "description": "The altitude today's session is expected at, metres.",
+                                "type": "number"
+                              },
+                              "basis": {
+                                "description": "Where that came from, as in `altitude.basis`. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
+                                "type": "string"
+                              },
+                              "effortsAltitudeM": {
+                                "description": "The median altitude of the runs the critical speed behind today's paces was worked out from, metres.",
+                                "type": "number"
+                              },
+                              "speedFactor": {
+                                "description": "Today's paces as a fraction of the paces at the runs' altitude, as speed: below 1 is slower (higher today), above 1 faster.",
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "todayAltitudeM",
+                              "basis",
+                              "effortsAltitudeM",
+                              "speedFactor"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
                     },
                     "required": [
                       "altitude",
-                      "heat"
+                      "heat",
+                      "pace"
                     ]
                   },
                   {
@@ -2340,6 +2466,30 @@
                       }
                     ]
                   },
+                  "speedLowMs": {
+                    "description": "The slow end of the pace the session is about (its hardest block's, as with hrLow and powerLow), as a speed in metres per second. Null with speedHighMs set means a ceiling only (\"no faster than\"); null with both null means no pace. Show it as pace in the athlete's units; each edge already sits on a whole five seconds of pace.",
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "speedHighMs": {
+                    "description": "The fast end of the pace the session is about (its hardest block's, as with hrLow and powerLow), metres per second, or null for no pace. Pace comes from the athlete's critical speed and only on road, track and treadmill runs; heart rate stays the limit.",
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "blocks": {
                     "type": "array",
                     "items": {
@@ -2417,6 +2567,8 @@
                   "hrHigh",
                   "powerLow",
                   "powerHigh",
+                  "speedLowMs",
+                  "speedHighMs",
                   "blocks",
                   "workoutType",
                   "note",
@@ -2722,6 +2874,30 @@
                     "type": "null"
                   }
                 ]
+              },
+              "speedLowMs": {
+                "description": "The slow end of this block's pace, as a speed in metres per second. Null with speedHighMs set means a ceiling only (\"no faster than\"); null with both null means no pace. Show it as pace in the athlete's units; each edge already sits on a whole five seconds of pace.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "speedHighMs": {
+                "description": "The fast end of this block's pace, metres per second, or null for no pace. Pace comes from the athlete's critical speed and only on road, track and treadmill runs; heart rate stays the limit.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             },
             "required": [
@@ -2730,7 +2906,9 @@
               "hrLow",
               "hrHigh",
               "powerLow",
-              "powerHigh"
+              "powerHigh",
+              "speedLowMs",
+              "speedHighMs"
             ]
           },
           "__schema7": {
@@ -3038,11 +3216,48 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "pace": {
+                        "description": "Set when today's pace targets differ for altitude from what the runs behind them showed, by enough to say. The size is an estimate, not a measurement of the athlete. Heart-rate targets are unchanged.",
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "todayAltitudeM": {
+                                "description": "The altitude today's session is expected at, metres.",
+                                "type": "number"
+                              },
+                              "basis": {
+                                "description": "Where that came from, as in `altitude.basis`. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
+                                "type": "string"
+                              },
+                              "effortsAltitudeM": {
+                                "description": "The median altitude of the runs the critical speed behind today's paces was worked out from, metres.",
+                                "type": "number"
+                              },
+                              "speedFactor": {
+                                "description": "Today's paces as a fraction of the paces at the runs' altitude, as speed: below 1 is slower (higher today), above 1 faster.",
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "todayAltitudeM",
+                              "basis",
+                              "effortsAltitudeM",
+                              "speedFactor"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
                     },
                     "required": [
                       "altitude",
-                      "heat"
+                      "heat",
+                      "pace"
                     ]
                   },
                   {
@@ -3304,6 +3519,30 @@
                       }
                     ]
                   },
+                  "speedLowMs": {
+                    "description": "The slow end of the pace the session is about (its hardest block's, as with hrLow and powerLow), as a speed in metres per second. Null with speedHighMs set means a ceiling only (\"no faster than\"); null with both null means no pace. Show it as pace in the athlete's units; each edge already sits on a whole five seconds of pace.",
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "speedHighMs": {
+                    "description": "The fast end of the pace the session is about (its hardest block's, as with hrLow and powerLow), metres per second, or null for no pace. Pace comes from the athlete's critical speed and only on road, track and treadmill runs; heart rate stays the limit.",
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "blocks": {
                     "type": "array",
                     "items": {
@@ -3381,6 +3620,8 @@
                   "hrHigh",
                   "powerLow",
                   "powerHigh",
+                  "speedLowMs",
+                  "speedHighMs",
                   "blocks",
                   "workoutType",
                   "note",
@@ -3690,6 +3931,30 @@
                     "type": "null"
                   }
                 ]
+              },
+              "speedLowMs": {
+                "description": "The slow end of this block's pace, as a speed in metres per second. Null with speedHighMs set means a ceiling only (\"no faster than\"); null with both null means no pace. Show it as pace in the athlete's units; each edge already sits on a whole five seconds of pace.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "speedHighMs": {
+                "description": "The fast end of this block's pace, metres per second, or null for no pace. Pace comes from the athlete's critical speed and only on road, track and treadmill runs; heart rate stays the limit.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             },
             "required": [
@@ -3698,7 +3963,9 @@
               "hrLow",
               "hrHigh",
               "powerLow",
-              "powerHigh"
+              "powerHigh",
+              "speedLowMs",
+              "speedHighMs"
             ]
           },
           "__schema6": {
@@ -9163,6 +9430,12 @@
                             },
                             "powerHigh": {
                               "$ref": "#/$defs/__schema8"
+                            },
+                            "speedLowMs": {
+                              "$ref": "#/$defs/__schema9"
+                            },
+                            "speedHighMs": {
+                              "$ref": "#/$defs/__schema10"
                             }
                           }
                         },
@@ -9188,6 +9461,12 @@
                                 },
                                 "powerHigh": {
                                   "$ref": "#/$defs/__schema8"
+                                },
+                                "speedLowMs": {
+                                  "$ref": "#/$defs/__schema9"
+                                },
+                                "speedHighMs": {
+                                  "$ref": "#/$defs/__schema10"
                                 }
                               }
                             },
@@ -9472,6 +9751,30 @@
             ]
           },
           "__schema8": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema9": {
+            "description": "The slow end of this block's pace, as a speed in metres per second. Null with speedHighMs set means a ceiling only (\"no faster than\"); null with both null means no pace. Show it as pace in the athlete's units; each edge already sits on a whole five seconds of pace.",
+            "default": null,
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "__schema10": {
+            "description": "The fast end of this block's pace, metres per second, or null for no pace. Pace comes from the athlete's critical speed and only on road, track and treadmill runs; heart rate stays the limit.",
+            "default": null,
             "anyOf": [
               {
                 "type": "number"
