@@ -96,8 +96,8 @@ Lab.
 | `schedule_event` | Adds a race or goal at priority B or C. It refuses to add an A event, and can't edit one: both are yours to do in Body Lab. Needs `events:write` |
 | `remove_event` | Takes off a race it added itself, after reading it back to you. It can't remove one you entered, and can't remove an A race even if it added it — promoting a race to A is your decision, so taking it back is too. Removing is permanent. Needs `events:write` |
 | `get_weekly_review` | How a complete week went against what was prescribed, load against the band, the strength floor, and whether training so far supports an upcoming event |
-| `get_training_status` | Fitness, fatigue, form, workload ratio, strain, intensity balance, week by week |
-| `list_activities`, `get_activity` | Your activities, and one in detail with load, zones, power bests and plan adherence |
+| `get_training_status` | Fitness, fatigue, form, workload ratio, strain, intensity balance, week by week, and critical speed for runners: the pace at the edge of sustainable hard running, from your own recent hard runs, with its ± |
+| `list_activities`, `get_activity` | Your activities, and one in detail with load, zones, power and speed bests and plan adherence |
 | `get_recovery` | Morning resting HR, HRV, sleep and energy scores |
 | `get_daily_steps` | Steps counted each day, with the source each count came from and the mean of the last seven complete days. Each day is one source's count, never several devices added together; today's is marked as so far |
 | `get_strength` | The strength session Body Lab would prescribe now, estimated maxes, recent sessions |

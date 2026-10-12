@@ -7665,7 +7665,7 @@
     {
       "name": "get_training_status",
       "title": "Training status",
-      "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the event the plan is built around, if one is set — its name, days until, and whether the day sits in its taper or the recovery window after it, or is the day of an event at any priority — and the preparation phase the run-up to it is in (Base, Build, Specific — often called Peak — or Taper), which is an emphasis worked out daily from the event's date rather than a plan — plus load, fitness and fatigue week by week across the window. Use for 'how's my training going', 'am I overdoing it', or comparing recent weeks.",
+      "description": "Where the athlete's training stands: fitness (CTL), fatigue (ATL), form, acute:chronic workload ratio and ramp rate; monotony and strain, with the athlete's own strain high and whether this week is above it; the easy/moderate/hard split; strength and impact frequency; readiness; the current training block; the event the plan is built around, if one is set — its name, days until, and whether the day sits in its taper or the recovery window after it, or is the day of an event at any priority — and the preparation phase the run-up to it is in (Base, Build, Specific — often called Peak — or Taper), which is an emphasis worked out daily from the event's date rather than a plan — plus load, fitness and fatigue week by week across the window; and the runner's critical speed from recent hard runs, with its ±, or why there isn't one. Use for 'how's my training going', 'am I overdoing it', 'what pace is hard for me', or comparing recent weeks.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -8102,16 +8102,13 @@
                 "type": "object",
                 "properties": {
                   "eventId": {
-                    "description": "Opaque identifier.",
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
+                    "$ref": "#/$defs/__schema1"
                   },
                   "eventName": {
                     "type": "string"
                   },
                   "phase": {
-                    "$ref": "#/$defs/__schema1"
+                    "$ref": "#/$defs/__schema2"
                   },
                   "week": {
                     "description": "Which week of this phase today is in, from 1.",
@@ -8132,7 +8129,7 @@
                     "description": "The phase after this one; null in the taper, whose successor is the event itself.",
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/__schema1"
+                        "$ref": "#/$defs/__schema2"
                       },
                       {
                         "type": "null"
@@ -8222,6 +8219,193 @@
                 "acwr"
               ]
             }
+          },
+          "criticalSpeed": {
+            "description": "Critical speed: the boundary between running hard that can be sustained for a long time and running hard that can't, worked out from the athlete's own hardest efforts of 3 to 15 minutes on at least three different road or track runs in the window (not trail or treadmill), grade-adjusted and normalised for altitude. A change under 5% between two fits is within what GPS alone can move it. Speeds are metres per second: say them as pace in the athlete's units, with the ±. Prefer `fit.today` when present; `fit.seaLevel` is faster than they can run at altitude. Never offer `deviceThreshold` as a target.",
+            "type": "object",
+            "properties": {
+              "windowDays": {
+                "description": "How far back efforts count.",
+                "type": "integer"
+              },
+              "fit": {
+                "description": "Null when no fit qualifies; `refusal` then says why.",
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "seaLevel": {
+                        "description": "Critical speed with every effort normalised to sea level.",
+                        "type": "object",
+                        "properties": {
+                          "csMs": {
+                            "$ref": "#/$defs/__schema3"
+                          },
+                          "plusMinusMs": {
+                            "$ref": "#/$defs/__schema4"
+                          }
+                        },
+                        "required": [
+                          "csMs",
+                          "plusMinusMs"
+                        ]
+                      },
+                      "today": {
+                        "description": "Critical speed where the athlete is today: the sea-level figure brought to today's altitude, and never faster than at the lowest effort's altitude. Null when Body Lab doesn't know today's altitude; the sea-level figure is then the only one, and it is faster than the athlete would run at altitude.",
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "csMs": {
+                                "$ref": "#/$defs/__schema3"
+                              },
+                              "plusMinusMs": {
+                                "$ref": "#/$defs/__schema4"
+                              },
+                              "altitudeM": {
+                                "description": "The altitude today's figure is for, metres.",
+                                "type": "integer"
+                              },
+                              "altitudeBasis": {
+                                "description": "Where that altitude came from. Known values: confirmed, recent_recordings, home. Treat unknown values as \"other\".",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "csMs",
+                              "plusMinusMs",
+                              "altitudeM",
+                              "altitudeBasis"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "longestS": {
+                        "description": "The longest effort's duration, which sets the answer more than any other.",
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "seaLevel",
+                      "today",
+                      "longestS"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "refusal": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "reason": {
+                        "description": "The first rule the efforts failed. too_few_efforts: fewer than three runs held a best (with eligibleRuns above the effort count, the other runs were slower at every duration). no_long_effort: no steady hard effort of 12 minutes or more. no_short_effort: none of 5 minutes or less. efforts_disagree: the efforts don't lie on one line within GPS error. d_prime_too_small, d_prime_too_large, cs_implausible: the efforts fit a line no maximal efforts would, usually because a short one wasn't all-out. Known values: too_few_efforts, no_long_effort, no_short_effort, efforts_disagree, d_prime_too_small, d_prime_too_large, cs_implausible. Treat unknown values as \"other\".",
+                        "type": "string"
+                      },
+                      "eligibleRuns": {
+                        "description": "Runs in the window that could have counted, before choosing among them.",
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "reason",
+                      "eligibleRuns"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "efforts": {
+                "description": "The efforts chosen, shortest first: the ones fitted, or with a refusal the ones that would have been.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "activityId": {
+                      "$ref": "#/$defs/__schema1"
+                    },
+                    "date": {
+                      "$ref": "#/$defs/__schema0"
+                    },
+                    "durationS": {
+                      "description": "The window of the run that was used: one per run, the longest it held as the fastest of any run.",
+                      "type": "integer"
+                    },
+                    "speedMs": {
+                      "description": "Grade-adjusted metres per second over that window, at the altitude it was run.",
+                      "type": "number"
+                    },
+                    "speedSeaLevelMs": {
+                      "description": "The same, normalised to sea level, which is what was fitted.",
+                      "type": "number"
+                    },
+                    "altitudeM": {
+                      "description": "The run's median altitude, metres.",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "activityId",
+                    "date",
+                    "durationS",
+                    "speedMs",
+                    "speedSeaLevelMs",
+                    "altitudeM"
+                  ]
+                }
+              },
+              "deviceThreshold": {
+                "description": "The latest threshold speed a device or service reported, for comparison only: it is a lactate-threshold estimate by an undisclosed method at an unknown altitude, not interchangeable with critical speed, and Body Lab never sets a pace from it. Null when there is none.",
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "speedMs": {
+                        "description": "Metres per second.",
+                        "type": "number"
+                      },
+                      "on": {
+                        "$ref": "#/$defs/__schema0"
+                      },
+                      "source": {
+                        "description": "The connected service it came from, by id; null when unrecorded.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "speedMs",
+                      "on",
+                      "source"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "windowDays",
+              "fit",
+              "refusal",
+              "efforts",
+              "deviceThreshold"
+            ]
           }
         },
         "required": [
@@ -8236,7 +8420,8 @@
           "nearestEvent",
           "preparation",
           "units",
-          "weeks"
+          "weeks",
+          "criticalSpeed"
         ],
         "$defs": {
           "__schema0": {
@@ -8245,8 +8430,22 @@
             "format": "date"
           },
           "__schema1": {
+            "description": "Opaque identifier.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "__schema2": {
             "description": "Which part of the run-up to an A event a day sits in. An emphasis worked out each morning from the event's date, not a stored plan. Known values: base, build, specific, taper. Treat unknown values as \"other\".",
             "type": "string"
+          },
+          "__schema3": {
+            "description": "Critical speed, metres per second.",
+            "type": "number"
+          },
+          "__schema4": {
+            "description": "One standard error, propagated from an assumed 3% GPS distance error per effort. Show it with the number: GPS, not the athlete, sets it.",
+            "type": "number"
           }
         }
       }
@@ -8421,7 +8620,7 @@
     {
       "name": "get_activity",
       "title": "One activity",
-      "description": "One activity in detail: duration, distance, elevation, heart rate, power, session RPE, notes, the training load and where it came from, time in each heart-rate zone, power bests (the best average watts over each duration within this activity; after intervals a longer duration's best can be higher than a shorter one's, because the longer window spans two efforts and the shorter can hold only one plus recovery), how it compared with the planned session (if there was one), and the strength sets logged against it.",
+      "description": "One activity in detail: duration, distance, elevation, heart rate, power, session RPE, notes, the training load and where it came from, time in each heart-rate zone, power bests (the best average watts over each duration within this activity; after intervals a longer duration's best can be higher than a shorter one's, because the longer window spans two efforts and the shorter can hold only one plus recovery), a run's speed bests the same way (m/s, raw and grade-adjusted; say them as pace), how it compared with the planned session (if there was one), and the strength sets logged against it.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -8687,6 +8886,36 @@
               "required": [
                 "durationS",
                 "watts"
+              ]
+            }
+          },
+          "speedBests": {
+            "description": "Runs only: the fastest average speed over each duration within this run. As with power, a longer duration's best can be faster than a shorter one's after intervals. Empty for other sports and runs without a recorded distance.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "basis": {
+                  "description": "raw is the distance as recorded; gap is grade-adjusted, the flat-ground equivalent, and absent where the altitude couldn't support it. Known values: raw, gap. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "durationS": {
+                  "type": "integer"
+                },
+                "speedMs": {
+                  "description": "The fastest average over durationS within this run, metres per second.",
+                  "type": "number"
+                },
+                "startS": {
+                  "description": "Where that window starts, seconds from the start of the recording.",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "basis",
+                "durationS",
+                "speedMs",
+                "startS"
               ]
             }
           },
@@ -9182,6 +9411,7 @@
           "file",
           "load",
           "powerBests",
+          "speedBests",
           "environment",
           "hasRoute",
           "adherence",

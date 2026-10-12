@@ -15,6 +15,7 @@ lab results (`record_lab_results`); nothing can be changed or deleted.
 | --- | --- |
 | What should I do today? Should I rest? Why that session? | `get_today` |
 | How's my training going? Am I overdoing it? Compare weeks | `get_training_status` (`days` 28–365) |
+| What pace is hard for me? My critical speed | `get_training_status`'s `criticalSpeed` |
 | How long until my race? Why is today easier before it? | `get_today`'s `nearestEvent` (also in `get_training_status`) |
 | What did I do? How did a particular session go? | `list_activities`, then `get_activity` with its `id` |
 | Sleep, HRV, resting heart rate, "am I recovered" | `get_recovery` (and `get_today`'s `readiness`) |
@@ -84,6 +85,17 @@ none.
   or `recovery`. In `taper` and `recovery`, `totalDays` is the window's
   length. Lighter sessions in those phases are deliberate. Explain them from
   the phase and the `rationale`, not as a sign the athlete is falling behind.
+- `criticalSpeed` (in `get_training_status`) is running only. Speeds are
+  metres per second: say them as pace in the athlete's `units`, always with
+  the ±, which comes from GPS error. Use `fit.today` when it's there;
+  `fit.seaLevel` is faster than the athlete can run at altitude, so say
+  which it is. A change under 5% between two readings is noise. When `fit`
+  is null, `refusal.reason` says why: pass that on rather than estimating a
+  pace yourself. `deviceThreshold` is a watch's lactate-threshold estimate,
+  shown for comparison: never offer it as a target or as their critical
+  speed.
+- In `get_activity`, a run's `speedBests` are its fastest averages over each
+  duration, `raw` as recorded and `gap` grade-adjusted. Say them as pace.
 - When more than one source recorded the same session, `list_activities`
   shows it once, and `get_activity` lists the other copies in
   `alsoRecordedBy`. An activity whose `duplicateOf` is set is one of those
