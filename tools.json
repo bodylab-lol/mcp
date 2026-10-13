@@ -8488,7 +8488,7 @@
             }
           },
           "criticalSpeed": {
-            "description": "Critical speed: the boundary between running hard that can be sustained for a long time and running hard that can't, worked out from the athlete's own hardest efforts of 3 to 15 minutes on at least three different road or track runs in the window (not trail or treadmill), grade-adjusted and normalised for altitude. A change under 5% between two fits is within what GPS alone can move it. Speeds are metres per second: say them as pace in the athlete's units, with the ±. Prefer `fit.today` when present; `fit.seaLevel` is faster than they can run at altitude. Never offer `deviceThreshold` as a target.",
+            "description": "Critical speed: the boundary between running hard that can be sustained for a long time and running hard that can't, worked out from at least three of the athlete's own hardest efforts of 3 to 15 minutes in the window, each from a different road or track run (not trail or treadmill; a critical speed test's two hard efforts count separately), grade-adjusted and normalised for altitude. A change under 5% between two fits is within what GPS alone can move it. Speeds are metres per second: say them as pace in the athlete's units, with the ±. Prefer `fit.today` when present; `fit.seaLevel` is faster than they can run at altitude. Never offer `deviceThreshold` as a target.",
             "type": "object",
             "properties": {
               "windowDays": {
