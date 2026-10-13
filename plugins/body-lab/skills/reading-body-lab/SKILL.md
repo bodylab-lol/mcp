@@ -20,6 +20,7 @@ lab results (`record_lab_results`); nothing can be changed or deleted.
 | What did I do? How did a particular session go? | `list_activities`, then `get_activity` with its `id` |
 | Sleep, HRV, resting heart rate, "am I recovered" | `get_recovery` (and `get_today`'s `readiness`) |
 | How much have I moved outside training? Steps lately | `get_daily_steps` |
+| How has my weight / blood pressure / resting HR moved? One series against another, over a chosen range | `get_measurements` |
 | Anything I should know today? Is my sleep OK? | `get_today`'s `notes` |
 | Lifting: what weights next, recent sessions, estimated maxes | `get_strength` |
 | Blood tests: how's my ferritin, what did my last panel show | `get_lab_results` (needs the athlete to have allowed lab results) |
@@ -80,6 +81,16 @@ none.
   haven't made one, the one with the most counts. Steps include recorded
   sessions, and nothing in the prescription reads them, so don't explain a
   session by them.
+- In `get_measurements`, ask only for the series the question needs:
+  series × days is capped at 1,500, and over that it refuses with what would
+  fit. Each series is newest first, and a day without a value is absent. A
+  series that wasn't asked for is `null`. A dated value (weight, VO2max, FTP,
+  threshold HR or speed) marked `carriedForward` was measured before the
+  range and is the value in effect when the range begins; say when it was
+  measured. Blood pressure comes as sittings: the average of readings taken
+  within 15 minutes, with every reading kept. Read blood pressure back as
+  numbers only. Never call one high, normal or healthy, never name a
+  category or threshold, and send questions about it to a clinician.
 - `nearestEvent` is the athlete's nearest A event: its `name`, `daysUntil`
   (negative once it has passed) and `phase`: `build`, `taper`, `event_day`
   or `recovery`. In `taper` and `recovery`, `totalDays` is the window's

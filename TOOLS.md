@@ -191,7 +191,7 @@ Scope: `training:read`. Read-only.
 
 ## `get_recovery` — Recovery readings
 
-Morning recovery readings by day, newest first: resting heart rate (bpm), overnight HRV (ms, RMSSD), sleep score and a device energy score (both 0–100). Days without readings are absent. Use for sleep, HRV or 'how recovered am I' questions; get_today already includes today's readiness verdict.
+Morning recovery readings by day, newest first: resting heart rate (bpm), overnight HRV (ms, RMSSD), sleep score and a device energy score (both 0–100). Days without readings are absent. Use for sleep, HRV or 'how recovered am I' questions; get_today already includes today's readiness verdict. For these beside other series (weight, blood pressure, steps) or over a chosen range, use get_measurements.
 
 Scope: `training:read`. Read-only.
 
@@ -201,13 +201,26 @@ Scope: `training:read`. Read-only.
 
 ## `get_daily_steps` — Daily steps
 
-Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count is a cycle, which runs from one sleep to the next, dated by the morning that sleep ended. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.
+Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count is a cycle, which runs from one sleep to the next, dated by the morning that sleep ended. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps. For steps beside other series, or a chosen range, use get_measurements.
 
 Scope: `training:read`. Read-only.
 
 | Argument | Type | |
 | --- | --- | --- |
 | `days` | integer (optional) | How many days back from today. min 7, max 365, default 30 |
+
+## `get_measurements` — Measurements over time
+
+Any of the athlete's measurement series over a range, several at once, as recorded: morning readings (resting HR, HRV, sleep, energy), daily steps, dated values (weight, VO2max, FTP, threshold HR and speed), and every blood pressure reading, grouped into sittings with each reading kept. Use for 'how has my weight moved since June', 'show my blood pressure this month', or one series against another; for today's readiness verdict use get_today, and for a steps average get_daily_steps. Each requested series is newest first, days without a value left out; series not asked for are null. A dated value measured before the range is included as the series' oldest entry, marked carriedForward: the value in effect when the range begins. Blood pressure is systolic over diastolic: read it back as measurements and nothing else — no category, threshold, 'high' or 'normal', no comparison with anyone — since Body Lab diagnoses nothing and never trains from them; questions about them go to a clinician.
+
+Scope: `training:read`. Read-only.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `types` | array | The series to return. restingHrBpm, hrvMs (overnight RMSSD), sleepScore and energyScore (each device's own 0–100 scale), sleepMinutes: one value per morning. steps: one count per day. weightKg, vo2maxMlKgMin, vo2maxCyclingMlKgMin, ftpW, lthrBpm, lthrCyclingBpm, thresholdSpeedMs (m/s): dated values, measured when they were. bloodPressure: every reading, grouped into sittings. at least 1, at most 14 |
+| `days` | integer (optional) | How many days back, ending at `to` (default today), counting both ends. Defaults to 90. Not with `from`. min 1, max 732 |
+| `from` |  (optional) | First day, inclusive, on the athlete's calendar (take today from get_today). Not with `days`. |
+| `to` |  (optional) | Last day, inclusive. Defaults to today; a later day is treated as today. |
 
 ## `get_strength` — Strength training
 
@@ -223,7 +236,7 @@ Scope: `training:read`. Read-only.
 
 ## `get_profile` — Athlete profile
 
-The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight, and the athlete's most recent blood pressure in millimetres of mercury; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time. Blood pressure is two numbers from one reading, systolic over diastolic. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't name a category or a threshold, and don't compare the athlete with anyone. Body Lab can't diagnose anything, a blood pressure never changes the training it prescribes, and questions about it go to a clinician.
+The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight, and the athlete's most recent blood pressure in millimetres of mercury; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time. Blood pressure is two numbers from one reading, systolic over diastolic. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't name a category or a threshold, and don't compare the athlete with anyone. Body Lab can't diagnose anything, a blood pressure never changes the training it prescribes, and questions about it go to a clinician. History: get_measurements.
 
 Scope: `training:read`. Read-only.
 

@@ -9790,7 +9790,7 @@
     {
       "name": "get_recovery",
       "title": "Recovery readings",
-      "description": "Morning recovery readings by day, newest first: resting heart rate (bpm), overnight HRV (ms, RMSSD), sleep score and a device energy score (both 0–100). Days without readings are absent. Use for sleep, HRV or 'how recovered am I' questions; get_today already includes today's readiness verdict.",
+      "description": "Morning recovery readings by day, newest first: resting heart rate (bpm), overnight HRV (ms, RMSSD), sleep score and a device energy score (both 0–100). Days without readings are absent. Use for sleep, HRV or 'how recovered am I' questions; get_today already includes today's readiness verdict. For these beside other series (weight, blood pressure, steps) or over a chosen range, use get_measurements.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -9919,7 +9919,7 @@
     {
       "name": "get_daily_steps",
       "title": "Daily steps",
-      "description": "Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count is a cycle, which runs from one sleep to the next, dated by the morning that sleep ended. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps.",
+      "description": "Steps counted each day, newest first, with the source each count came from, and the mean of the last seven complete days. Use for 'how much have I moved outside training lately?'. Each day is one source's count, never several devices added together; days without a count are absent, not zero. Today's count is marked partial and is only so far. A whoop count is a cycle, which runs from one sleep to the next, dated by the morning that sleep ended. Recorded sessions' steps are inside these totals, and nothing in Body Lab's prescription reads steps. For steps beside other series, or a chosen range, use get_measurements.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -10050,6 +10050,464 @@
             "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
             "type": "string",
             "format": "date"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_measurements",
+      "title": "Measurements over time",
+      "description": "Any of the athlete's measurement series over a range, several at once, as recorded: morning readings (resting HR, HRV, sleep, energy), daily steps, dated values (weight, VO2max, FTP, threshold HR and speed), and every blood pressure reading, grouped into sittings with each reading kept. Use for 'how has my weight moved since June', 'show my blood pressure this month', or one series against another; for today's readiness verdict use get_today, and for a steps average get_daily_steps. Each requested series is newest first, days without a value left out; series not asked for are null. A dated value measured before the range is included as the series' oldest entry, marked carriedForward: the value in effect when the range begins. Blood pressure is systolic over diastolic: read it back as measurements and nothing else — no category, threshold, 'high' or 'normal', no comparison with anyone — since Body Lab diagnoses nothing and never trains from them; questions about them go to a clinician.",
+      "scope": "training:read",
+      "readOnly": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "types": {
+            "description": "The series to return. restingHrBpm, hrvMs (overnight RMSSD), sleepScore and energyScore (each device's own 0–100 scale), sleepMinutes: one value per morning. steps: one count per day. weightKg, vo2maxMlKgMin, vo2maxCyclingMlKgMin, ftpW, lthrBpm, lthrCyclingBpm, thresholdSpeedMs (m/s): dated values, measured when they were. bloodPressure: every reading, grouped into sittings.",
+            "minItems": 1,
+            "maxItems": 14,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "restingHrBpm",
+                "hrvMs",
+                "sleepScore",
+                "sleepMinutes",
+                "energyScore",
+                "steps",
+                "weightKg",
+                "vo2maxMlKgMin",
+                "vo2maxCyclingMlKgMin",
+                "ftpW",
+                "lthrBpm",
+                "lthrCyclingBpm",
+                "thresholdSpeedMs",
+                "bloodPressure"
+              ]
+            }
+          },
+          "days": {
+            "description": "How many days back, ending at `to` (default today), counting both ends. Defaults to 90. Not with `from`.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 732
+          },
+          "from": {
+            "description": "First day, inclusive, on the athlete's calendar (take today from get_today). Not with `days`.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "to": {
+            "description": "Last day, inclusive. Defaults to today; a later day is treated as today.",
+            "$ref": "#/$defs/__schema0"
+          }
+        },
+        "required": [
+          "types"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "description": "Today on the athlete's calendar, in their time zone.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "from": {
+            "description": "The first day covered, as resolved.",
+            "$ref": "#/$defs/__schema0"
+          },
+          "to": {
+            "description": "The last day covered, as resolved (a `to` after today comes back as today).",
+            "$ref": "#/$defs/__schema0"
+          },
+          "unknownTypes": {
+            "description": "Requested names this server doesn't know, so a client can tell a typo from an empty series.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "restingHrBpm": {
+            "description": "Morning resting heart rate, beats per minute. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hrvMs": {
+            "description": "Overnight heart-rate variability (RMSSD), milliseconds. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sleepScore": {
+            "description": "A device's sleep score, 0–100, on that device's own scale. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sleepMinutes": {
+            "description": "Minutes asleep on the night that ended that morning. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "energyScore": {
+            "description": "A device's energy or body-battery score, 0–100, on that device's own scale. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "steps": {
+            "description": "Steps counted each day, newest first; days without a count are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "description": "The day the count belongs to, as its source dated it. A whoop count is a cycle, from one sleep to the next, dated by the wake that starts it.",
+                      "$ref": "#/$defs/__schema0"
+                    },
+                    "value": {
+                      "description": "Steps counted. A day with no count, or a count of 0 (not worn), is absent.",
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "source": {
+                      "description": "The service the count came from. The whole series is one source's — never several devices added together — as on GET /wellness/steps.",
+                      "type": "string"
+                    },
+                    "partial": {
+                      "description": "True while the day isn't over in the athlete's time zone: a count so far, to leave out of any average.",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "value",
+                    "source",
+                    "partial"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "weightKg": {
+            "description": "Body mass, kilograms, to 0.1. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vo2maxMlKgMin": {
+            "description": "VO2max from running or a general estimate, ml/kg/min, to 0.1. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vo2maxCyclingMlKgMin": {
+            "description": "Cycling VO2max, ml/kg/min, to 0.1. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ftpW": {
+            "description": "Functional threshold power, watts. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lthrBpm": {
+            "description": "Lactate threshold heart rate, beats per minute. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lthrCyclingBpm": {
+            "description": "Cycling lactate threshold heart rate, beats per minute. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "thresholdSpeedMs": {
+            "description": "Running threshold speed, metres per second, to 0.01. Newest first; days without a value are absent. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/__schema1"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bloodPressure": {
+            "description": "Every blood pressure the athlete measured, grouped into sittings (readings from one source within 15 minutes of each other), newest first, each with its readings. Measurements and nothing more: Body Lab attaches no category, threshold or judgement to them, and nothing it prescribes reads them. Null when not requested.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "description": "The athlete's day the sitting began on, in their time zone.",
+                      "$ref": "#/$defs/__schema0"
+                    },
+                    "at": {
+                      "description": "When the sitting's first reading was taken.",
+                      "$ref": "#/$defs/__schema2"
+                    },
+                    "systolicMmHg": {
+                      "description": "The sitting's average upper number, rounded to a whole mmHg.",
+                      "type": "integer"
+                    },
+                    "diastolicMmHg": {
+                      "description": "The sitting's average lower number, rounded to a whole mmHg.",
+                      "type": "integer"
+                    },
+                    "pulseBpm": {
+                      "description": "The average pulse of the readings that have one; null when none do.",
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "source": {
+                      "description": "Where the readings came from. A sitting never mixes sources. manual (typed in) is Body Lab's own; any other value is the service the athlete synced it from.",
+                      "type": "string"
+                    },
+                    "readings": {
+                      "description": "Every reading in the sitting, earliest first, exactly as measured. A lone reading is a sitting of one.",
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "at": {
+                            "description": "When the cuff read.",
+                            "$ref": "#/$defs/__schema2"
+                          },
+                          "systolicMmHg": {
+                            "type": "integer"
+                          },
+                          "diastolicMmHg": {
+                            "type": "integer"
+                          },
+                          "pulseBpm": {
+                            "anyOf": [
+                              {
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "at",
+                          "systolicMmHg",
+                          "diastolicMmHg",
+                          "pulseBpm"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "at",
+                    "systolicMmHg",
+                    "diastolicMmHg",
+                    "pulseBpm",
+                    "source",
+                    "readings"
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "units": {
+            "description": "How to display quantities; the API always speaks SI.",
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ]
+          }
+        },
+        "required": [
+          "today",
+          "from",
+          "to",
+          "unknownTypes",
+          "restingHrBpm",
+          "hrvMs",
+          "sleepScore",
+          "sleepMinutes",
+          "energyScore",
+          "steps",
+          "weightKg",
+          "vo2maxMlKgMin",
+          "vo2maxCyclingMlKgMin",
+          "ftpW",
+          "lthrBpm",
+          "lthrCyclingBpm",
+          "thresholdSpeedMs",
+          "bloodPressure",
+          "units"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          },
+          "__schema1": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "value": {
+                "description": "The value Body Lab resolved for the day, in the unit the series' name carries.",
+                "type": "number"
+              },
+              "source": {
+                "anyOf": [
+                  {
+                    "description": "Where this value came from; null where Body Lab didn't record which, for older values. manual (typed in) is Body Lab's own; any other value is the service the athlete synced it from.",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "carriedForward": {
+                "description": "True for a test result or weigh-in dated before `from` and still the latest at `from`: the value in effect when the range begins, kept so a marker last measured before the range isn't read as missing. Only ever on the oldest entry of a marker series (weightKg, vo2max*, ftpW, lthr*, thresholdSpeedMs); never on a daily reading.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "date",
+              "value",
+              "source",
+              "carriedForward"
+            ]
+          },
+          "__schema2": {
+            "description": "An instant: ISO-8601 with offset, e.g. 2026-09-13T06:30:00Z.",
+            "type": "string",
+            "format": "date-time"
           }
         }
       }
@@ -10677,7 +11135,7 @@
     {
       "name": "get_profile",
       "title": "Athlete profile",
-      "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight, and the athlete's most recent blood pressure in millimetres of mercury; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time. Blood pressure is two numbers from one reading, systolic over diastolic. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't name a category or a threshold, and don't compare the athlete with anyone. Body Lab can't diagnose anything, a blood pressure never changes the training it prescribes, and questions about it go to a clinician.",
+      "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight, and the athlete's most recent blood pressure in millimetres of mercury; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time. Blood pressure is two numbers from one reading, systolic over diastolic. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't name a category or a threshold, and don't compare the athlete with anyone. Body Lab can't diagnose anything, a blood pressure never changes the training it prescribes, and questions about it go to a clinician. History: get_measurements.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
