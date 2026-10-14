@@ -14,7 +14,9 @@
     "labs:read": "See your lab results",
     "labs:write": "Add lab results you give it. It can't change or delete them",
     "body:read": "See your body composition scans",
-    "body:write": "Add body composition scans you give it. It can't change or delete them"
+    "body:write": "Add body composition scans you give it. It can't change or delete them",
+    "checkins:read": "See your daily updates: how you felt, what you noted about yesterday, including drinks and your cycle, and the patterns Body Lab found",
+    "checkins:write": "Record a daily update you give it. It can't change your training history"
   },
   "tools": [
     {
@@ -721,6 +723,23 @@
               ]
             }
           },
+          "dailyUpdate": {
+            "description": "Body Lab's daily check-in: how the athlete feels and what happened last night. Mention it only so the athlete knows it's there; don't ask its questions yourself unless they want to answer here (record_daily_update needs checkins:write). It never changes today's session.",
+            "type": "object",
+            "properties": {
+              "due": {
+                "description": "Whether today's daily update is waiting for the athlete in Body Lab.",
+                "type": "boolean"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "due",
+              "note"
+            ]
+          },
           "notes": {
             "description": "What Body Lab's timeline is calling out today — a pattern in sleep or recovery readings, a new best, a structural note about the plan, or missing data — exactly as the athlete sees it in the app, less any they've hidden. Empty most days. Never name a condition, diagnose, or add advice beyond the note.",
             "type": "array",
@@ -840,6 +859,7 @@
           "timezone",
           "readiness",
           "planned",
+          "dailyUpdate",
           "notes"
         ],
         "$defs": {
@@ -10066,7 +10086,7 @@
           "types": {
             "description": "The series to return. restingHrBpm, hrvMs (overnight RMSSD), sleepScore and energyScore (each device's own 0–100 scale), sleepMinutes: one value per morning. steps: one count per day. weightKg, vo2maxMlKgMin, vo2maxCyclingMlKgMin, ftpW, lthrBpm, lthrCyclingBpm, thresholdSpeedMs (m/s): dated values, measured when they were. bloodPressure: every reading, grouped into sittings.",
             "minItems": 1,
-            "maxItems": 14,
+            "maxItems": 15,
             "type": "array",
             "items": {
               "type": "string",
@@ -14307,6 +14327,492 @@
             ]
           }
         }
+      }
+    },
+    {
+      "name": "get_patterns",
+      "title": "Patterns from the daily updates",
+      "description": "What the athlete's daily updates add up to over the last 90 days: for each thing they can note about a night (drinks, late caffeine, a stressful day, a late dinner, a warm bath, a hot bedroom), how the next morning's one fixed reading compared with ordinary nights, with yesterday's training accounted for. Each card's `state` says whether it has enough nights (collecting), shows a difference (pattern), shows none (no_difference) or can't tell yet (unclear). Pass `text` and `cantTell` on together, as written: these compare one person's nights, so never say something caused a reading, and never turn a card into advice beyond it. Also the running or latest 14-night experiment and the ones on offer. None of it changes training.",
+      "scope": "checkins:read",
+      "readOnly": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "cards": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "exposure": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "outcome": {
+                  "description": "The one outcome fixed for this exposure in advance. Known values: hrv, restingHr, sleep. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "outcomeLabel": {
+                  "type": "string"
+                },
+                "grade": {
+                  "description": "How strong the published evidence is that this exposure moves this outcome: strong, moderate, weak.",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "collecting: not enough nights yet. pattern: every gate passed. no_difference: enough nights, and the difference is within ±0.5 SD. unclear: enough nights, neither. Known values: collecting, pattern, no_difference, unclear. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "exposureNights": {
+                  "type": "integer"
+                },
+                "comparisonNights": {
+                  "description": "Answered \"Nothing unusual\" nights in the last 90 days with a reading.",
+                  "type": "integer"
+                },
+                "neededExposureNights": {
+                  "type": "integer"
+                },
+                "neededComparisonNights": {
+                  "type": "integer"
+                },
+                "effect": {
+                  "description": "The difference with yesterday's training accounted for, in `unit` (HRV as a percentage). Null while collecting.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "low": {
+                  "description": "The 90% interval's lower end.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "high": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "cantTell": {
+                  "description": "What the comparison can't tell. Always shown with the card.",
+                  "type": "string"
+                },
+                "dose": {
+                  "description": "Drinks only: ordinary nights, 1, 2, and 3 or more, as description.",
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "nights": {
+                            "type": "integer"
+                          },
+                          "mean": {
+                            "description": "The group's mean, shown only with 3 nights or more; HRV as a geometric mean in ms.",
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "unit": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "nights",
+                          "mean",
+                          "unit"
+                        ]
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "exposure",
+                "label",
+                "outcome",
+                "outcomeLabel",
+                "grade",
+                "state",
+                "exposureNights",
+                "comparisonNights",
+                "neededExposureNights",
+                "neededComparisonNights",
+                "effect",
+                "low",
+                "high",
+                "unit",
+                "text",
+                "cantTell",
+                "dose"
+              ]
+            }
+          },
+          "experiment": {
+            "description": "The running experiment, or the latest one.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "description": "Opaque identifier.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "exposure": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "armRule": {
+                    "description": "remove or add. Known values: remove, add. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "status": {
+                    "description": "running, finished or stopped. A stopped one keeps its days and reports nothing. Known values: running, finished, stopped. Treat unknown values as \"other\".",
+                    "type": "string"
+                  },
+                  "startsOn": {
+                    "description": "The first arm's night.",
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "lastAnswerOn": {
+                    "description": "The morning of the last answer: starts_on + 14.",
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "schedule": {
+                    "description": "Fourteen nights, A (the arm) or B (as usual), starts_on first, fixed when it began.",
+                    "type": "string"
+                  },
+                  "tonight": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "keptNights": {
+                    "type": "integer"
+                  },
+                  "answeredNights": {
+                    "type": "integer"
+                  },
+                  "result": {
+                    "description": "Once finished; null while running or when stopped.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "keptPairs": {
+                            "type": "integer"
+                          },
+                          "enough": {
+                            "type": "boolean"
+                          },
+                          "effect": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "low": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "high": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "unit": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "keptPairs",
+                          "enough",
+                          "effect",
+                          "low",
+                          "high",
+                          "unit",
+                          "text"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "exposure",
+                  "label",
+                  "armRule",
+                  "status",
+                  "startsOn",
+                  "lastAnswerOn",
+                  "schedule",
+                  "tonight",
+                  "keptNights",
+                  "answeredNights",
+                  "result"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "offers": {
+            "description": "Experiments that can be started now; empty while one runs.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "exposure": {
+                  "type": "string"
+                },
+                "armRule": {
+                  "description": "remove or add. Known values: remove, add. Treat unknown values as \"other\".",
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "exposure",
+                "armRule",
+                "label",
+                "text"
+              ]
+            }
+          }
+        },
+        "required": [
+          "date",
+          "cards",
+          "experiment",
+          "offers"
+        ],
+        "$defs": {
+          "__schema0": {
+            "description": "A day on the athlete's own calendar: YYYY-MM-DD, no time zone.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    {
+      "name": "record_daily_update",
+      "title": "Record today's daily update",
+      "description": "Records what the athlete tells you about this morning and last night: how they feel (1–5), what happened (drinks with an amount, late caffeine, a stressful day, a late dinner, a warm bath, a hot bedroom, late screens, travel, being woken), or that it was an ordinary night. Ask; never infer an answer from readings. Today only. Anything the athlete already noted in Body Lab today is read first and kept, and an ordinary night is never recorded over something they noted. It can't record an illness, an injury or a period start and refuses to try; they do that in the app. It explains readings over time and never changes today's session. Check with the athlete before calling, then read `recorded` back.",
+      "scope": "checkins:write",
+      "readOnly": false,
+      "replaces": true,
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "feel": {
+            "description": "How the athlete says they feel this morning, in their words mapped to 1 Wrecked, 2 Flat, 3 OK, 4 Good, 5 Ready to go. Ask; never infer it from readings.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "exposures": {
+            "description": "What happened last night that the athlete mentions. Added to anything they already noted today; nothing they noted is removed.",
+            "maxItems": 9,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "description": "drinks (needs amount), caffeine_late (within 6 h of bed), stress (a stressful day), late_dinner (late or big), warm_bath (bath or shower before bed), hot_bedroom, screens_late, travel, woken (woken by someone).",
+                  "type": "string",
+                  "enum": [
+                    "drinks",
+                    "caffeine_late",
+                    "stress",
+                    "late_dinner",
+                    "warm_bath",
+                    "hot_bedroom",
+                    "screens_late",
+                    "travel",
+                    "woken"
+                  ]
+                },
+                "amount": {
+                  "description": "Drinks only: 1–3, or 4 for 4 or more.",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                }
+              },
+              "required": [
+                "key"
+              ]
+            }
+          },
+          "nothingUnusual": {
+            "description": "True when the athlete says last night was ordinary. Refused if they already noted something today.",
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "The day recorded for: today on the athlete's calendar.",
+            "type": "string",
+            "format": "date"
+          },
+          "recorded": {
+            "description": "Everything today's update now says, including what the athlete gave in the app and this call left alone. Read it back: it is what was recorded.",
+            "type": "object",
+            "properties": {
+              "status": {
+                "description": "answered once last night has an answer; draft before that.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "feel": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "nothingUnusual": {
+                "type": "boolean"
+              },
+              "exposures": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "label",
+                    "amount"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "status",
+              "feel",
+              "nothingUnusual",
+              "exposures"
+            ]
+          },
+          "note": {
+            "description": "Say this too: what recording it does and doesn't do.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "recorded",
+          "note"
+        ]
       }
     }
   ],

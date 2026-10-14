@@ -217,7 +217,7 @@ Scope: `training:read`. Read-only.
 
 | Argument | Type | |
 | --- | --- | --- |
-| `types` | array | The series to return. restingHrBpm, hrvMs (overnight RMSSD), sleepScore and energyScore (each device's own 0–100 scale), sleepMinutes: one value per morning. steps: one count per day. weightKg, vo2maxMlKgMin, vo2maxCyclingMlKgMin, ftpW, lthrBpm, lthrCyclingBpm, thresholdSpeedMs (m/s): dated values, measured when they were. bloodPressure: every reading, grouped into sittings. at least 1, at most 14 |
+| `types` | array | The series to return. restingHrBpm, hrvMs (overnight RMSSD), sleepScore and energyScore (each device's own 0–100 scale), sleepMinutes: one value per morning. steps: one count per day. weightKg, vo2maxMlKgMin, vo2maxCyclingMlKgMin, ftpW, lthrBpm, lthrCyclingBpm, thresholdSpeedMs (m/s): dated values, measured when they were. bloodPressure: every reading, grouped into sittings. at least 1, at most 15 |
 | `days` | integer (optional) | How many days back, ending at `to` (default today), counting both ends. Defaults to 90. Not with `from`. min 1, max 732 |
 | `from` |  (optional) | First day, inclusive, on the athlete's calendar (take today from get_today). Not with `days`. |
 | `to` |  (optional) | Last day, inclusive. Defaults to today; a later day is treated as today. |
@@ -353,6 +353,28 @@ Scope: `body:write`. Writes: adds data, and can't change or delete it. The same 
 | `regions[].bmdGCm2` | number (optional) | Bone mineral density, g/cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0.1, max 3 |
 | `regions[].bmcG` | number (optional) | Bone mineral content, grams. As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 10000 |
 | `regions[].boneAreaCm2` | number (optional) | Bone area, cm². As the report gives it, in the unit named here. Leave out rather than guess or convert from another quantity. min 0, max 5000 |
+
+## `get_patterns` — Patterns from the daily updates
+
+What the athlete's daily updates add up to over the last 90 days: for each thing they can note about a night (drinks, late caffeine, a stressful day, a late dinner, a warm bath, a hot bedroom), how the next morning's one fixed reading compared with ordinary nights, with yesterday's training accounted for. Each card's `state` says whether it has enough nights (collecting), shows a difference (pattern), shows none (no_difference) or can't tell yet (unclear). Pass `text` and `cantTell` on together, as written: these compare one person's nights, so never say something caused a reading, and never turn a card into advice beyond it. Also the running or latest 14-night experiment and the ones on offer. None of it changes training.
+
+Scope: `checkins:read`. Read-only.
+
+_No arguments._
+
+## `record_daily_update` — Record today's daily update
+
+Records what the athlete tells you about this morning and last night: how they feel (1–5), what happened (drinks with an amount, late caffeine, a stressful day, a late dinner, a warm bath, a hot bedroom, late screens, travel, being woken), or that it was an ordinary night. Ask; never infer an answer from readings. Today only. Anything the athlete already noted in Body Lab today is read first and kept, and an ordinary night is never recorded over something they noted. It can't record an illness, an injury or a period start and refuses to try; they do that in the app. It explains readings over time and never changes today's session. Check with the athlete before calling, then read `recorded` back.
+
+Scope: `checkins:write`. Writes: can change or take back something already there, and the same call again lands on the same state, so a retry is safe. It never deletes anything, and never touches your training history.
+
+| Argument | Type | |
+| --- | --- | --- |
+| `feel` | integer (optional) | How the athlete says they feel this morning, in their words mapped to 1 Wrecked, 2 Flat, 3 OK, 4 Good, 5 Ready to go. Ask; never infer it from readings. min 1, max 5 |
+| `exposures` | array (optional) | What happened last night that the athlete mentions. Added to anything they already noted today; nothing they noted is removed. at most 9 |
+| `exposures[].key` | string | drinks (needs amount), caffeine_late (within 6 h of bed), stress (a stressful day), late_dinner (late or big), warm_bath (bath or shower before bed), hot_bedroom, screens_late, travel, woken (woken by someone). |
+| `exposures[].amount` | integer (optional) | Drinks only: 1–3, or 4 for 4 or more. min 1, max 4 |
+| `nothingUnusual` | boolean (optional) | True when the athlete says last night was ordinary. Refused if they already noted something today. |
 
 # Prompts
 

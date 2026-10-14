@@ -79,8 +79,9 @@ An assistant can see your training. With your permission it can also tell
 Body Lab about today, put sessions you've arranged and strength routines
 you've chosen on your calendar and take them off again, add races and goals
 at priority B or C, see your lab results and add new ones, for example from a
-PDF or photo of a lab report, and do the same with body composition scans
-such as DEXA. It can't change your training history, delete anything, or make
+PDF or photo of a lab report, do the same with body composition scans
+such as DEXA, and read or record your daily updates: how you felt and what
+happened the night before, and the patterns Body Lab finds in them. It can't change your training history, delete anything, or make
 an event the A race your plan is built around — that's yours to do in Body
 Lab.
 
@@ -105,6 +106,8 @@ Lab.
 | `get_profile` | Heart-rate anchors, FTP, weight, most recent blood pressure, strength equipment, test results, power curve |
 | `find_exercises` | The strength exercise catalogue, searched by name or by the other names an exercise goes by ("RDL", "skull crusher"), by movement pattern or by muscle, with the equipment each one needs |
 | `suggest_routes` | Routes you've done before that fit today's session |
+| `get_patterns` | What your daily updates add up to: for each thing you can note about a night (drinks, late caffeine, a stressful day, a late dinner, a warm bath, a hot bedroom), how the next morning compared with ordinary nights, with the previous day's training accounted for, and whether there's enough to say yet. Also a running 14-night experiment and the ones on offer. Comparisons of your own nights, never a claim about cause. Needs `checkins:read` |
+| `record_daily_update` | Records what you tell the assistant about this morning and last night: how you feel, what happened, or that it was an ordinary night. Today only; keeps anything you already noted in the app, and can't record an illness, an injury or a period start. It never changes today's session. Needs `checkins:write` |
 | `get_lab_results` | Your blood test results: each marker over time against the lab's range and guideline limits, and whether a change is beyond normal variation. Needs `labs:read` |
 | `record_lab_results` | Adds a blood draw and its results as the report prints them, after the assistant checks the values with you. It can't edit or delete results. Needs `labs:write` |
 | `get_body_composition` | Your body composition scans: total and regional fat, lean and bone mass, body fat percent, visceral fat, and whole-body bone density, as your report gave them. Needs `body:read` |
@@ -118,9 +121,9 @@ with input and output schemas: [tools.json](tools.json).
 
 ## Your data and permissions
 
-Every connection can see your training (`training:read`). Lab results and
-body composition scans are separate from it and from each other, and each is
-off unless you turn it on when you approve an assistant:
+Every connection can see your training (`training:read`). Daily updates, lab
+results and body composition scans are separate from it and from each other,
+and each is off unless you turn it on when you approve an assistant:
 
 | Scope | Lets the assistant |
 | --- | --- |
@@ -128,6 +131,8 @@ off unless you turn it on when you approve an assistant:
 | `today:write` | Tell Body Lab about today: your time, equipment and sports you can't do. It can't change your training history |
 | `schedule:write` | Put sessions and strength routines on your calendar — a routine's exercises, sets, reps and weights included — and take them off again. It can't change your training history |
 | `events:write` | Add and remove races and goals you give it. It can't make one an A race — that rebuilds months of your plan, and you do that in Body Lab |
+| `checkins:read` | See your daily updates: how you felt, what you noted about yesterday, including drinks and your cycle, and the patterns Body Lab found |
+| `checkins:write` | Record a daily update you give it. It can't change your training history |
 | `labs:read` | See your lab results |
 | `labs:write` | Add lab results you give it. It can't change or delete them |
 | `body:read` | See your body composition scans |
@@ -182,8 +187,9 @@ The server follows the MCP authorization spec (2026-07-28):
 - **Clients:** public only (`token_endpoint_auth_method: none`). Refresh
   tokens rotate. Revoke at `/oauth/revoke`.
 - **Scopes:** `training:read` (every connection), plus the optional
-  `today:write`, `schedule:write`, `events:write`, `labs:read`, `labs:write`,
-  `body:read` and `body:write`. A 401 names all eight; the athlete chooses the
+  `today:write`, `schedule:write`, `events:write`, `checkins:read`,
+  `checkins:write`, `labs:read`, `labs:write`, `body:read` and `body:write`.
+  A 401 names all ten; the athlete chooses the
   optional ones on the consent page, and the token response's `scope` says
   what was granted. `tools/list` shows only the tools the grant covers. A
   `tools/call` for a tool it doesn't cover gets `403` with

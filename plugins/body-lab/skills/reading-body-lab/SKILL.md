@@ -22,6 +22,8 @@ lab results (`record_lab_results`); nothing can be changed or deleted.
 | How much have I moved outside training? Steps lately | `get_daily_steps` |
 | How has my weight / blood pressure / resting HR moved? One series against another, over a chosen range | `get_measurements` |
 | Anything I should know today? Is my sleep OK? | `get_today`'s `notes` |
+| Does drinking / late coffee / stress show in my readings? What have my daily updates found? | `get_patterns` (needs the athlete to have allowed daily updates) |
+| "I had three beers last night", "feeling wrecked today" | `record_daily_update`, after checking with the athlete what to record |
 | Lifting: what weights next, recent sessions, estimated maxes | `get_strength` |
 | Blood tests: how's my ferritin, what did my last panel show | `get_lab_results` (needs the athlete to have allowed lab results) |
 | Record this lab report | `record_lab_results`, after reading every value back to the athlete and getting their yes |
@@ -50,6 +52,19 @@ none.
 - Don't name a condition, diagnose, or advise beyond the note. When you
   discuss a sleep note, include its `detail`: that's where the one sentence
   about raising it with a doctor lives.
+
+## Daily updates and patterns
+
+`get_today`'s `dailyUpdate` only says whether today's check-in is waiting;
+the answers themselves need `checkins:read`.
+
+- A `get_patterns` card compares one person's nights. Pass on its `text` and
+  `cantTell` together, as written. Never say a habit caused a reading, and
+  don't stretch a card into advice it doesn't give.
+- `state` decides what can be said: `collecting` and `unclear` mean there is
+  nothing to conclude yet; `no_difference` is a real answer, not a failure.
+- Record only what the athlete says, after checking with them. Never infer
+  drinks, stress or anything else from their readings.
 
 ## Reading the numbers
 
