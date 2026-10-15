@@ -7505,6 +7505,14 @@
                 "description": "Strength workouts a device recorded that were never logged, which the floor can't count.",
                 "type": "integer"
               },
+              "liftsOnHardDays": {
+                "description": "Logged lifts on a day that also held an interval session (a long steady session doesn't count). Counted at every focus; the summary mentions it only for the two strength options, which keep lifts off interval days.",
+                "type": "integer"
+              },
+              "focus": {
+                "description": "The training focus the week was measured against, the profile's now. An unknown stored value is read as endurance. Known values: endurance, strength, strength_first. Treat unknown values as \"other\".",
+                "type": "string"
+              },
               "summary": {
                 "$ref": "#/$defs/__schema1"
               }
@@ -11155,7 +11163,7 @@
     {
       "name": "get_profile",
       "title": "Athlete profile",
-      "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance, or strength as much as endurance, which sets the strength floor at two or three sessions a week), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight, and the athlete's most recent blood pressure in millimetres of mercury; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time. Blood pressure is two numbers from one reading, systolic over diastolic. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't name a category or a threshold, and don't compare the athlete with anyone. Body Lab can't diagnose anything, a blood pressure never changes the training it prescribes, and questions about it go to a clinician. History: get_measurements.",
+      "description": "The athlete's profile: sports, strength equipment (which decides the exercises a strength session names), training focus (endurance first, strength and endurance equally, or strength first: strength floor, lift placement, endurance volume), whether the athlete has left jumps out of strength sessions, time zone, display units, heart-rate anchors (max, resting, threshold — each saying whether it was entered, estimated or observed), FTP, weight, and the athlete's most recent blood pressure in millimetres of mercury; dated test results (FTP, VO2max, threshold HR); and the power curve, recent and all-time. Blood pressure is two numbers from one reading, systolic over diastolic. Read them back as measurements and nothing else: don't call a value healthy, ideal, high or low, don't name a category or a threshold, and don't compare the athlete with anyone. Body Lab can't diagnose anything, a blood pressure never changes the training it prescribes, and questions about it go to a clinician. History: get_measurements.",
       "scope": "training:read",
       "readOnly": true,
       "inputSchema": {
@@ -11398,7 +11406,7 @@
                 "type": "string"
               },
               "trainingFocus": {
-                "description": "What the athlete wants training to build: endurance for their sports (the default), or strength as much as endurance. It sets how many strength sessions a week the athlete is held to: two, or three for strength. Known values: endurance, strength. Treat unknown values as \"other\".",
+                "description": "What the athlete wants training to build, one of three options that train differently. endurance (Endurance first, the default): two heavy strength sessions a week, fitted around the rest of the training. strength (Strength and endurance equally): three strength sessions a week, never straight after an interval session and often first in the day, with interval sessions unchanged. strength_first (Strength first): three longer strength sessions with more sets of the main lifts, usually first in the day, and endurance cut to a maintenance dose: shorter sessions at the same intensity and one interval session a week. A value a client doesn't recognise is read as endurance. Known values: endurance, strength, strength_first. Treat unknown values as \"other\".",
                 "type": "string"
               },
               "leaveOutJumps": {
