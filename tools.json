@@ -4244,6 +4244,17 @@
                       "type": "null"
                     }
                   ]
+                },
+                "estimatedLoad": {
+                  "description": "Estimated training load if the day goes as shown, on Body Lab's calibrated scale; null when there's none, including an event day, whose race the projection doesn't estimate.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -4261,7 +4272,8 @@
                 "phase",
                 "preparation",
                 "events",
-                "assumedHealth"
+                "assumedHealth",
+                "estimatedLoad"
               ]
             }
           },
@@ -4875,6 +4887,17 @@
                       "type": "null"
                     }
                   ]
+                },
+                "estimatedLoad": {
+                  "description": "Estimated training load if the day goes as shown, on Body Lab's calibrated scale; null when there's none, including an event day, whose race the projection doesn't estimate.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -4892,7 +4915,8 @@
                 "phase",
                 "preparation",
                 "events",
-                "assumedHealth"
+                "assumedHealth",
+                "estimatedLoad"
               ]
             }
           },
@@ -5276,6 +5300,17 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "estimatedLoad": {
+                    "description": "Estimated training load if the day goes as shown, on Body Lab's calibrated scale; null when there's none, including an event day, whose race the projection doesn't estimate.",
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -5293,7 +5328,8 @@
                   "phase",
                   "preparation",
                   "events",
-                  "assumedHealth"
+                  "assumedHealth",
+                  "estimatedLoad"
                 ]
               },
               {
@@ -6003,6 +6039,17 @@
                       "type": "null"
                     }
                   ]
+                },
+                "estimatedLoad": {
+                  "description": "Estimated training load if the day goes as shown, on Body Lab's calibrated scale; null when there's none, including an event day, whose race the projection doesn't estimate.",
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -6020,7 +6067,8 @@
                 "phase",
                 "preparation",
                 "events",
-                "assumedHealth"
+                "assumedHealth",
+                "estimatedLoad"
               ]
             }
           },
@@ -6945,6 +6993,17 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "estimatedLoad": {
+                    "description": "Estimated training load if the day goes as shown, on Body Lab's calibrated scale; null when there's none, including an event day, whose race the projection doesn't estimate.",
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -6962,7 +7021,8 @@
                   "phase",
                   "preparation",
                   "events",
-                  "assumedHealth"
+                  "assumedHealth",
+                  "estimatedLoad"
                 ]
               },
               {
